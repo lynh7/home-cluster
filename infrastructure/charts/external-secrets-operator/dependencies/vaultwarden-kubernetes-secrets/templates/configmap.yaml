@@ -5,6 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ include "vaultwarden-kubernetes-secrets.name" . }}
     app.kubernetes.io/part-of: {{ include "vaultwarden-kubernetes-secrets.name" . }}
+  namespace: {{ .Release.Namespace }}
 data:
 {{- range $key, $value := .Values.env.config }}
   {{ $key }}: {{ $value | quote }}
