@@ -6,6 +6,7 @@ metadata:
   labels:
     {{- include "vaultwarden-kubernetes-secrets.labels" . | nindent 4 }}
     app.kubernetes.io/component: dashboard
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.dashboard.replicaCount }}
   selector:
