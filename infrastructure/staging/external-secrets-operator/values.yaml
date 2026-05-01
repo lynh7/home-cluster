@@ -26,3 +26,7 @@ vaultwarden:
       LOGGING__LOGLEVEL__DEFAULT: "Information"
       LOGGING__LOGLEVEL__MICROSOFT: "Warning"
       LOGGING__LOGLEVEL__MICROSOFT__HOSTING__LIFETIME: "Information"
+  # Namespace management
+  namespace:
+    create: true
+    name: "vaultwarden"
