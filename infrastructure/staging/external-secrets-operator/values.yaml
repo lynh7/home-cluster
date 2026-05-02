@@ -5,9 +5,9 @@ vaultwarden:
   api:
     enabled: true     
   monitoring:
-  # Enable Prometheus ServiceMonitor (requires Prometheus Operator)
-  serviceMonitor:
-    enabled: true
+    # Enable Prometheus ServiceMonitor (requires Prometheus Operator)
+    serviceMonitor:
+      enabled: true
   env:
     config:
       # Force Node-based Bitwarden CLI to prefer IPv4 DNS results (avoids IPv6 egress timeouts in many clusters)
