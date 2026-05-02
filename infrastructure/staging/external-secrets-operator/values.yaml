@@ -1,6 +1,7 @@
 vaultwarden:
   dashboard:
     enabled: true
+    replicaCount: 1
   monitoring:
   # Enable Prometheus ServiceMonitor (requires Prometheus Operator)
   serviceMonitor:
