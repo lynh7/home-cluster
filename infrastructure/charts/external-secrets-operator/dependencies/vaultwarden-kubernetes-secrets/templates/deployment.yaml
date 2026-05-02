@@ -63,7 +63,7 @@ spec:
           {{- if .Values.debug }}
           command: ["tail", "-f", "/dev/null"]
           {{- else }}
-          command: ["sh", "-c", "sleep 1800 && dotnet VaultwardenK8sSync.dll sync"]
+          command: ["dotnet", "VaultwardenK8sSync.dll", "sync"]
           {{- end }}
           envFrom:
             - configMapRef:
