@@ -19,7 +19,7 @@ csi:
 
 persistence:
   # -- replica of PV -- as homelab, we can set it to 1
-    defaultClassReplicaCount: 1
+    defaultClassReplicaCount: 3
 
 defaultSettings:
   deletingConfirmationFlag: true
