@@ -57,6 +57,18 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     helm.sh/chart: cert-manager-v1.16.0
 ---
+# Source: cert-manager/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflare-api-token
+  namespace: cert-manager
+type: Opaque
+stringData:
+  apiToken: "$CF_DNS_API_TOKEN"   # set via --set or external secret
+  apiTokenSecretName: cloudflare-api-token
+  apiTokenKey: api-token
+---
 # Source: cert-manager/charts/cert-manager/templates/crds.yaml
 #
 # START crd
@@ -13334,6 +13346,45 @@ webhooks:
         name: cert-manager-webhook
         namespace: cert-manager
         path: /validate
+---
+# Source: cert-manager/templates/certificate.yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-cert
+  namespace: default
+  labels:
+    null
+spec:
+  secretName: wildcard-tls
+  issuerRef:
+    name: cloudflare-letsencrypt
+    kind: ClusterIssuer
+  dnsNames:
+    - "*.cluster.tlta.online"
+    - "cluster.tlta.online"
+---
+# Source: cert-manager/templates/clusterissuer.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: cloudflare-letsencrypt
+  labels:
+    null
+  annotations:
+    null
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: you@example.com
+    privateKeySecretRef:
+      name: acme-account-key
+    solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-api-token
+              key: api-token
 ---
 # Source: cert-manager/charts/cert-manager/templates/startupapicheck-serviceaccount.yaml
 apiVersion: v1
