@@ -9,3 +9,7 @@ dependencies:
     alias: vaultwarden-eso
     version: 1.2.0
     repository: "file://./dependencies/bitwarden-eso-provider"
+  - name: external-secrets
+    alias: external-secrets
+    version: 2.4.1
+    repository: "file://./dependencies/external-secrets"
