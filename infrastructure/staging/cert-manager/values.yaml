@@ -1,23 +1,25 @@
 cert-manager:
   crds:
     enabled: true
-  issuer:
-    name: cloudflare-letsencrypt
-    email: you@example.com
-    server: https://acme-v02.api.letsencrypt.org/directory
-    privateKeySecretName: acme-account-key
 
-  cloudflare:
-    enabled: true
-    # apiToken: ""
-    apiTokenSecretName: cloudflare-api-token
-    apiTokenKey: api-token
+### cert-manager configuration ###
+issuer:
+  name: cloudflare-letsencrypt
+  email: you@example.com
+  server: https://acme-v02.api.letsencrypt.org/directory
+  privateKeySecretName: acme-account-key
 
-  certificate:
-    enabled: true
-    name: wildcard-cert
-    namespace: default
-    secretName: wildcard-tls
-    dnsNames:
-      - "*.cluster.tlta.online"
-      - "cluster.tlta.online"
+cloudflare:
+  enabled: true
+  # apiToken: ""
+  apiTokenSecretName: cloudflare-api-token
+  apiTokenKey: api-token
+
+certificate:
+  enabled: true
+  name: wildcard-cert
+  namespace: default
+  secretName: wildcard-tls
+  dnsNames:
+    - "*.cluster.tlta.online"
+    - "cluster.tlta.online"
