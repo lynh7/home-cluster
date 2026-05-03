@@ -159,15 +159,14 @@ gatewayAPI:
     - name: https
       protocol: HTTPS
       port: 443
-      hostname: "*.tlta.onine"
       allowedRoutes:
         namespaces:
           from: Same
+      hostname: "*.cluster.tlta.online"
       tls:
         mode: Terminate
         certificateRefs:
-          - name: my-tls-secret
-            namespace: kube-system
+          - name: wildcard-tls
 
 ##################################################
 #### IPAM LoadBalancer IP Pool configuration #####
