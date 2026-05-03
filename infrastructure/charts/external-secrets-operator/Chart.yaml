@@ -9,3 +9,7 @@ dependencies:
     alias: vaultwarden
     version: 1.0.3
     repository: "file://./dependencies/vaultwarden-kubernetes-secrets"
+  - name: bitwarden-eso-provider
+    alias: vaultwarden-eso
+    version: 1.2.0
+    repository: "file://./dependencies/bitwarden-eso-provider"

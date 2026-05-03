@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "bitwarden-eso-provider.fullname" . }}-test-connection"
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "bitwarden-eso-provider.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: curl
+      image: curlimages/curl
+      command: ['/bin/sh']
+      args:
+        - "-c"
+        - "/testing/curl_script.sh"
+      volumeMounts:
+        - name: curl-script
+          mountPath: "/testing"
+          readOnly: false
+  volumes:
+    - name: curl-script
+      configMap:
+        name: test-connection
+        defaultMode: 0777
+  restartPolicy: OnFailure
