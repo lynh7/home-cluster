@@ -1,17 +1,17 @@
-{{- if .Values.gateway.enabled }}
+{{- if .Values.gatewayAPI.enabled }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: {{ .Values.gateway.name | quote }}
+  name: {{ .Values.gatewayAPI.name | quote }}
   namespace: {{ .Release.Namespace }}
-  {{- if .Values.gateway.annotations }}
+  {{- if .Values.gatewayAPI.annotations }}
   annotations:
-    {{- toYaml .Values.gateway.annotations | nindent 4 }}
+    {{- toYaml .Values.gatewayAPI.annotations | nindent 4 }}
   {{- end }}
 spec:
   gatewayClassName: cilium
   listeners:
-  {{- range .Values.gateway.listeners }}
+  {{- range .Values.gatewayAPI.listeners }}
   - name: {{ .name | quote }}
     protocol: {{ .protocol }}
     port: {{ .port }}
