@@ -57,18 +57,6 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     helm.sh/chart: cert-manager-v1.16.0
 ---
-# Source: cert-manager/templates/secret.yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: cloudflare-api-token
-  namespace: cert-manager
-type: Opaque
-stringData:
-  apiToken: "$CF_DNS_API_TOKEN"   # set via --set or external secret
-  apiTokenSecretName: cloudflare-api-token
-  apiTokenKey: api-token
----
 # Source: cert-manager/charts/cert-manager/templates/crds.yaml
 #
 # START crd
