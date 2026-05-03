@@ -35,31 +35,44 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+            {{- if .Values.bitwarden_eso_provider.auth.existingSecret }}
             - name: BW_HOST
               valueFrom:
                 secretKeyRef:
-                  name: "{{ .Values.bitwarden_eso_provider.auth.existingSecret | default .Release.Name }}"
+                  name: {{ .Values.bitwarden_eso_provider.auth.existingSecret }}
                   key: {{ .Values.bitwarden_eso_provider.auth.secretKeys.host }}
             - name: BW_CLIENTID
               valueFrom:
                 secretKeyRef:
-                  name: "{{ .Values.bitwarden_eso_provider.auth.existingSecret | default .Release.Name }}"
-                  key: {{ .Values.bitwarden_eso_provider.auth.secretKeys.clientID }}
+                  name: {{ .Values.bitwarden_eso-provider.auth.existingSecret | default .Release.Name }}
+                  key: {{ .Values.bitwarden_eso-provider.auth.secretKeys.clientID }}
             - name: BW_CLIENTSECRET
               valueFrom:
                 secretKeyRef:
-                  name: "{{ .Values.bitwarden_eso_provider.auth.existingSecret | default .Release.Name }}"
-                  key: {{ .Values.bitwarden_eso_provider.auth.secretKeys.clientSecret }}
+                  name: {{ .Values.bitwarden_eso-provider.auth.existingSecret | default .Release.Name }}
+                  key: {{ .Values.bitwarden_eso-provider.auth.secretKeys.clientSecret }}
             - name: BW_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: "{{ .Values.bitwarden_eso_provider.auth.existingSecret | default .Release.Name }}"
-                  key: {{ .Values.bitwarden_eso_provider.auth.secretKeys.password }}
+                  name: {{ .Values.bitwarden_eso-provider.auth.existingSecret | default .Release.Name }}
+                  key: {{ .Values.bitwarden_eso-provider.auth.secretKeys.password }}
             - name: BW_APPID
               valueFrom:
                 secretKeyRef:
-                  name: "{{ .Values.bitwarden_eso_provider.auth.existingSecret | default .Release.Name }}"
-                  key: {{ .Values.bitwarden_eso_provider.auth.secretKeys.appID }}
+                  name: {{ .Values.bitwarden_eso-provider.auth.existingSecret | default .Release.Name }}
+                  key: {{ .Values.bitwarden_eso-provider.auth.secretKeys.appID }}
+            {{- else }}
+            - name: BW_HOST
+              value: {{ .Values.bitwarden_eso-provider.auth.host | quote }}
+            - name: BW_CLIENTID
+              value: {{ .Values.bitwarden_eso-provider.auth.clientID | quote }}
+            - name: BW_CLIENTSECRET
+              value: {{ .Values.bitwarden_eso-provider.auth.clientSecret | quote }}
+            - name: BW_PASSWORD
+              value: {{ .Values.bitwarden_eso-provider.auth.password | quote }}
+            - name: BW_APPID
+              value: {{ .Values.bitwarden_eso-provider.auth.appID | quote }}
+            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
