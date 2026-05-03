@@ -1,0 +1,20 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ .Values.issuer.name }}
+  labels:
+    {{- toYaml .Values.labels | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.annotations | nindent 4 }}
+spec:
+  acme:
+    server: {{ .Values.issuer.server }}
+    email: {{ .Values.issuer.email }}
+    privateKeySecretRef:
+      name: {{ .Values.issuer.privateKeySecretName }}
+    solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: {{ .Values.cloudflare.apiTokenSecretName }}
+              key: {{ .Values.cloudflare.apiTokenKey }}
