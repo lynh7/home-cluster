@@ -13364,7 +13364,7 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: you@example.com
+    email: hoang.tlta17@gmail.com
     privateKeySecretRef:
       name: acme-account-key
     solvers:
