@@ -5,7 +5,7 @@ cert-manager:
 ### cert-manager configuration ###
 issuer:
   name: cloudflare-letsencrypt
-  email: you@example.com
+  email: hoang.tlta17@gmail.com
   server: https://acme-v02.api.letsencrypt.org/directory
   privateKeySecretName: acme-account-key
 
