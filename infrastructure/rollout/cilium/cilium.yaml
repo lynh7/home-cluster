@@ -2092,7 +2092,7 @@ kind: CiliumLoadBalancerIPPool
 metadata:
   name: "default-pool"
 spec:
-  allowFirstLastIPs: "No"
+  allowFirstLastIPs: No
   blocks:
   -
     cidr: "192.168.100.0/26"
@@ -2118,6 +2118,15 @@ spec:
       certificateRefs:
       - name: "wildcard-tls"
         namespace:
+---
+# Source: cilium/templates/cilium-gateway-api-class.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: cilium
+spec:
+  controllerName: io.cilium/gateway-controller
+  description: The default Cilium GatewayClass
 ---
 # Source: cilium/templates/cilium-agent/servicemonitor.yaml
 apiVersion: monitoring.coreos.com/v1
