@@ -138,6 +138,8 @@ envoyConfig:
   enabled: true
 gatewayAPI:
   enabled: true
+  gatewayClass:
+    create: true
   name: default-gateway
   namespace: monitoring
   annotations: {}

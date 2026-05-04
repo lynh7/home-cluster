@@ -2092,7 +2092,7 @@ kind: CiliumLoadBalancerIPPool
 metadata:
   name: "default-pool"
 spec:
-  allowFirstLastIPs: No
+  allowFirstLastIPs: "No"
   blocks:
   -
     cidr: "192.168.100.0/26"
