@@ -2102,7 +2102,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: "default-gateway"
-  namespace: kube-system
+  namespace: "monitoring"
 spec:
   gatewayClassName: cilium
   listeners:
