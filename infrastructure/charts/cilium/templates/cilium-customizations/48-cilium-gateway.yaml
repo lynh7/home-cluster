@@ -3,7 +3,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: {{ .Values.gatewayAPI.name | quote }}
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.gatewayAPI.namespace | quote }}
   {{- if .Values.gatewayAPI.annotations }}
   annotations:
     {{- toYaml .Values.gatewayAPI.annotations | nindent 4 }}
