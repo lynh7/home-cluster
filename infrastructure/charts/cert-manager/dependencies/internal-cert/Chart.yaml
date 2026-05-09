@@ -1,0 +1,4 @@
+apiVersion: v2
+name: internal-ca
+description: Bootstraps an internal CA and a ClusterIssuer for internal TLS
+version: 0.1.0

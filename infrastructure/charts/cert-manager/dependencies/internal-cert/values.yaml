@@ -1,0 +1,23 @@
+# Root CA configuration
+rootCA:
+  # Namespace where the root CA secret will be stored
+  namespace: cert-manager
+  # Name of the self-signed ClusterIssuer (bootstrap)
+  selfSignedIssuerName: selfsigned-internal
+  # Common Name for the root certificate
+  commonName: "Internal Root CA"
+  # Name of the Secret that will hold the root CA key and cert
+  secretName: internal-root-ca-secret
+  # Certificate resource name
+  certName: internal-root-ca
+  # Key algorithm and size
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  # Certificate duration (90 days)
+  duration: 2160h
+  renewBefore: 360h
+
+# The CA issuer that will sign workload certificates
+caIssuer:
+  name: internal-ca-issuer
