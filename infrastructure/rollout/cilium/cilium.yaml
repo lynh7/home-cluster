@@ -1978,7 +1978,7 @@ spec:
       restartPolicy: Always
       priorityClassName: 
       serviceAccountName: "hubble-relay"
-      automountServiceAccountToken: false
+      automountServiceAccountToken: false`
       terminationGracePeriodSeconds: 1
       affinity:
         podAffinity:
@@ -2092,7 +2092,7 @@ kind: CiliumLoadBalancerIPPool
 metadata:
   name: "default-pool"
 spec:
-  allowFirstLastIPs: No
+  allowFirstLastIPs: "No"
   blocks:
   -
     cidr: "192.168.100.0/26"
