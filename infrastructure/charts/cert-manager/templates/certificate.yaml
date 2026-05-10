@@ -11,8 +11,15 @@ spec:
   issuerRef:
     name: {{ .Values.issuer.name }}
     kind: ClusterIssuer
+  commonName: {{ required "A valid certificate.commonName is required!" .Values.certificate.commonName }}
   dnsNames:
     {{- range .Values.certificate.dnsNames }}
     - {{ . | quote }}
     {{- end }}
+  {{- with .Values.certificate.duration }}
+  duration: {{ . }}
+  {{- end }}
+  {{- with .Values.certificate.renewBefore }}
+  renewBefore: {{ . }}
+  {{- end }}
 {{- end }}

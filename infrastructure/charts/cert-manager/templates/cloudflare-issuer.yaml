@@ -1,3 +1,4 @@
+{{- if .Values.issuer.enabled }}
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
@@ -18,3 +19,9 @@ spec:
             apiTokenSecretRef:
               name: {{ .Values.cloudflare.apiTokenSecretName }}
               key: {{ .Values.cloudflare.apiTokenKey }}
+        {{- with .Values.issuer.cloudflare.dnsZones }}
+        selector:
+          dnsZones:
+            {{- toYaml . | nindent 12 }}
+        {{- end }}
+{{- end }}
