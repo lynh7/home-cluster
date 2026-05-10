@@ -13352,28 +13352,6 @@ spec:
     - "*.cluster.tlta.online"
     - "cluster.tlta.online"
 ---
-# Source: cert-manager/templates/clusterissuer.yaml
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: cloudflare-letsencrypt
-  labels:
-    null
-  annotations:
-    null
-spec:
-  acme:
-    server: https://acme-v02.api.letsencrypt.org/directory
-    email: hoang.tlta17@gmail.com
-    privateKeySecretRef:
-      name: acme-account-key
-    solvers:
-      - dns01:
-          cloudflare:
-            apiTokenSecretRef:
-              name: cloudflare-api-token
-              key: api-token
----
 # Source: cert-manager/charts/cert-manager/templates/startupapicheck-serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
