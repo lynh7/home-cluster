@@ -160,8 +160,8 @@ gateways:
         tls:
           mode: Terminate
           certificateRefs:
-            - name: default-internal-tls
-              namespace: cert-manager
+            - name: monitoring-internal-tls
+              namespace: monitoring
 
   # Example: second gateway for internal traffic
   # - name: internal-gateway
