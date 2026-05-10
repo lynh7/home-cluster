@@ -13335,6 +13335,47 @@ webhooks:
         namespace: cert-manager
         path: /validate
 ---
+# Source: cert-manager/charts/internal-ca/templates/certificate.yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "default-internal-tls"
+  namespace: "cert-manager"
+spec:
+  secretName: "default-internal-tls"
+  duration: 2160h
+  renewBefore: 360h
+  privateKey:
+    rotationPolicy: Always
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: "internal-ca-issuer"
+    kind: "ClusterIssuer"
+    group: "cert-manager.io"
+  commonName: "default.internal.lan"
+  dnsNames:
+    - "tlta.online"
+    - ".cluster.home.tlta.online"
+---
+# Source: cert-manager/charts/internal-ca/templates/internal-ca.yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "internal-root-ca"
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: "Internal Root CA"
+  secretName: "internal-root-ca-secret"
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: "selfsigned-internal-ca"
+    kind: ClusterIssuer
+    group: cert-manager.io
+---
 # Source: cert-manager/templates/certificate.yaml
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -13351,6 +13392,24 @@ spec:
   dnsNames:
     - "*.cluster.tlta.online"
     - "cluster.tlta.online"
+---
+# Source: cert-manager/charts/internal-ca/templates/internal-ca.yaml
+# templates/internal-ca.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: "selfsigned-internal-ca"
+spec:
+  selfSigned: {}
+---
+# Source: cert-manager/charts/internal-ca/templates/internal-ca.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: "internal-ca-issuer"
+spec:
+  ca:
+    secretName: "internal-root-ca-secret"
 ---
 # Source: cert-manager/charts/cert-manager/templates/startupapicheck-serviceaccount.yaml
 apiVersion: v1
