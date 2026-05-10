@@ -2092,7 +2092,7 @@ kind: CiliumLoadBalancerIPPool
 metadata:
   name: "default-pool"
 spec:
-  allowFirstLastIPs: "No"
+  allowFirstLastIPs: No
   blocks:
   -
     cidr: "192.168.100.0/26"
@@ -2112,12 +2112,15 @@ spec:
     hostname: "*.cluster.home.tlta.online"
     allowedRoutes:
       namespaces:
-        from: Same
+        from: Selector
+        selector:
+          matchLabels:
+            gateway-access: "true"
     tls:
       mode: Terminate
       certificateRefs:
       - name: "monitoring-internal-tls"
-        namespace: "monitoring"
+        namespace: "cert-manager"
 ---
 # Source: cilium/templates/cilium-gateway-api-class.yaml
 apiVersion: gateway.networking.k8s.io/v1
@@ -2150,6 +2153,90 @@ spec:
     - name: "grafana-stack"
       port: 80
       namespace: "monitoring"
+---
+# Source: cilium/templates/cilium-customizations/51-cilium-http-route.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: "grafana-alloy-route"
+  namespace: "monitoring"
+spec:
+  parentRefs:
+  - name: "internal-monitoring-gateway"
+    kind: Gateway
+    namespace: "monitoring"
+  hostnames:
+  - "grafana-alloy.cluster.home.tlta.online"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: "/"
+    backendRefs:
+    - name: "grafana-stack-grafana-alloy"
+      port: 12345
+      namespace: "monitoring"
+---
+# Source: cilium/templates/cilium-customizations/51-cilium-http-route.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: "victoria-logs-route"
+  namespace: "monitoring"
+spec:
+  parentRefs:
+  - name: "internal-monitoring-gateway"
+    kind: Gateway
+    namespace: "monitoring"
+  hostnames:
+  - "victoria-logs.cluster.home.tlta.online"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: "/"
+    backendRefs:
+    - name: "victoria-logs-single-server"
+      port: 9428
+      namespace: "monitoring"
+---
+# Source: cilium/templates/cilium-customizations/51-cilium-http-route.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: "victoria-metrics-route"
+  namespace: "monitoring"
+spec:
+  parentRefs:
+  - name: "internal-monitoring-gateway"
+    kind: Gateway
+    namespace: "monitoring"
+  hostnames:
+  - "victoria-metrics.cluster.home.tlta.online"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: "/"
+    backendRefs:
+    - name: "victoria-metrics-single-server"
+      port: 8428
+      namespace: "monitoring"
+---
+# Source: cilium/templates/cilium-customizations/52-cilium-reference-grant-template.yaml
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: "allow-gateway-cert-cert-manager"
+  namespace: "cert-manager"
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    namespace: "monitoring"
+  to:
+  - group: ""
+    kind: Secret
 ---
 # Source: cilium/templates/cilium-agent/servicemonitor.yaml
 apiVersion: monitoring.coreos.com/v1
