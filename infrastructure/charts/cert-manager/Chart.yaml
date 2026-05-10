@@ -12,6 +12,9 @@ dependencies:
   - name: cert-manager
     version: 1.16.0
     repository: "file://./dependencies/cert-manager"
+  - name: internal-ca
+    version: 0.1.0
+    repository: "file://./dependencies/internal-ca"
 
 name: cert-manager
 version: 1.0.0

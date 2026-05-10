@@ -1,0 +1,34 @@
+{{- if .Values.certificate.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.certificate.name | quote }}
+  namespace: {{ .Values.certificate.namespace | default .Release.Namespace | quote }}
+spec:
+  secretName: {{ .Values.certificate.secretName | quote }}
+  {{- if .Values.certificate.duration }}
+  duration: {{ .Values.certificate.duration }}
+  {{- end }}
+  {{- if .Values.certificate.renewBefore }}
+  renewBefore: {{ .Values.certificate.renewBefore }}
+  {{- end }}
+  privateKey:
+    rotationPolicy: {{ .Values.certificate.privateKey.rotationPolicy | default "Always" }}
+    algorithm: {{ .Values.certificate.privateKey.algorithm | default "ECDSA" }}
+    size: {{ .Values.certificate.privateKey.size | default 256 }}
+  issuerRef:
+    name: {{ .Values.certificate.issuerRef.name | quote }}
+    kind: {{ .Values.certificate.issuerRef.kind | default "ClusterIssuer" | quote }}
+    {{- if .Values.certificate.issuerRef.group }}
+    group: {{ .Values.certificate.issuerRef.group | quote }}
+    {{- end }}
+  {{- if .Values.certificate.commonName }}
+  commonName: {{ .Values.certificate.commonName | quote }}
+  {{- end }}
+  {{- if .Values.certificate.dnsNames }}
+  dnsNames:
+    {{- range .Values.certificate.dnsNames }}
+    - {{ . | quote }}
+    {{- end }}
+  {{- end }}
+{{- end }}

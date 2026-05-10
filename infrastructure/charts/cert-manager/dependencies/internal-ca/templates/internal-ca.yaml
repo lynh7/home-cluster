@@ -1,0 +1,32 @@
+# templates/internal-ca.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ .Values.internalCA.name | quote }}
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.internalCA.rootCertName | quote }}
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: {{ .Values.internalCA.commonName | quote }}
+  secretName: {{ .Values.internalCA.rootSecretName | quote }}
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: {{ .Values.internalCA.name | quote }}
+    kind: ClusterIssuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ .Values.internalCA.issuerName | quote }}
+spec:
+  ca:
+    secretName: {{ .Values.internalCA.rootSecretName | quote }}
