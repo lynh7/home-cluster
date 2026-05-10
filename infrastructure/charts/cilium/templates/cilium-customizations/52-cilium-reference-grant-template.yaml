@@ -1,0 +1,72 @@
+{{/*
+  Auto ReferenceGrant: Gateway → Secret (cross-namespace cert access)
+  Groups all gateways that reference the same cert namespace into one grant.
+*/}}
+{{- $certGrants := dict }}
+{{- range .Values.gateways }}
+  {{- $gwName := .name }}
+  {{- $gwNamespace := .namespace }}
+  {{- range .listeners }}
+    {{- if .tls }}
+      {{- range .tls.certificateRefs }}
+        {{- if and .namespace (ne .namespace $gwNamespace) }}
+          {{- $key := .namespace }}
+          {{- $existing := get $certGrants $key | default list }}
+          {{- $entry := dict "name" $gwName "namespace" $gwNamespace }}
+          {{- $_ := set $certGrants $key (append $existing $entry) }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- range $secretNamespace, $gateways := $certGrants }}
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: {{ printf "allow-gateway-cert-%s" $secretNamespace | quote }}
+  namespace: {{ $secretNamespace | quote }}
+spec:
+  from:
+  {{- range $gateways }}
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    namespace: {{ .namespace | quote }}
+  {{- end }}
+  to:
+  - group: ""
+    kind: Secret
+{{- end }}
+
+{{/*
+  Auto ReferenceGrant: HTTPRoute → Service (cross-namespace service access)
+  Groups all routes that reference services in a different namespace than their gateway.
+*/}}
+{{- $routeGrants := dict }}
+{{- range .Values.httpRoutes }}
+  {{- if ne .namespace .gatewayNamespace }}
+    {{- $key := printf "%s--%s" .namespace .gatewayNamespace }}
+    {{- $existing := get $routeGrants $key | default dict }}
+    {{- $serviceNs := .namespace }}
+    {{- $gatewayNs := .gatewayNamespace }}
+    {{- $_ := set $routeGrants $key (dict "serviceNamespace" $serviceNs "gatewayNamespace" $gatewayNs) }}
+  {{- end }}
+{{- end }}
+
+{{- range $key, $grant := $routeGrants }}
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: {{ printf "allow-route-%s" $grant.serviceNamespace | quote }}
+  namespace: {{ $grant.serviceNamespace | quote }}
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    namespace: {{ $grant.gatewayNamespace | quote }}
+  to:
+  - group: ""
+    kind: Service
+{{- end }}
