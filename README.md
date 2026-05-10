@@ -7,3 +7,5 @@
 
 
 
+### High-level routing
+<img width="1985" height="633" alt="image" src="https://github.com/user-attachments/assets/76eb324d-3293-4a0a-9458-a36e2bcb54e1" />
