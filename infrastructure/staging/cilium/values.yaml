@@ -146,29 +146,30 @@ gatewayAPI:
 
   listeners:
     # Plain HTTP
-    - name: http
-      protocol: HTTP
-      port: 80
-      hostname: "*.tlta.online"
-      allowedRoutes:
-        namespaces:
-          from: Same
+    # - name: http
+    #   protocol: HTTP
+    #   port: 80
+    #   hostname: "*.tlta.online"
+    #   allowedRoutes:
+    #     namespaces:
+    #       from: Same
           # from: Selector
           # matchLabels:
           #   gateway-access: "true"
 
-    # HTTPS with TLS termination
-    # - name: https
-    #   protocol: HTTPS
-    #   port: 443
-    #   allowedRoutes:
-    #     namespaces:
-    #       from: Same
-    #   hostname: "*.tlta.online"
-    #   tls:
-    #     mode: Terminate
-    #     certificateRefs:
-    #       - name: wildcard-tls
+    #HTTPS with TLS termination
+    - name: https
+      protocol: HTTPS
+      port: 443
+      allowedRoutes:
+        namespaces:
+          from: Same
+      hostname: "*.tlta.online"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: default-internal-tls
+            namespace: cert-manager
 
   httpRoute:
     enabled: true
@@ -179,7 +180,7 @@ gatewayAPI:
     - name: default-gateway
       kind: Gateway
     hostnames:
-    - "*.tlta.online"
+    - "default.home.tlta.online"
     rules:
     - matches:
       - path:
