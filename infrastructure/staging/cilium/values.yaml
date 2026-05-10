@@ -161,7 +161,7 @@ gateways:
           namespaces:
             from: Selector
             matchLabels:
-              gateway-access: "true"
+              shared-gateway-access: "true"
         tls:
           mode: Terminate
           certificateRefs:
