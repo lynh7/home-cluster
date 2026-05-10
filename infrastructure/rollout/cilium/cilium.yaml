@@ -2092,7 +2092,7 @@ kind: CiliumLoadBalancerIPPool
 metadata:
   name: "default-pool"
 spec:
-  allowFirstLastIPs: "No"
+  allowFirstLastIPs: No
   blocks:
   -
     cidr: "192.168.100.0/26"
@@ -2106,13 +2106,18 @@ metadata:
 spec:
   gatewayClassName: cilium
   listeners:
-  - name: "http"
-    protocol: HTTP
-    port: 80
+  - name: "https"
+    protocol: HTTPS
+    port: 443
     hostname: "*.tlta.online"
     allowedRoutes:
       namespaces:
         from: Same
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: "default-internal-tls"
+        namespace: "cert-manager"
 ---
 # Source: cilium/templates/cilium-gateway-api-class.yaml
 apiVersion: gateway.networking.k8s.io/v1
@@ -2135,7 +2140,7 @@ spec:
     kind: Gateway
     namespace: "default"
   hostnames:
-  - "*.tlta.online"
+  - "default.home.tlta.online"
   rules:
   - matches:
     - path:
