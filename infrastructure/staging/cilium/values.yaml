@@ -188,6 +188,27 @@ httpRoutes:
     hostname: "grafana.cluster.home.tlta.online"
     service: grafana-stack
     port: 80
+  - name: grafana-alloy-route
+    gateway: internal-monitoring-gateway
+    gatewayNamespace: monitoring
+    namespace: monitoring
+    hostname: "grafana-alloy.cluster.home.tlta.online"
+    service: grafana-stack-grafana-alloy
+    port: 12345
+  - name: victoria-logs-route
+    gateway: internal-monitoring-gateway
+    gatewayNamespace: monitoring
+    namespace: monitoring
+    hostname: "victoria-logs.cluster.home.tlta.online"
+    service: victoria-logs-single-server
+    port: 9428
+  - name: victoria-metrics-route
+    gateway: internal-monitoring-gateway
+    gatewayNamespace: monitoring
+    namespace: monitoring
+    hostname: "victoria-metrics.cluster.home.tlta.online"
+    service: victoria-metrics-single-server
+    port: 8428
 
 ##################################################
 #### IPAM LoadBalancer IP Pool configuration #####
