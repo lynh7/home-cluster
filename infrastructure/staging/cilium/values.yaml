@@ -149,6 +149,10 @@ gateways:
   - name: internal-monitoring-gateway
     namespace: monitoring
     annotations: {}
+    allowedNamespaces:
+      - monitoring
+      - longhorn-system
+      - kube-system
     listeners:
       - name: https
         protocol: HTTPS
