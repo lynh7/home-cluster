@@ -2,8 +2,6 @@
 ####### Grafana Stack Config #########
 ######################################
 grafana:
-  service:
-    type: LoadBalancer
   serviceMonitor:
     enabled: true
     #-- Allowing schedule Grafana to run on master node  
