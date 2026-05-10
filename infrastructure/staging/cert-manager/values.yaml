@@ -3,6 +3,7 @@ cert-manager:
     enabled: true
 
 ### cert-manager configuration ###
+### WAN configuration ###
 issuer:
   name: cloudflare-letsencrypt
   email: hoang.tlta17@gmail.com
@@ -15,6 +16,7 @@ cloudflare:
   apiTokenSecretName: cloudflare-api-token
   apiTokenKey: api-token
 
+### LAN configuration ###
 certificate:
   enabled: true
   name: wildcard-cert
