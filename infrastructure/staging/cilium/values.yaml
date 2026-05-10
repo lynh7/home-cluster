@@ -145,7 +145,7 @@ gatewayAPI:
   annotations: {}
 
   listeners:
-    Plain HTTP
+    # Plain HTTP
     - name: http
       protocol: HTTP
       port: 80
