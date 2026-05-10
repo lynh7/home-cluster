@@ -186,6 +186,7 @@ gateways:
   #             namespace: cert-manager
 
 httpRoutes:
+  ### Monitoring tools ###
   - name: grafana-route
     gateway: internal-monitoring-gateway
     gatewayNamespace: monitoring
@@ -214,6 +215,21 @@ httpRoutes:
     hostname: "victoria-metrics.cluster.home.tlta.online"
     service: victoria-metrics-single-server
     port: 8428
+  ### Governance tools ###
+  - name: hubble-route
+    gateway: internal-monitoring-gateway
+    gatewayNamespace: monitoring
+    namespace: kube-system
+    hostname: "hubble.cluster.home.tlta.online"
+    service: hubble-ui
+    port: 80
+  - name: longhorn-frontend-route
+    gateway: internal-monitoring-gateway
+    gatewayNamespace: monitoring
+    namespace: longhorn-system
+    hostname: "longhorn.cluster.home.tlta.online"
+    service: longhorn-frontend
+    port: 80
 
 ##################################################
 #### IPAM LoadBalancer IP Pool configuration #####
