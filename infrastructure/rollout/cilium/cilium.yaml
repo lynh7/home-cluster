@@ -2092,7 +2092,7 @@ kind: CiliumLoadBalancerIPPool
 metadata:
   name: "default-pool"
 spec:
-  allowFirstLastIPs: "No"
+  allowFirstLastIPs: No
   blocks:
   -
     cidr: "192.168.100.0/26"
@@ -2149,6 +2149,75 @@ spec:
     backendRefs:
     - name: "grafana-stack"
       port: 80
+      namespace: "monitoring"
+---
+# Source: cilium/templates/cilium-customizations/51-cilium-http-route.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: "grafana-alloy-route"
+  namespace: "monitoring"
+spec:
+  parentRefs:
+  - name: "internal-monitoring-gateway"
+    kind: Gateway
+    namespace: "monitoring"
+  hostnames:
+  - "grafana-alloy.cluster.home.tlta.online"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: "/"
+    backendRefs:
+    - name: "grafana-stack-grafana-alloy"
+      port: 12345
+      namespace: "monitoring"
+---
+# Source: cilium/templates/cilium-customizations/51-cilium-http-route.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: "victoria-logs-route"
+  namespace: "monitoring"
+spec:
+  parentRefs:
+  - name: "internal-monitoring-gateway"
+    kind: Gateway
+    namespace: "monitoring"
+  hostnames:
+  - "victoria-logs.cluster.home.tlta.online"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: "/"
+    backendRefs:
+    - name: "victoria-logs-single-server"
+      port: 9428
+      namespace: "monitoring"
+---
+# Source: cilium/templates/cilium-customizations/51-cilium-http-route.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: "victoria-metrics-route"
+  namespace: "monitoring"
+spec:
+  parentRefs:
+  - name: "internal-monitoring-gateway"
+    kind: Gateway
+    namespace: "monitoring"
+  hostnames:
+  - "victoria-metrics.cluster.home.tlta.online"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: "/"
+    backendRefs:
+    - name: "victoria-metrics-single-server"
+      port: 8428
       namespace: "monitoring"
 ---
 # Source: cilium/templates/cilium-agent/servicemonitor.yaml
