@@ -25,7 +25,7 @@
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: ReferenceGrant
 metadata:
-  name: {{ printf "allow-gateway-cert-%s" $secretNamespace | quote }}
+  name: {{ printf "allow-gateway-cert-via-ns-%s" $secretNamespace | quote }}
   namespace: {{ $secretNamespace | quote }}
 spec:
   from:
