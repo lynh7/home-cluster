@@ -530,7 +530,7 @@ metadata:
     app.kubernetes.io/part-of: alloy
     app.kubernetes.io/component: networking
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app.kubernetes.io/name: grafana-alloy
     app.kubernetes.io/instance: grafana-stack

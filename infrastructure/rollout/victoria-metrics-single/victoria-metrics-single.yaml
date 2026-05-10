@@ -23,7 +23,8 @@ metadata:
     helm.sh/chart: victoria-metrics-single-0.22.0
   name: victoria-metrics-single-server
 spec:
-  type: LoadBalancer
+  type: ClusterIP
+  clusterIP: None
   ports:
     - name: http
       port: 8428

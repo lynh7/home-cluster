@@ -1103,7 +1103,7 @@ metadata:
     app.kubernetes.io/name: hubble-ui
     app.kubernetes.io/part-of: cilium
 spec:
-  type: "LoadBalancer"
+  type: "ClusterIP"
   selector:
     k8s-app: hubble-ui
   ports:

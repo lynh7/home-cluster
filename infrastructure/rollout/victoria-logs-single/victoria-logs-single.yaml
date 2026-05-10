@@ -13,7 +13,8 @@ metadata:
   name: victoria-logs-single-server
   namespace: monitoring
 spec:
-  type: LoadBalancer
+  type: ClusterIP
+  clusterIP: None
   ports:
     - name: http
       port: 9428
