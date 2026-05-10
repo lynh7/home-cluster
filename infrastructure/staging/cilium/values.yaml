@@ -146,14 +146,14 @@ gatewayAPI:
 ########### Gateway API configuration ############
 ##################################################
 gateways:
-  - name: default-gateway
-    namespace: default
+  - name: internal-monitoring-gateway
+    namespace: monitoring
     annotations: {}
     listeners:
       - name: https
         protocol: HTTPS
         port: 443
-        hostname: "*.tlta.online"
+        hostname: "*.cluster.home.tlta.online"
         allowedRoutes:
           namespaces:
             from: Same
@@ -181,12 +181,12 @@ gateways:
   #             namespace: cert-manager
 
 httpRoutes:
-  - name: nginx-route
-    gateway: default-gateway
-    gatewayNamespace: default
-    namespace: default
-    hostname: "default.cluster.home.tlta.online"
-    service: nginx-service
+  - name: grafana-route
+    gateway: internal-monitoring-gateway
+    gatewayNamespace: monitoring
+    namespace: monitoring
+    hostname: "grafana.cluster.home.tlta.online"
+    service: grafana-stack
     port: 80
 
 ##################################################
