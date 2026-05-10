@@ -35,7 +35,9 @@ spec:
       certificateRefs:
       {{- range .tls.certificateRefs }}
       - name: {{ .name | quote }}
+        {{- if .namespace }}
         namespace: {{ .namespace | quote }}
+        {{- end }}
       {{- end }}
       {{- end }}
     {{- end }}
