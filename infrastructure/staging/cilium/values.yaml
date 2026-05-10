@@ -180,7 +180,7 @@ gatewayAPI:
     - name: default-gateway
       kind: Gateway
     hostnames:
-    - "default.home.tlta.online"
+    - "default.cluster.home.tlta.online"
     rules:
     - matches:
       - path:
