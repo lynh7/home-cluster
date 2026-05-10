@@ -2223,6 +2223,52 @@ spec:
       port: 8428
       namespace: "monitoring"
 ---
+# Source: cilium/templates/cilium-customizations/51-cilium-http-route.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: "hubble-route"
+  namespace: "kube-system"
+spec:
+  parentRefs:
+  - name: "internal-monitoring-gateway"
+    kind: Gateway
+    namespace: "monitoring"
+  hostnames:
+  - "hubble.cluster.home.tlta.online"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: "/"
+    backendRefs:
+    - name: "hubble-ui"
+      port: 80
+      namespace: "kube-system"
+---
+# Source: cilium/templates/cilium-customizations/51-cilium-http-route.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: "longhorn-frontend-route"
+  namespace: "longhorn-system"
+spec:
+  parentRefs:
+  - name: "internal-monitoring-gateway"
+    kind: Gateway
+    namespace: "monitoring"
+  hostnames:
+  - "longhorn.cluster.home.tlta.online"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: "/"
+    backendRefs:
+    - name: "longhorn-frontend"
+      port: 80
+      namespace: "longhorn-system"
+---
 # Source: cilium/templates/cilium-customizations/52-cilium-reference-grant-template.yaml
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: ReferenceGrant
@@ -2237,6 +2283,36 @@ spec:
   to:
   - group: ""
     kind: Secret
+---
+# Source: cilium/templates/cilium-customizations/52-cilium-reference-grant-template.yaml
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: "allow-route-kube-system"
+  namespace: "kube-system"
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    namespace: "monitoring"
+  to:
+  - group: ""
+    kind: Service
+---
+# Source: cilium/templates/cilium-customizations/52-cilium-reference-grant-template.yaml
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: "allow-route-longhorn-system"
+  namespace: "longhorn-system"
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    namespace: "monitoring"
+  to:
+  - group: ""
+    kind: Service
 ---
 # Source: cilium/templates/cilium-agent/servicemonitor.yaml
 apiVersion: monitoring.coreos.com/v1
