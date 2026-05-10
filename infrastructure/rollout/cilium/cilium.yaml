@@ -1978,7 +1978,7 @@ spec:
       restartPolicy: Always
       priorityClassName: 
       serviceAccountName: "hubble-relay"
-      automountServiceAccountToken: false`
+      automountServiceAccountToken: false
       terminationGracePeriodSeconds: 1
       affinity:
         podAffinity:
@@ -2092,7 +2092,7 @@ kind: CiliumLoadBalancerIPPool
 metadata:
   name: "default-pool"
 spec:
-  allowFirstLastIPs: "No"
+  allowFirstLastIPs: No
   blocks:
   -
     cidr: "192.168.100.0/26"
@@ -2101,15 +2101,15 @@ spec:
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: "default-gateway"
-  namespace: "default"
+  name: "internal-monitoring-gateway"
+  namespace: "monitoring"
 spec:
   gatewayClassName: cilium
   listeners:
   - name: "https"
     protocol: HTTPS
     port: 443
-    hostname: "*.tlta.online"
+    hostname: "*.cluster.home.tlta.online"
     allowedRoutes:
       namespaces:
         from: Same
@@ -2132,24 +2132,24 @@ spec:
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: "nginx-route"
-  namespace: "default"
+  name: "grafana-route"
+  namespace: "monitoring"
 spec:
   parentRefs:
-  - name: "default-gateway"
+  - name: "internal-monitoring-gateway"
     kind: Gateway
-    namespace: "default"
+    namespace: "monitoring"
   hostnames:
-  - "default.cluster.home.tlta.online"
+  - "grafana.cluster.home.tlta.online"
   rules:
   - matches:
     - path:
         type: PathPrefix
         value: "/"
     backendRefs:
-    - name: "nginx-service"
+    - name: "grafana-stack"
       port: 80
-      namespace: "default"
+      namespace: "monitoring"
 ---
 # Source: cilium/templates/cilium-agent/servicemonitor.yaml
 apiVersion: monitoring.coreos.com/v1
