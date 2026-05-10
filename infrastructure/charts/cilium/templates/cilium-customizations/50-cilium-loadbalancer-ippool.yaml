@@ -7,7 +7,7 @@ metadata:
   name: {{ .name | quote }}
 spec:
   {{- if .allowFirstLastIPs }}
-  allowFirstLastIPs: {{ .allowFirstLastIPs }}
+  allowFirstLastIPs: {{ .allowFirstLastIPs | quote }}
   {{- end }}
   blocks:
   {{- range .blocks }}
