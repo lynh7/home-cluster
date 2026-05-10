@@ -141,34 +141,54 @@ gatewayAPI:
   gatewayClass:
     create: 'true'
   name: default-gateway
-  namespace: monitoring
+  namespace: default
   annotations: {}
 
   listeners:
-    # Plain HTTP
-    # - name: http
-    #   protocol: HTTP
-    #   port: 80
-    #   hostname: "*.example.com"
-    #   allowedRoutes:
-    #     namespaces:
-    #       from: Same
-    #       # from: Selector
-    #       # matchLabels:
-    #       #   gateway-access: "true"
-
-    # HTTPS with TLS termination
-    - name: https
-      protocol: HTTPS
-      port: 443
+    Plain HTTP
+    - name: http
+      protocol: HTTP
+      port: 80
+      hostname: "*.tlta.online"
       allowedRoutes:
         namespaces:
           from: Same
-      hostname: "*.cluster.tlta.online"
-      tls:
-        mode: Terminate
-        certificateRefs:
-          - name: wildcard-tls
+          # from: Selector
+          # matchLabels:
+          #   gateway-access: "true"
+
+    # HTTPS with TLS termination
+    # - name: https
+    #   protocol: HTTPS
+    #   port: 443
+    #   allowedRoutes:
+    #     namespaces:
+    #       from: Same
+    #   hostname: "*.tlta.online"
+    #   tls:
+    #     mode: Terminate
+    #     certificateRefs:
+    #       - name: wildcard-tls
+
+  httpRoute:
+    enabled: true
+    name: nginx-route
+    namespace: default
+    annotations: {}
+    parentRefs:
+    - name: default-gateway
+      kind: Gateway
+    hostnames:
+    - "*.tlta.online"
+    rules:
+    - matches:
+      - path:
+          type: PathPrefix
+          value: "/"
+      backendRefs:
+      - name: nginx-service
+        port: 80
+        namespace: default
 
 ##################################################
 #### IPAM LoadBalancer IP Pool configuration #####
