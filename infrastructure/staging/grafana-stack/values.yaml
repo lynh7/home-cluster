@@ -266,8 +266,5 @@ grafana-alloy:
         operator: "Equal"
         value: "critical"
         effect: "NoSchedule"
-  service:
-    enabled: true
-    type: LoadBalancer
   serviceMonitor:
     enabled: true

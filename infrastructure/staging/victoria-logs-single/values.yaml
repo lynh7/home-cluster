@@ -12,7 +12,5 @@ server:
       operator: "Equal"
       value: "critical"
       effect: "NoSchedule"
-  service:
-    type: LoadBalancer
   serviceMonitor:
     enabled: true

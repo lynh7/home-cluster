@@ -35,13 +35,6 @@ uninstallJob:
   enabled: false
 
 #################################
-##### Longhorn UI Service #######
-#################################
-service:
-  ui:
-    type: LoadBalancer
-
-#################################
 #### Longhorn Customizations ####
 ##################################
 customizations:

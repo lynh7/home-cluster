@@ -69,8 +69,7 @@ hubble:
       enabled: true
   ui:
     enabled: true
-    service:
-      type: LoadBalancer
+
   tls:
     # -- Enable mutual TLS for listenAddress. Setting this value to false is
     # highly discouraged as the Hubble API provides access to potentially
