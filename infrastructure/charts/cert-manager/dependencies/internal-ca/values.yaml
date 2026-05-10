@@ -8,10 +8,10 @@ internalCA:
 
 certificate:
   enabled: true
-  name: default-internal-tls
-  namespace: cert-manager
-  secretName: default-internal-tls
-  commonName: default.internal.lan
+  name: monitoring-internal-tls
+  namespace: monitoring
+  secretName: monitoring-internal-tls
+  commonName: monitoring.internal.lan
   duration: 2160h
   renewBefore: 360h
   privateKey:
@@ -23,5 +23,4 @@ certificate:
     kind: ClusterIssuer
     group: cert-manager.io
   dnsNames:
-    - "tlta.online"
     - ".cluster.home.tlta.online"
