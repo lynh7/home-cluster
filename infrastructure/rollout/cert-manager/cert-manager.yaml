@@ -13339,10 +13339,10 @@ webhooks:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: "default-internal-tls"
-  namespace: "cert-manager"
+  name: "monitoring-internal-tls"
+  namespace: "monitoring"
 spec:
-  secretName: "default-internal-tls"
+  secretName: "monitoring-internal-tls"
   duration: 2160h
   renewBefore: 360h
   privateKey:
@@ -13353,9 +13353,8 @@ spec:
     name: "internal-ca-issuer"
     kind: "ClusterIssuer"
     group: "cert-manager.io"
-  commonName: "default.internal.lan"
+  commonName: "monitoring.internal.lan"
   dnsNames:
-    - "tlta.online"
     - ".cluster.home.tlta.online"
 ---
 # Source: cert-manager/charts/internal-ca/templates/internal-ca.yaml
