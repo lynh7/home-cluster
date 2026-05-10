@@ -156,12 +156,14 @@ gateways:
         hostname: "*.cluster.home.tlta.online"
         allowedRoutes:
           namespaces:
-            from: Same
+            from: Selector
+            matchLabels:
+              gateway-access: "true"
         tls:
           mode: Terminate
           certificateRefs:
             - name: monitoring-internal-tls
-              namespace: monitoring
+              namespace: cert-manager
 
   # Example: second gateway for internal traffic
   # - name: internal-gateway
