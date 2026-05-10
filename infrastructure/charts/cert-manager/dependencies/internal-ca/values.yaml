@@ -9,7 +9,7 @@ internalCA:
 certificate:
   enabled: true
   name: monitoring-internal-tls
-  namespace: monitoring
+  namespace: cert-manager
   secretName: monitoring-internal-tls
   commonName: monitoring.internal.lan
   duration: 2160h
