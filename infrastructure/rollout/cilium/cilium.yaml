@@ -2095,7 +2095,7 @@ spec:
   allowFirstLastIPs: "No"
   blocks:
   -
-    cidr: "192.168.100.0/26"
+    cidr: "192.168.100.0/64"
 ---
 # Source: cilium/templates/cilium-customizations/48-cilium-gateway.yaml
 apiVersion: gateway.networking.k8s.io/v1
