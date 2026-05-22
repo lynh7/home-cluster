@@ -19,80 +19,6 @@ global:
   extraVolumes: []
   extraVolumeMounts: []
 
-  # kyoo connectivity & subchart settings for postgres
-  # subchart configuration can be found at .postgresql
-  postgres:
-    # subchart specific settings
-    infra:
-      # subchart does not accept setting username via secret, so defining here
-      user: kyoo_all
-      passwordKey: postgres_password
-      existingSecret: bigsecret
-    # shared postgres settings
-    shared:
-      # base setting for specifying host for all kyoo workloads
-      # defaults to <release-name>-postgres
-      host: ~
-      # base setting for specifying ports for all kyoo workloads
-      port: 5432
-      # setting the database here will override the other database settings
-      databaseOverride: ~
-      userOverride: ~
-      passwordOverride: ~
-      sslmodeOverride: ~
-      # base setting for specifying existingSecret for all kyoo workloads
-      existingSecret: bigsecret
-      # base setting for specifying userKey for all kyoo workloads
-      userKey: postgres_user
-      # base setting for specifying passwordKey for all kyoo workloads
-      passwordKey: postgres_password
-    # overlay settings for connecting to kyoo_api database
-    kyoo_api:
-      host: ~
-      port: ~
-      database: kyoo_api
-      # upstream sql library does not support 'prefer' sslmode
-      # tracking: https://github.com/zoriya/Kyoo/issues/1154
-      sslmode: disable
-      # kyoo_api workload specific settings
-      kyoo_api:
-        userKey: ~
-        passwordKey: ~
-        existingSecret: ~
-    # overlay settings for connecting to kyoo_auth database
-    kyoo_auth:
-      host: ~
-      port: ~
-      database: kyoo_auth
-      sslmode: prefer
-      # kyoo_auth workload specific settings
-      kyoo_auth:
-        userKey: ~
-        passwordKey: ~
-        existingSecret: ~
-    # overlay settings for connecting to kyoo_scanner database
-    kyoo_scanner:
-      host: ~
-      port: ~
-      database: kyoo_scanner
-      sslmode: prefer
-      # kyoo_scanner workload specific settings
-      kyoo_scanner:
-        userKey: ~
-        passwordKey: ~
-        existingSecret: ~
-    # overlay settings for connecting to kyoo_transcoder database
-    kyoo_transcoder:
-      host: ~
-      port: ~
-      database: kyoo_transcoder
-      sslmode: prefer
-      # kyoo_transcoder workload specific settings
-      kyoo_transcoder:
-        userKey: ~
-        passwordKey: ~
-        existingSecret: ~
-
 # kyoo application settings
 kyoo:
   # The url you can use to reach your kyoo instance. This is used during oidc to redirect users to your instance.
@@ -490,56 +416,6 @@ traefikproxy:
   extraContainers: []
   extraInitContainers: []
   extraVolumes: []
-
-# subchart settings
-postgres:
-  enabled: false
-  auth:
-    # default user to be created by postgres subchart
-    # subchart is unable to consume a secret for specifying user
-    username: "{{ .Values.global.postgres.infra.user }}"
-    existingSecret: "{{ .Values.global.postgres.infra.existingSecret }}"
-    secretKeys:
-      # set the postgres user password to the same as our user
-      adminPasswordKey: "{{ .Values.global.postgres.infra.passwordKey }}"
-  initdb:
-    scripts:
-      kyoo_api.sql: |
-        CREATE DATABASE {{ .Values.global.postgres.kyoo_api.database }} WITH OWNER {{ .Values.global.postgres.infra.user }};
-        \connect {{ .Values.global.postgres.kyoo_api.database }};
-        REVOKE ALL ON SCHEMA public FROM PUBLIC;
-        CREATE SCHEMA IF NOT EXISTS kyoo AUTHORIZATION {{ .Values.global.postgres.infra.user }};
-
-        CREATE EXTENSION IF NOT EXISTS pg_trgm SCHEMA kyoo;
-        SET pg_trgm.word_similarity_threshold = 0.4;
-        ALTER DATABASE {{ .Values.global.postgres.kyoo_api.database }} SET pg_trgm.word_similarity_threshold = 0.4;
-      kyoo_auth.sql: |
-        CREATE DATABASE {{ .Values.global.postgres.kyoo_auth.database }} WITH OWNER {{ .Values.global.postgres.infra.user }};
-        \connect {{ .Values.global.postgres.kyoo_auth.database }};
-        REVOKE ALL ON SCHEMA public FROM PUBLIC;
-        CREATE SCHEMA IF NOT EXISTS keibi AUTHORIZATION {{ .Values.global.postgres.infra.user }};
-      kyoo_scanner.sql: |
-        CREATE DATABASE {{ .Values.global.postgres.kyoo_scanner.database }} WITH OWNER {{ .Values.global.postgres.infra.user }};
-        \connect {{ .Values.global.postgres.kyoo_scanner.database }};
-        REVOKE ALL ON SCHEMA public FROM PUBLIC;
-        CREATE SCHEMA IF NOT EXISTS scanner AUTHORIZATION {{ .Values.global.postgres.infra.user }};
-      kyoo_transcoder.sql: |
-        CREATE DATABASE {{ .Values.global.postgres.kyoo_transcoder.database }} WITH OWNER {{ .Values.global.postgres.infra.user }};
-        \connect {{ .Values.global.postgres.kyoo_transcoder.database }};
-        REVOKE ALL ON SCHEMA public FROM PUBLIC;
-        CREATE SCHEMA IF NOT EXISTS gocoder AUTHORIZATION {{ .Values.global.postgres.infra.user }};
-      user.sql: |
-        ALTER ROLE {{ .Values.global.postgres.infra.user }}
-        IN DATABASE {{ .Values.global.postgres.kyoo_api.database }} SET search_path TO "$user", kyoo;
-        ALTER ROLE {{ .Values.global.postgres.infra.user }}
-        IN DATABASE {{ .Values.global.postgres.kyoo_auth.database }} SET search_path TO "$user", keibi;
-        ALTER ROLE {{ .Values.global.postgres.infra.user }}
-        IN DATABASE {{ .Values.global.postgres.kyoo_scanner.database }} SET search_path TO "$user", scanner;
-        ALTER ROLE {{ .Values.global.postgres.infra.user }}
-        IN DATABASE {{ .Values.global.postgres.kyoo_transcoder.database }} SET search_path TO "$user", gocoder;
-  persistence:
-    enabled: true
-    size: 3Gi
 
 # allows for the creation of any additional kubernetes resources
 extraObjects: []
