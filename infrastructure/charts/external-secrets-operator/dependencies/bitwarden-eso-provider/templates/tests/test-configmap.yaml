@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: test-connection
-  namespace: {{ .Release.Namespace }}
-data:
-  curl_script.sh: |
-    curl http://{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}/status
