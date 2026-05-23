@@ -24,7 +24,9 @@ clusterSecretStore:
 
   infisical:
     projectSlug: "home-server-83-az"
-    envSlug: "staging"
+    environmentSlug: "staging"
+    secretsPath: "/"
+    hostAPI: "http://192.168.10.99/"
 
 # ── ExternalSecrets ───────────────────────────────────────────────
 # Each entry produces one ExternalSecret resource.
