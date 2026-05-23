@@ -1,4 +1,4 @@
-name: Render Helm Manifests
+name: Render Helm Manifests App
 
 permissions:
   contents: write
