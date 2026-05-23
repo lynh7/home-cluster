@@ -10,3 +10,34 @@ createOperator: true
 
 serviceMonitor:
   enabled: true
+
+# ── ClusterSecretStore ────────────────────────────────────────────
+clusterSecretStore:
+  enabled: true
+  name: infisical
+
+  auth:
+    secretName: infisical-auth
+    clientIdKey: clientId
+    clientSecretKey: clientSecret
+    namespace: stag01
+
+  infisical:
+    projectSlug: "home-server-83-az"
+    envSlug: "staging"
+
+# ── ExternalSecrets ───────────────────────────────────────────────
+# Each entry produces one ExternalSecret resource.
+# Toggle enabled: false to skip without removing the block.
+externalSecrets:
+
+  - name: kyoo-pg-credentials
+    enabled: true
+    namespace: kyoo
+    targetSecret: kyoo-pg-credentials
+    refreshInterval: "1h"
+    data:
+      - secretKey: username
+        remoteKey: POSTGRES_USER
+      - secretKey: password
+        remoteKey: POSTGRES_PASSWORD
