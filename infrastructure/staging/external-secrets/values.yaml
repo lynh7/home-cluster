@@ -35,11 +35,11 @@ externalSecrets:
 
   - name: kyoo-pg-credentials
     enabled: true
-    namespace: kyoo
+    namespace: stag01
     targetSecret: kyoo-pg-credentials
     refreshInterval: "1h"
     data:
       - secretKey: username
-        remoteKey: POSTGRES_USER
+        remoteKey: CNPG_USER
       - secretKey: password
-        remoteKey: POSTGRES_PASSWORD
+        remoteKey: CNPG_PASSWORD
