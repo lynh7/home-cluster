@@ -1,0 +1,94 @@
+---
+# Source: cnpg-cluster/templates/pg-cluster.yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg-cluster
+  labels:
+    helm.sh/chart: cnpg-cluster-2.1.0
+    app.kubernetes.io/version: "1.29.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cnpg-cluster
+    app.kubernetes.io/instance: cnpg-cluster
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:18
+  imagePullPolicy: IfNotPresent
+  postgresql:
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: kyoo-pg-superuser
+  primaryUpdateStrategy: unsupervised
+  storage:
+    size: 10Gi
+  walStorage:
+    size: 1Gi
+  resources:
+    limits:
+      cpu: 500m
+      memory: 2Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  
+  
+  bootstrap:
+    initdb:
+      database: stag01
+      owner: kyoo
+      secret:
+        name: kyoo-pg-credentials
+  
+  monitoring:
+    enablePodMonitor: true 
+  logLevel: info
+  affinity:
+    topologyKey: topology.kubernetes.io/zone
+
+---
+# Source: cnpg-cluster/templates/databases.yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: cnpg-cluster-db-kyoodb
+  labels:
+    helm.sh/chart: cnpg-cluster-2.1.0
+    app.kubernetes.io/version: "1.29.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cnpg-cluster
+    app.kubernetes.io/instance: cnpg-cluster
+spec:
+  name: kyoodb
+  owner: kyoo
+  cluster:
+    name: cnpg-cluster
+  ensure: present
+  databaseReclaimPolicy: retain
+  encoding: UTF8
+  locale: en_US.UTF-8
+  isTemplate: false
+  allowConnections: true
+  connectionLimit: -1
+  schemas:
+  - ensure: present
+    name: public
+    owner: kyoo
+
+---
+# Source: cnpg-cluster/templates/pod-monitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: cnpg-cluster
+  labels:
+    helm.sh/chart: cnpg-cluster-2.1.0
+    app.kubernetes.io/version: "1.29.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cnpg-cluster
+    app.kubernetes.io/instance: cnpg-cluster
+spec:
+  selector:
+    matchLabels:
+      cnpg.io/cluster: cnpg-cluster
+  podMetricsEndpoints:
+  - port: metrics
