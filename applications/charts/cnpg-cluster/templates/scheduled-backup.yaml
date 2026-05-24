@@ -1,0 +1,20 @@
+{{- if and .Values.backup.enabled (ne .Values.mode "recovery") }}
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: {{ include "template.fullname" . }}
+  labels: {{- include "template.labels" . | nindent 4 }}
+  {{- if .Values.annotations }}
+  annotations: {{- toYaml .Values.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  schedule: {{ .Values.backup.cron | quote }}
+  backupOwnerReference: self
+  cluster:
+    name: {{ include "template.fullname" . }}
+  {{- if not .Values.backup.legacyMode }}
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+  {{- end }}
+{{- end }}

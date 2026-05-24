@@ -1,0 +1,510 @@
+# -- Provide a name in place of the default application name.
+nameOverride: ""
+# -- String to fully override the default application name.
+fullnameOverride: ""
+
+# -- Add extra specs dynamically to this chart.
+extraObjects: []
+
+# Image credentials configuration.
+imageCredentials:
+  # -- Registry to pull images from.
+  # @section -- Image pull secret
+  registry: ""
+  # -- Username to pull images.
+  # @section -- Image pull secret
+  username: ""
+  # -- Password to pull images.
+  # @section -- Image pull secret
+  password: ""
+  # -- Email to pull images.
+  # @section -- Image pull secret
+  email: ""
+
+# CNPG configuration
+# -- Number of instances to spawn in the cluster.
+# @section -- Database
+instances: 3
+# -- Name of the image used for database. 
+# By default (empty string), the operator will install the latest available minor version of the latest major version of PostgreSQL when the operator was released
+# @section -- Database
+imageName: ""
+# -- Pull policy for the database image.
+# @section -- Database
+imagePullPolicy: "IfNotPresent"
+credentials:
+  # -- Username of the database user (it is used for the database owner - needed also if `credentials.existingSecrets.enabled` is set to `true`).
+  # @section -- Database
+  username: ""
+  # -- Password of the database user. When empty and `existingSecrets.enabled` is `false`, the CNPG operator auto-generates a stable secret (recommended). In chart-managed mode (when at least one password is set), empty passwords are resolved via `lookup` to reuse existing secrets — but `lookup` does not work with ArgoCD/GitOps, so set both passwords explicitly in that case.
+  # @section -- Database
+  password: ""
+  # -- Password of the postgres superuser. Same behavior as `credentials.password` — leave empty to let the CNPG operator manage it, or set explicitly for chart-managed mode.
+  # @section -- Database
+  postgresPassword: ""
+  existingSecrets:
+    # -- Enable the load of the following secrets to bootstrap the database, instead of generating them with the previous values.
+    # @section -- Database
+    enabled: false
+    app:
+      # -- Name of the kubernetes secret to retrieve app user auth infos. Secret should be of type `kubernetes.io/basic-auth` with `username` and `password` keys.
+      # @section -- Database
+      secretName: ""
+    postgres:
+      # -- Name of the kubernetes secret to retrieve postgres superuser auth infos. Secret should be of type `kubernetes.io/basic-auth` with `username` and `password` keys.
+      # @section -- Database
+      secretName: ""
+
+# -- Name of the database (Default is `fullnameOverride` > `nameOverride` > name of the Helm release).
+# @section -- Database
+dbName: ""
+# -- Enable superuser access.
+# @section -- Database
+enableSuperuserAccess: true
+# -- Client authentication entries for pg_hba.conf file (See. https://www.postgresql.org/docs/current/auth-pg-hba-conf.html).
+# @section -- Database
+pgHba: []
+# -- Rolling update strategy used.
+# `unsupervised` for automated update of the primary once all replicas have been upgraded (default).
+# `supervised` for manual supervision to perform the switchover of the primary.
+# @section -- Database
+primaryUpdateStrategy: "unsupervised"
+# -- Storage class used for data and WAL PVCs. Leave empty to use the default storage class of the cluster.
+# @section -- Resources
+storageClass: ""
+pvcSize: 
+  # -- Size of the data PVC used by each cnpg instance.
+  # @section -- Resources
+  data: "2Gi"
+  # -- Size of the WAL PVC used by each cnpg instance (if value is `null` then WAL files are stored within the data PVC).
+  # @section -- Resources
+  wal: "1Gi"
+# -- Customize Postgresql parameters.
+# @section -- Database
+parameters: {}
+# dynamic_shared_memory_type = "posix"
+# logging_collector = "on"
+# log_destination = "csvlog"
+# log_directory = "/controller/log"
+# log_filename = "postgres"
+# log_rotation_age = "0"
+# log_rotation_size = "0"
+# log_truncate_on_rotation = "false"
+# max_parallel_workers = "32"
+# max_replication_slots = "32"
+# max_worker_processes = "32"
+# shared_memory_type = "mmap"
+# wal_keep_size = "512MB"
+# wal_sender_timeout = "5s"
+# wal_receiver_timeout = "5s"
+# max_slot_wal_keep_size: "-1"
+# -- Additional annotations for created resources.
+annotations: {}
+# -- Additional cnpg cluster labels.
+labels: {}
+# -- Whether or not a NodePort service should be created to exposed the database.
+# @section -- Database
+exposed: false
+# -- Port used for NodePort service. Needs `exposed` tu be true.
+# @section -- Database
+nodePort: 30000
+# -- Mode used to deploy the cnpg cluster, it should be `primary`, `replica` or `recovery`.
+# @section -- Database
+mode: "primary"
+initDb:
+  # -- Extra configuration of the initDb bootstrap process (See. https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-BootstrapInitDB).
+  # @section -- Database
+  extraArgs: {}
+  # encoding: UTF8
+  # dataChecksums: false
+recovery:
+  # -- S3 destination path used for recovery mode (it should be set like `s3://<bucket_name>/<path>`).
+  # @section -- Recovery mode
+  destinationPath: ""
+  # -- S3 endpoint used for recovery mode.
+  # @section -- Recovery mode
+  endpointURL: ""
+  endpointCA:
+    # -- Whether or not to create S3 CA kubernetes secret used for recovery mode.
+    # It will use `secretName`, `endpointCA.key` and `endpointCA.value` to create the secret.
+    # @section -- Recovery mode
+    create: false
+    # -- The secret name containing S3 CA used for recovery mode, leave it empty to auto-generate the secret name.
+    # @section -- Recovery mode
+    secretName: ""
+    # -- The secret key containing S3 CA used for recovery mode.
+    # @section -- Recovery mode
+    key: "ca.crt"
+    # -- The S3 certificate used for recovery mode.
+    # Only needed if `recovery.endpointCA.create` is set to `true`.
+    # @section -- Recovery mode
+    value: ""
+  s3Credentials:
+    # -- Whether or not to create S3 credentials kubernetes secret used for recovery mode.
+    # It will use `secretName`, `accessKeyId.key`, `accessKeyId.value`, `secretAccessKey.key` and `secretAccessKey.value` to create the secret.
+    # @section -- Recovery mode
+    create: false
+    # -- S3 kubernetes secret name used for recovery mode, leave it empty to auto-generate the secret name.
+    # @section -- Recovery mode
+    secretName: ""
+    accessKeyId:
+      # -- S3 accessKeyId kubernetes secret key used for recovery mode.
+      # @section -- Recovery mode
+      key: "accessKeyId"
+      # -- S3 accessKeyId value used for recovery mode.
+      # Only needed if `recovery.s3Credentials.create` is set to `true`.
+      # @section -- Recovery mode
+      value: ""
+    secretAccessKey:
+      # -- S3 secretAccessKey kubernetes secret key used for recovery mode.
+      # @section -- Recovery mode
+      key: "secretAccessKey"
+      # -- S3 secretAccessKey value used for recovery mode.
+      # Only needed if `recovery.s3Credentials.create` is set to `true`.
+      # @section -- Recovery mode
+      value: ""
+    region:
+      # -- S3 region kubernetes secret key used for recovery mode.
+      # @section -- Recovery mode
+      key: "region"
+      # -- S3 region value used for recovery mode.
+      # Only needed if `recovery.s3Credentials.create` is set to `true`.
+      # @section -- Recovery mode
+      value: "us-east1"
+  # -- Primary cnpg cluster name used for recovery mode.
+  # @section -- Recovery mode
+  clusterName: ""
+  # -- Extra configuration of the recovery bootstrap process (See. https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-BootstrapRecovery).
+  # -- The number of parallel process that will be applied when applying wals.
+  # @section -- Recovery mode
+  maxParallelWal: 8
+  # -- Extra configuration of the initDb bootstrap process (See. https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-BootstrapInitDB).
+  # @section -- Recovery mode
+  extraArgs: {}
+    # recoveryTarget:
+    #   backupID: 20250214T120000
+    #   targetImmediate: true
+replica:
+  # -- S3 destination path used for replica mode (it should be set like `s3://<bucket_name>/<path>`).
+  # @section -- Replica mode
+  destinationPath: ""
+  # -- S3 endpoint used for replica mode.
+  # @section -- Replica mode
+  endpointURL: ""
+  endpointCA:
+    # -- Whether or not to create S3 CA kubernetes secret used for replica mode.
+    # It will use `secretName`, `endpointCA.key` and `endpointCA.value` to create the secret.
+    # @section -- Replica mode
+    create: false
+    # -- The secret name containing S3 CA used for replica mode, leave it empty to auto-generate the secret name.
+    # @section -- Replica mode
+    secretName: ""
+    # -- The secret key containing S3 CA used for replica mode.
+    # @section -- Replica mode
+    key: "ca.crt"
+    # -- The S3 certificate used for replica mode.
+    # Only needed if `replica.endpointCA.create` is set to `true`.
+    # @section -- Replica mode
+    value: ""
+  s3Credentials:
+    # -- Whether or not to create S3 credentials kubernetes secret used for replica mode.
+    # It will use `secretName`, `accessKeyId.key`, `accessKeyId.value`, `secretAccessKey.key` and `secretAccessKey.value` to create the secret.
+    # @section -- Replica mode
+    create: false
+    # -- S3 kubernetes secret name used for replica mode, leave it empty to auto-generate the secret name.
+    # @section -- Replica mode
+    secretName: ""
+    accessKeyId:
+      # -- S3 accessKeyId kubernetes secret key used for replica mode.
+      # @section -- Replica mode
+      key: "accessKeyId"
+      # -- S3 accessKeyId value used for replica mode.
+      # Only needed if `replica.s3Credentials.create` is set to `true`.
+      # @section -- Replica mode
+      value: ""
+    secretAccessKey:
+      # -- S3 secretAccessKey kubernetes secret key used for replica mode.
+      # @section -- Replica mode
+      key: "secretAccessKey"
+      # -- S3 secretAccessKey value used for replica mode.
+      # Only needed if `replica.s3Credentials.create` is set to `true`.
+      # @section -- Replica mode
+      value: ""
+    region:
+      # -- S3 region kubernetes secret key used for replica mode.
+      # @section -- Replica mode
+      key: "region"
+      # -- S3 region value used for replica mode.
+      # Only needed if `replica.s3Credentials.create` is set to `true`.
+      # @section -- Replica mode
+      value: "us-east1"
+  # -- Primary cnpg cluster name used for replica mode.
+  # @section -- Replica mode
+  clusterName: ""
+  # -- Primary cnpg cluster host used for replica mode.
+  # @section -- Replica mode
+  host: ""
+  # -- Primary cnpg cluster port used for replica mode.
+  # @section -- Replica mode
+  port: 5432
+  # -- Primary database name used for replica mode.
+  # @section -- Replica mode
+  dbName: ""
+  # -- SSL connection config used for replica mode.
+  # @section -- Replica mode
+  sslMode: "prefer"
+  # -- Extra configuration of the replica bootstrap process (See. https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-BootstrapConfiguration).
+  # -- The number of parallel process that will be applied when applying wals.
+  # @section -- Replica mode
+  maxParallelWal: 8
+  # -- Extra configuration of the initDb bootstrap process (See. https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-BootstrapInitDB).
+  # @section -- Replica mode
+  extraArgs: {}
+infosSecret:
+  # -- Whether or not to create an infos secret containing database connection information (host, port, database name, username, password, and connection string). Only effective when `credentials.password` is set (chart-managed credentials). When credentials are operator-managed, use the operator-generated `<cluster>-app` secret directly.
+  # @section -- Database
+  create: false
+  # -- Name of the secret to create (defaults to `<fullname>-infos`).
+  # @section -- Database
+  secretName: ""
+  keys:
+    # -- Key for database host.
+    # @section -- Database
+    host: "DB_HOST"
+    # -- Key for database port.
+    # @section -- Database
+    port: "DB_PORT"
+    # -- Key for database name.
+    # @section -- Database
+    name: "DB_NAME"
+    # -- Key for database username.
+    # @section -- Database
+    user: "DB_USER"
+    # -- Key for database password.
+    # @section -- Database
+    password: "DB_PASS"
+    # -- Key for database connection string.
+    # @section -- Database
+    url: "DB_URL"
+  # -- Query parameters to append to the connection URL (e.g., sslmode, connect_timeout, application_name). Leave empty for no parameters.
+  # @section -- Database
+  urlParameters: ""
+  # Example: "sslmode=require&connect_timeout=10&application_name=myapp"
+backup:
+  # -- Whether or not cnpg cluster backup should be enabled.
+  # @section -- Backup
+  enabled: false
+  # -- Use legacy in-tree backup method instead of barman-cloud plugin (deprecated, will be removed in future CNPG versions). When `false` (recommended), uses the official barman-cloud plugin with ObjectStore CRD. When `true`, falls back to the deprecated in-tree barmanObjectStore configuration.
+  # @section -- Backup
+  legacyMode: false
+  # -- Extra parameters to pass to the barman-cloud backup plugin (e.g. `serverName` to isolate WAL paths when reusing the same S3 bucket after a recovery).
+  # Only used when `backup.legacyMode` is set to `false`.
+  # @section -- Backup
+  pluginExtraParameters: {}
+  # serverName: "my-cluster-v2"
+  # -- S3 destination path for cnpg backups (it should be set like `s3://<bucket_name>/<path>`).
+  # @section -- Backup
+  destinationPath: ""
+  # -- S3 endpoint for cnpg backups.
+  # @section -- Backup
+  endpointURL: ""
+  endpointCA:
+    # -- Whether or not to create S3 CA kubernetes secret used for cnpg backups.
+    # It will use `secretName`, `endpointCA.key` and `endpointCA.value` to create the secret.
+    # @section -- Backup
+    create: false
+    # -- The secret name containing S3 CA for cnpg backups, leave it empty to auto-generate the secret name.
+    # @section -- Backup
+    secretName: ""
+    # -- The secret key containing S3 CA for cnpg backups.
+    # @section -- Backup
+    key: "ca.crt"
+    # -- The S3 certificate used for cnpg backups.
+    # Only needed if `backup.endpointCA.create` is set to `true`.
+    # @section -- Backup
+    value: ""
+  s3Credentials:
+    # -- Whether or not to create S3 credentials kubernetes secret used for cnpg backups.
+    # It will use `secretName`, `accessKeyId.key`, `accessKeyId.value`, `secretAccessKey.key` and `secretAccessKey.value` to create the secret.
+    # @section -- Backup
+    create: false
+    # -- S3 kubernetes secret name used for cnpg backups, leave it empty to auto-generate the secret name.
+    # @section -- Backup
+    secretName: ""
+    accessKeyId:
+      # -- S3 accessKeyId kubernetes secret key used for cnpg backups.
+      # @section -- Backup
+      key: "accessKeyId"
+      # -- S3 accessKeyId value used for cnpg backups.
+      # Only needed if `backup.s3Credentials.create` is set to `true`.
+      # @section -- Backup
+      value: ""
+    secretAccessKey:
+      # -- S3 secretAccessKey kubernetes secret key used for cnpg backups.
+      # @section -- Backup
+      key: "secretAccessKey"
+      # -- S3 secretAccessKey value used for cnpg backups.
+      # Only needed if `backup.s3Credentials.create` is set to `true`.
+      # @section -- Backup
+      value: ""
+    region:
+      # -- S3 region kubernetes secret key used for cnpg backups.
+      # @section -- Backup
+      key: "region"
+      # -- S3 region value used for cnpg backups.
+      # Only needed if `backup.s3Credentials.create` is set to `true`.
+      # @section -- Backup
+      value: "us-east1"
+  # -- Which compression algorithm should be used for cnpg backups (should be one of "gzip", "bzip2" or "snappy"), leave blank to disable compression.
+  # @section -- Backup
+  compression: ""
+  # -- The cron rule used for cnpg backups. By default it runs every 6 hours.
+  # @section -- Backup
+  cron: "0 0 */6 * * *"
+  # -- Retention policy for cnpg backups recurrences.
+  # @section -- Backup
+  retentionPolicy: "14d"
+resources:
+  requests:
+    # -- Memory request for the database instance.
+    # @section -- Resources
+    memory: "512Mi"
+    # -- CPU request for the database instance.
+    # @section -- Resources
+    cpu: "250m"
+  limits:
+    # -- Memory limit for the database instance.
+    # @section -- Resources
+    memory: "1Gi"
+    # -- CPU limit for the database instance.
+    # @section -- Resources
+    cpu: "500m"
+# -- Affinity rules for the database pods.
+# @section -- Affinity
+affinity:
+  topologyKey: topology.kubernetes.io/zone
+# -- Topology spread constraints for the database pods.
+# @section -- Affinity
+topologySpreadConstraints: []
+# -- Log level used by the operator (one of `error`, `warning`, `info` (default), `debug`, `trace`).
+# @section -- Database
+logLevel: "info"
+pooler:
+  # -- Whether or not Pgbouncer should be enabled.
+  # @section -- Pooler
+  enabled: false
+  # -- The number of replicas we want 
+  # @section -- Pooler
+  instances: 3
+  # -- Which instances we must forward traffic to.
+  # @section -- Pooler
+  type: "rw"
+  # -- The PgBouncer configuration (see. https://www.pgbouncer.org/config.html).
+  # @section -- Pooler
+  pgbouncer: {}
+  # -- The template of the Pod to be created (see. https://cloudnative-pg.io/documentation/current/connection_pooling/#pod-templates).
+  # @section -- Pooler
+  template: {}
+monitoring:
+  # -- Specifies whether the monitoring should be enabled. Requires Prometheus Operator CRDs.
+  # @section -- Monitoring
+  enabled: false
+  podMonitor:
+    # -- Metrics relabel configurations to apply to samples before ingestion.
+    # @section -- Monitoring
+    metricRelabelings: []
+    # -- Relabel configurations to apply to samples before scraping.
+    # @section -- Monitoring
+    relabelings: []
+    # -- Additional labels for the podMonitor
+    # @section -- Monitoring
+    additionalLabels: {}
+    # -- Additional match labels for the podMonitor
+    # @section -- Monitoring
+    extraMatchLabels: {}
+# -- Declarative management of databases inside the cnpg cluster. Each entry creates a separate Database CRD (See. https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-Database). Note that Database CRDs are NOT created in replica mode (CNPG limitation) and that reserved database names (postgres, template0, template1) cannot be used.
+# @section -- Databases
+databases: []
+  # - # -- Name of the database inside PostgreSQL (required, immutable after creation).
+  #   # @section -- Databases
+  #   name: "mydb"
+  #   # -- Role name of the database owner (required).
+  #   # @section -- Databases
+  #   owner: "myuser"
+  #   # -- Whether the database should be present or absent (default: present).
+  #   # @section -- Databases
+  #   ensure: "present"
+  #   # -- Policy for end-of-life maintenance: retain (default) or delete.
+  #   # @section -- Databases
+  #   databaseReclaimPolicy: "retain"
+  #   # -- Template database name (immutable after creation).
+  #   # @section -- Databases
+  #   template: ""
+  #   # -- Character set encoding (immutable after creation).
+  #   # @section -- Databases
+  #   encoding: ""
+  #   # -- Default collation order and character classification (immutable after creation).
+  #   # @section -- Databases
+  #   locale: ""
+  #   # -- Locale provider: icu or builtin (immutable, available from PostgreSQL 16).
+  #   # @section -- Databases
+  #   localeProvider: ""
+  #   # -- LC_COLLATE setting (immutable after creation).
+  #   # @section -- Databases
+  #   localeCollate: ""
+  #   # -- LC_CTYPE setting (immutable after creation).
+  #   # @section -- Databases
+  #   localeCType: ""
+  #   # -- ICU locale (requires localeProvider=icu, immutable, available from PostgreSQL 15).
+  #   # @section -- Databases
+  #   icuLocale: ""
+  #   # -- Additional ICU collation rules (requires localeProvider=icu, immutable, available from PostgreSQL 16).
+  #   # @section -- Databases
+  #   icuRules: ""
+  #   # -- Builtin locale (requires localeProvider=builtin, immutable, available from PostgreSQL 17).
+  #   # @section -- Databases
+  #   builtinLocale: ""
+  #   # -- Collation version (immutable after creation).
+  #   # @section -- Databases
+  #   collationVersion: ""
+  #   # -- Whether this database is a template (IS_TEMPLATE).
+  #   # @section -- Databases
+  #   isTemplate: false
+  #   # -- Whether connections are allowed (ALLOW_CONNECTIONS).
+  #   # @section -- Databases
+  #   allowConnections: true
+  #   # -- Maximum concurrent connections (-1 means no limit).
+  #   # @section -- Databases
+  #   connectionLimit: -1
+  #   # -- Default tablespace for this database.
+  #   # @section -- Databases
+  #   tablespace: ""
+  #   # -- List of extensions to manage in this database.
+  #   # @section -- Databases
+  #   extensions: []
+  #     # - name: "postgis"
+  #     #   ensure: "present"
+  #     #   version: ""
+  #     #   schema: "public"
+  #   # -- List of schemas to manage in this database.
+  #   # @section -- Databases
+  #   schemas: []
+  #     # - name: "myschema"
+  #     #   owner: "myuser"
+  #     #   ensure: "present"
+  #   # -- List of foreign data wrappers to manage in this database.
+  #   # @section -- Databases
+  #   fdws: []
+  #   # -- List of foreign servers to manage in this database.
+  #   # @section -- Databases
+  #   servers: []
+
+# -- Additional specifications to add to the cnpg cluster manifest (See. https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-Cluster). This allows you to replace any default configuration of the chart and add new configurations that are not yet supported (for example, when a new version of the CNPG is released with new features that are not yet supported).
+# @section -- Database
+extraSpec: {}
+
+
+# CNPG operator configuration
+cnpg-operator:
+  # -- Whether or not cnpg operator should be deployed (See. https://artifacthub.io/packages/helm/cloudnative-pg/cloudnative-pg?modal=values).
+  enabled: false

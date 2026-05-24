@@ -1,0 +1,213 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ include "template.fullname" . }}
+  labels: {{- include "template.labels" . | nindent 4 }}
+  {{- if .Values.annotations }}
+  annotations: {{- toYaml .Values.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  instances: {{ .Values.instances }}
+  {{- if .Values.imageName }}
+  imageName: {{ .Values.imageName }}
+  {{- end }}
+  imagePullPolicy: {{ .Values.imagePullPolicy }}
+  {{- if and .Values.imageCredentials.username .Values.imageCredentials.password }}
+  imagePullSecrets:
+  - name: {{ printf "%s-%s" (include "template.fullname" .) "pullsecret" }}
+  {{- end }}
+  postgresql:
+    {{- if .Values.parameters }}
+    parameters: {{- toYaml .Values.parameters | nindent 6 }}
+    {{- end }}
+    {{- if .Values.pgHba }}
+    pg_hba: {{- toYaml .Values.pgHba | nindent 6 }}
+    {{- end }}
+  enableSuperuserAccess: {{ .Values.enableSuperuserAccess }}
+  {{- $credMode := include "template.credentialsMode" . }}
+  {{- if ne $credMode "operator" }}
+  superuserSecret:
+    {{- if eq $credMode "chart" }}
+    name: {{ printf "%s-%s" (include "template.fullname" .) "admin" }}
+    {{- else }}
+    name: {{ .Values.credentials.existingSecrets.postgres.secretName }}
+    {{- end }}
+  {{- end }}
+  primaryUpdateStrategy: {{ .Values.primaryUpdateStrategy }}
+  storage:
+    size: {{ .Values.pvcSize.data }}
+    {{- if .Values.storageClass }}
+    storageClass: {{ .Values.storageClass | quote }}
+    {{- end }}
+  {{- if .Values.pvcSize.wal }}
+  walStorage:
+    size: {{ .Values.pvcSize.wal }}
+    {{- if .Values.storageClass }}
+    storageClass: {{ .Values.storageClass | quote }}
+    {{- end }}
+  {{- end }}
+  resources: {{- toYaml .Values.resources | nindent 4 }}
+  {{/* DEPRECATED: Legacy in-tree backup (defined in _helpers.tpl). Remove when CNPG drops support. */}}
+  {{- include "template.legacy.backup" . | nindent 2 }}
+  {{- if eq .Values.mode "primary" }}
+  bootstrap:
+    initdb:
+      database: {{ .Values.dbName | default (include "template.fullname" .) }}
+      owner: {{ .Values.credentials.username | default (include "template.fullname" .) }}
+      {{- if ne $credMode "operator" }}
+      secret:
+        {{- if eq $credMode "chart" }}
+        name: {{ printf "%s-%s" (include "template.fullname" .) "app" }}
+        {{- else }}
+        name: {{ .Values.credentials.existingSecrets.app.secretName }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.initDb.extraArgs }}
+      {{- toYaml .Values.initDb.extraArgs | nindent 6 }}
+      {{- end }}
+  {{- else if eq .Values.mode "recovery" }}
+  bootstrap:
+    recovery:
+      source: {{ .Values.recovery.clusterName | default (include "template.fullname" .) }}
+      database: {{ .Values.dbName | default (include "template.fullname" .) }}
+      owner: {{ .Values.credentials.username | default (include "template.fullname" .) }}
+      {{- if ne $credMode "operator" }}
+      secret:
+        {{- if eq $credMode "chart" }}
+        name: {{ printf "%s-%s" (include "template.fullname" .) "app" }}
+        {{- else }}
+        name: {{ .Values.credentials.existingSecrets.app.secretName }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.recovery.extraArgs }}
+      {{- toYaml .Values.recovery.extraArgs | nindent 6 }}
+      {{- end }}
+  externalClusters:
+  - name: {{ .Values.recovery.clusterName | default (include "template.fullname" .) }}
+    {{- if .Values.backup.legacyMode }}
+    barmanObjectStore:
+      destinationPath: {{ .Values.recovery.destinationPath | default .Values.backup.destinationPath }}
+      endpointURL: {{ .Values.recovery.endpointURL | default .Values.backup.endpointURL }}
+      {{- $useRecoveryCA := or .Values.recovery.endpointCA.create .Values.recovery.endpointCA.secretName }}
+      {{- $useBackupCA := or .Values.backup.endpointCA.create .Values.backup.endpointCA.secretName }}
+      {{- if or $useRecoveryCA $useBackupCA }}
+      endpointCA:
+        {{- if $useRecoveryCA }}
+        name: {{ .Values.recovery.endpointCA.secretName | default (printf "%s-%s" (include "template.fullname" .) "recovery-ca") }}
+        key: {{ .Values.recovery.endpointCA.key }}
+        {{- else }}
+        name: {{ .Values.backup.endpointCA.secretName | default (printf "%s-%s" (include "template.fullname" .) "backup-ca") }}
+        key: {{ .Values.backup.endpointCA.key }}
+        {{- end }}
+      {{- end }}
+      {{- $useRecoveryCreds := or .Values.recovery.s3Credentials.create .Values.recovery.s3Credentials.secretName }}
+      s3Credentials:
+        accessKeyId:
+          {{- if $useRecoveryCreds }}
+          name: {{ .Values.recovery.s3Credentials.secretName | default (printf "%s-%s" (include "template.fullname" .) "recovery-creds") }}
+          key: {{ .Values.recovery.s3Credentials.accessKeyId.key }}
+          {{- else }}
+          name: {{ .Values.backup.s3Credentials.secretName | default (printf "%s-%s" (include "template.fullname" .) "backup-creds") }}
+          key: {{ .Values.backup.s3Credentials.accessKeyId.key }}
+          {{- end }}
+        secretAccessKey:
+          {{- if $useRecoveryCreds }}
+          name: {{ .Values.recovery.s3Credentials.secretName | default (printf "%s-%s" (include "template.fullname" .) "recovery-creds") }}
+          key: {{ .Values.recovery.s3Credentials.secretAccessKey.key }}
+          {{- else }}
+          name: {{ .Values.backup.s3Credentials.secretName | default (printf "%s-%s" (include "template.fullname" .) "backup-creds") }}
+          key: {{ .Values.backup.s3Credentials.secretAccessKey.key }}
+          {{- end }}
+        region:
+          {{- if $useRecoveryCreds }}
+          name: {{ .Values.recovery.s3Credentials.secretName | default (printf "%s-%s" (include "template.fullname" .) "recovery-creds") }}
+          key: {{ .Values.recovery.s3Credentials.region.key }}
+          {{- else }}
+          name: {{ .Values.backup.s3Credentials.secretName | default (printf "%s-%s" (include "template.fullname" .) "backup-creds") }}
+          key: {{ .Values.backup.s3Credentials.region.key }}
+          {{- end }}
+      serverName: {{ .Values.recovery.clusterName | default (include "template.fullname" .) }}
+    {{- else }}
+    plugin:
+      name: barman-cloud.cloudnative-pg.io
+      parameters:
+        barmanObjectName: {{ printf "%s-%s" (include "template.fullname" .) "recovery-store" }}
+        serverName: {{ .Values.recovery.clusterName | default (include "template.fullname" .) }}
+    {{- end }}
+  {{- else if eq .Values.mode "replica" }}
+  bootstrap:
+    recovery:
+      source: {{ .Values.replica.clusterName | default (include "template.fullname" .) }}
+      {{- if .Values.replica.extraArgs }}
+      {{- toYaml .Values.replica.extraArgs | nindent 6 }}
+      {{- end }}
+  replica:
+    enabled: true
+    source: {{ .Values.replica.clusterName | default (include "template.fullname" .) }}
+  externalClusters:
+  - name: {{ .Values.replica.clusterName | default (include "template.fullname" .) }}
+    {{- if .Values.backup.legacyMode }}
+    barmanObjectStore:
+      destinationPath: {{ .Values.replica.destinationPath }}
+      endpointURL: {{ .Values.replica.endpointURL }}
+      {{- if or .Values.replica.endpointCA.create .Values.replica.endpointCA.secretName }}
+      endpointCA:
+        name: {{ .Values.replica.endpointCA.secretName | default (printf "%s-%s" (include "template.fullname" .) "replica-ca") }}
+        key: {{ .Values.replica.endpointCA.key }}
+      {{- end }}
+      s3Credentials:
+        accessKeyId:
+          name: {{ .Values.replica.s3Credentials.secretName | default (printf "%s-%s" (include "template.fullname" .) "replica-creds") }}
+          key: {{ .Values.replica.s3Credentials.accessKeyId.key }}
+        secretAccessKey:
+          name: {{ .Values.replica.s3Credentials.secretName | default (printf "%s-%s" (include "template.fullname" .) "replica-creds") }}
+          key: {{ .Values.replica.s3Credentials.secretAccessKey.key }}
+        region:
+          name: {{ .Values.replica.s3Credentials.secretName | default (printf "%s-%s" (include "template.fullname" .) "replica-creds") }}
+          key: {{ .Values.replica.s3Credentials.region.key }}
+      serverName: {{ .Values.replica.clusterName | default (include "template.fullname" .) }}
+    {{- else }}
+    plugin:
+      name: barman-cloud.cloudnative-pg.io
+      parameters:
+        barmanObjectName: {{ printf "%s-%s" (include "template.fullname" .) "replica-store" }}
+        serverName: {{ .Values.replica.clusterName | default (include "template.fullname" .) }}
+    {{- end }}
+    {{- if .Values.replica.host }}
+    connectionParameters:
+      host: {{ .Values.replica.host }}
+      port: {{ .Values.replica.port | default 5432 | quote }}
+      dbname: {{ .Values.replica.dbName }}
+      sslmode: {{ .Values.replica.sslMode }}
+    {{- end }}
+  {{- end }}
+  {{/* Plugin-based backup and replica configuration (official barman-cloud plugin method) */}}
+  {{- if or (and .Values.backup.enabled (not .Values.backup.legacyMode) (ne .Values.mode "recovery")) (and (eq .Values.mode "replica") (not .Values.backup.legacyMode)) }}
+  plugins:
+  {{- if and .Values.backup.enabled (not .Values.backup.legacyMode) (ne .Values.mode "recovery") }}
+  - name: barman-cloud.cloudnative-pg.io
+    isWALArchiver: true
+    parameters:
+      barmanObjectName: {{ printf "%s-%s" (include "template.fullname" .) "backup-store" }}
+      {{- range $key, $val := .Values.backup.pluginExtraParameters }}
+      {{ $key }}: {{ $val | quote }}
+      {{- end }}
+  {{- end }}
+  {{- if and (eq .Values.mode "replica") (not .Values.backup.legacyMode) }}
+  - name: barman-cloud.cloudnative-pg.io
+    parameters:
+      barmanObjectName: {{ printf "%s-%s" (include "template.fullname" .) "replica-store" }}
+  {{- end }}
+  {{- end }}
+  monitoring:
+    enablePodMonitor: {{ .Values.monitoring.enabled }} 
+  logLevel: {{ .Values.logLevel }}
+  {{- if .Values.affinity }}
+  affinity: {{- toYaml .Values.affinity | nindent 4 }}
+  {{- end }}
+  {{- if .Values.topologySpreadConstraints }}
+  topologySpreadConstraints: {{- toYaml .Values.topologySpreadConstraints | nindent 4 }}
+  {{- end }}
+  {{- if .Values.extraSpec }}
+  {{- toYaml .Values.extraSpec | nindent 2 }}
+  {{- end }}
