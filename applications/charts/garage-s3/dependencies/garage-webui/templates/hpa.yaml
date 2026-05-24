@@ -2,14 +2,16 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "garage-s3.fullname" . }}
+  name: {{ include "garage-webui.fullname" . }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
   labels:
-    {{- include "garage-s3.labels" . | nindent 4 }}
+    {{- include "garage-webui.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "garage-s3.fullname" . }}
+    name: {{ include "garage-webui.fullname" . }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:
