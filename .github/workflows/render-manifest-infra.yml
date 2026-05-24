@@ -34,6 +34,11 @@ jobs:
           sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
 
+      - name: Fetch latest main
+        run: |
+          git fetch origin main
+          git pull origin main
+
       - name: Detect changed charts (auto/manual)
         id: changed
         run: |
