@@ -11,31 +11,20 @@ imageName: "ghcr.io/cloudnative-pg/postgresql:18"
 # @section -- Database
 imagePullPolicy: "IfNotPresent"
 credentials:
-  # -- Username of the database user (it is used for the database owner - needed also if `credentials.existingSecrets.enabled` is set to `true`).
-  # @section -- Database
-  username: ""
-  # -- Password of the database user. When empty and `existingSecrets.enabled` is `false`, the CNPG operator auto-generates a stable secret (recommended). In chart-managed mode (when at least one password is set), empty passwords are resolved via `lookup` to reuse existing secrets — but `lookup` does not work with ArgoCD/GitOps, so set both passwords explicitly in that case.
-  # @section -- Database
-  password: ""
-  # -- Password of the postgres superuser. Same behavior as `credentials.password` — leave empty to let the CNPG operator manage it, or set explicitly for chart-managed mode.
-  # @section -- Database
-  postgresPassword: ""
+  username: "kyoo"        # not sensitive — fine in values.yaml
+  password: ""            # leave empty — secret comes from K8s secret below
+  postgresPassword: ""    # leave empty — same
+
   existingSecrets:
-    # -- Enable the load of the following secrets to bootstrap the database, instead of generating them with the previous values.
-    # @section -- Database
-    enabled: false
+    enabled: true
     app:
-      # -- Name of the kubernetes secret to retrieve app user auth infos. Secret should be of type `kubernetes.io/basic-auth` with `username` and `password` keys.
-      # @section -- Database
-      secretName: ""
+      secretName: "kyoo-pg-credentials"      # ESO syncs this from Infisical
     postgres:
-      # -- Name of the kubernetes secret to retrieve postgres superuser auth infos. Secret should be of type `kubernetes.io/basic-auth` with `username` and `password` keys.
-      # @section -- Database
-      secretName: ""
+      secretName: "kyoo-pg-superuser"        # ESO syncs this from Infisical
 
 # -- Name of the database (Default is `fullnameOverride` > `nameOverride` > name of the Helm release).
 # @section -- Database
-dbName: "kyoo"
+dbName: "stag01"
 # -- Enable superuser access.
 # @section -- Database
 enableSuperuserAccess: true
@@ -353,7 +342,7 @@ resources:
   limits:
     # -- Memory limit for the database instance.
     # @section -- Resources
-    memory: "1Gi"
+    memory: "2Gi"
     # -- CPU limit for the database instance.
     # @section -- Resources
     cpu: "500m"
@@ -386,7 +375,7 @@ pooler:
 monitoring:
   # -- Specifies whether the monitoring should be enabled. Requires Prometheus Operator CRDs.
   # @section -- Monitoring
-  enabled: false
+  enabled: true
   podMonitor:
     # -- Metrics relabel configurations to apply to samples before ingestion.
     # @section -- Monitoring
@@ -400,89 +389,21 @@ monitoring:
     # -- Additional match labels for the podMonitor
     # @section -- Monitoring
     extraMatchLabels: {}
-# -- Declarative management of databases inside the cnpg cluster. Each entry creates a separate Database CRD (See. https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-Database). Note that Database CRDs are NOT created in replica mode (CNPG limitation) and that reserved database names (postgres, template0, template1) cannot be used.
-# @section -- Databases
-databases: []
-  # - # -- Name of the database inside PostgreSQL (required, immutable after creation).
-  #   # @section -- Databases
-  #   name: "mydb"
-  #   # -- Role name of the database owner (required).
-  #   # @section -- Databases
-  #   owner: "myuser"
-  #   # -- Whether the database should be present or absent (default: present).
-  #   # @section -- Databases
-  #   ensure: "present"
-  #   # -- Policy for end-of-life maintenance: retain (default) or delete.
-  #   # @section -- Databases
-  #   databaseReclaimPolicy: "retain"
-  #   # -- Template database name (immutable after creation).
-  #   # @section -- Databases
-  #   template: ""
-  #   # -- Character set encoding (immutable after creation).
-  #   # @section -- Databases
-  #   encoding: ""
-  #   # -- Default collation order and character classification (immutable after creation).
-  #   # @section -- Databases
-  #   locale: ""
-  #   # -- Locale provider: icu or builtin (immutable, available from PostgreSQL 16).
-  #   # @section -- Databases
-  #   localeProvider: ""
-  #   # -- LC_COLLATE setting (immutable after creation).
-  #   # @section -- Databases
-  #   localeCollate: ""
-  #   # -- LC_CTYPE setting (immutable after creation).
-  #   # @section -- Databases
-  #   localeCType: ""
-  #   # -- ICU locale (requires localeProvider=icu, immutable, available from PostgreSQL 15).
-  #   # @section -- Databases
-  #   icuLocale: ""
-  #   # -- Additional ICU collation rules (requires localeProvider=icu, immutable, available from PostgreSQL 16).
-  #   # @section -- Databases
-  #   icuRules: ""
-  #   # -- Builtin locale (requires localeProvider=builtin, immutable, available from PostgreSQL 17).
-  #   # @section -- Databases
-  #   builtinLocale: ""
-  #   # -- Collation version (immutable after creation).
-  #   # @section -- Databases
-  #   collationVersion: ""
-  #   # -- Whether this database is a template (IS_TEMPLATE).
-  #   # @section -- Databases
-  #   isTemplate: false
-  #   # -- Whether connections are allowed (ALLOW_CONNECTIONS).
-  #   # @section -- Databases
-  #   allowConnections: true
-  #   # -- Maximum concurrent connections (-1 means no limit).
-  #   # @section -- Databases
-  #   connectionLimit: -1
-  #   # -- Default tablespace for this database.
-  #   # @section -- Databases
-  #   tablespace: ""
-  #   # -- List of extensions to manage in this database.
-  #   # @section -- Databases
-  #   extensions: []
-  #     # - name: "postgis"
-  #     #   ensure: "present"
-  #     #   version: ""
-  #     #   schema: "public"
-  #   # -- List of schemas to manage in this database.
-  #   # @section -- Databases
-  #   schemas: []
-  #     # - name: "myschema"
-  #     #   owner: "myuser"
-  #     #   ensure: "present"
-  #   # -- List of foreign data wrappers to manage in this database.
-  #   # @section -- Databases
-  #   fdws: []
-  #   # -- List of foreign servers to manage in this database.
-  #   # @section -- Databases
-  #   servers: []
 
-# -- Additional specifications to add to the cnpg cluster manifest (See. https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-Cluster). This allows you to replace any default configuration of the chart and add new configurations that are not yet supported (for example, when a new version of the CNPG is released with new features that are not yet supported).
-# @section -- Database
-extraSpec: {}
-
-
-# CNPG operator configuration
-cnpg-operator:
-  # -- Whether or not cnpg operator should be deployed (See. https://artifacthub.io/packages/helm/cloudnative-pg/cloudnative-pg?modal=values).
-  enabled: false
+databases:
+  - name: "kyoodb"
+    owner: "kyoo"
+    ensure: "present"
+    databaseReclaimPolicy: "retain"
+    encoding: "UTF8"
+    locale: "en_US.UTF-8"
+    allowConnections: true
+    connectionLimit: -1
+    isTemplate: false
+    schemas:
+      - name: "public"
+        owner: "kyoo"
+        ensure: "present"
+    extensions: []
+    fdws: []
+    servers: []
