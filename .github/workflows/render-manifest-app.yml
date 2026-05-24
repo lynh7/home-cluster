@@ -58,6 +58,11 @@ jobs:
 
           echo "Charts: $CHARTS"
           echo "charts=$CHARTS" >> $GITHUB_OUTPUT
+          
+      - name: Fetch latest main
+        run: |
+          git fetch origin main
+          git pull origin main
 
       - name: Render Charts
         run: |
