@@ -43,3 +43,16 @@ externalSecrets:
         remoteKey: CNPG_USER
       - secretKey: password
         remoteKey: CNPG_PASSWORD
+
+  - name: kyoo-pg-superuser
+    enabled: true
+    namespace: stag01
+    targetSecret: kyoo-pg-superuser
+    refreshInterval: "1h"
+    template:
+      type: kubernetes.io/basic-auth
+    data:
+      - secretKey: username
+        remoteKey: POSTGRES_SUPERUSER_USER
+      - secretKey: password
+        remoteKey: POSTGRES_SUPERUSER_PASSWORD
