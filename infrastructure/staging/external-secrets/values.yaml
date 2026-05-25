@@ -10,6 +10,7 @@ createOperator: true
 
 serviceMonitor:
   enabled: true
+  renderMode: alwaysRender
 
 # ── ClusterSecretStore ────────────────────────────────────────────
 clusterSecretStore:
