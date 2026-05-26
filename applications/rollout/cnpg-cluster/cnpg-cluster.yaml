@@ -34,7 +34,7 @@ spec:
   
   bootstrap:
     initdb:
-      database: stag01
+      database: kyoo-stag01
       owner: kyoo
       secret:
         name: kyoo-pg-credentials
@@ -50,7 +50,7 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: cnpg-cluster-db-kyoodb
+  name: cnpg-cluster-db-kyoo_api
   labels:
     helm.sh/chart: cnpg-cluster-2.1.0
     app.kubernetes.io/version: "1.29.0"
@@ -58,21 +58,61 @@ metadata:
     app.kubernetes.io/name: cnpg-cluster
     app.kubernetes.io/instance: cnpg-cluster
 spec:
-  name: kyoodb
+  name: kyoo_api
   owner: kyoo
   cluster:
     name: cnpg-cluster
-  ensure: present
-  databaseReclaimPolicy: retain
-  encoding: UTF8
-  locale: en_US.UTF-8
-  isTemplate: false
-  allowConnections: true
-  connectionLimit: -1
-  schemas:
-  - ensure: present
-    name: public
-    owner: kyoo
+---
+# Source: cnpg-cluster/templates/databases.yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: cnpg-cluster-db-kyoo_auth
+  labels:
+    helm.sh/chart: cnpg-cluster-2.1.0
+    app.kubernetes.io/version: "1.29.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cnpg-cluster
+    app.kubernetes.io/instance: cnpg-cluster
+spec:
+  name: kyoo_auth
+  owner: kyoo
+  cluster:
+    name: cnpg-cluster
+---
+# Source: cnpg-cluster/templates/databases.yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: cnpg-cluster-db-kyoo_scanner
+  labels:
+    helm.sh/chart: cnpg-cluster-2.1.0
+    app.kubernetes.io/version: "1.29.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cnpg-cluster
+    app.kubernetes.io/instance: cnpg-cluster
+spec:
+  name: kyoo_scanner
+  owner: kyoo
+  cluster:
+    name: cnpg-cluster
+---
+# Source: cnpg-cluster/templates/databases.yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: cnpg-cluster-db-kyoo_transcoder
+  labels:
+    helm.sh/chart: cnpg-cluster-2.1.0
+    app.kubernetes.io/version: "1.29.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cnpg-cluster
+    app.kubernetes.io/instance: cnpg-cluster
+spec:
+  name: kyoo_transcoder
+  owner: kyoo
+  cluster:
+    name: cnpg-cluster
 
 ---
 # Source: cnpg-cluster/templates/pod-monitor.yaml
