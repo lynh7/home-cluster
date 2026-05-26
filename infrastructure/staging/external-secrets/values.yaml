@@ -57,3 +57,5 @@ externalSecrets:
         remoteKey: POSTGRES_SUPERUSER_USER
       - secretKey: password
         remoteKey: POSTGRES_SUPERUSER_PASSWORD
+      - secretKey: scanner_apikey
+        remoteKey: KEIBI_APIKEY_SCANNER
