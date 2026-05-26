@@ -67,6 +67,22 @@ metadata:
     app.kubernetes.io/version: "5.0.0"
 
 ---
+# Source: kyoo/templates/traefikproxy/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: true
+metadata:
+  name: kyoo-streaming-traefik
+  namespace: stag01
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-traefik
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: traefik
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "5.0.0"
+---
 # Source: kyoo/templates/transcoder/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
@@ -82,6 +98,99 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: kyoo
     app.kubernetes.io/version: "5.0.0"
+
+---
+# Source: kyoo/templates/traefikproxy/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kyoo-streaming-traefik
+  namespace: stag01
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-traefik
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: traefik
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "5.0.0"
+data:
+  dynamic_config.yaml: |
+    http:
+      routers:
+        basepath:
+          entryPoints:
+          - web
+          service: front
+          rule: "PathPrefix(`/`)"
+        video:
+          entryPoints:
+          - web
+          middlewares:
+          - phantomtoken
+          service: transcoder
+          rule: "PathPrefix(`/video`)"
+        auth:
+          entryPoints:
+          - web
+          service: auth
+          rule: "PathPrefix(`/auth/`)"
+        wellknown:
+          entryPoints:
+          - web
+          service: auth
+          rule: "PathPrefix(`/.well-known/`)"
+        api:
+          entryPoints:
+          - web
+          middlewares:
+          - phantomtoken
+          service: api
+          rule: "PathPrefix(`/api/`)"
+        swagger:
+          entryPoints:
+          - web
+          service: api
+          rule: "PathPrefix(`/swagger`)"
+        scanner:
+          entryPoints:
+          - web
+          middlewares:
+          - phantomtoken
+          service: scanner
+          rule: "PathPrefix(`/scanner/`)"
+      middlewares:
+        phantomtoken:
+          forwardAuth:
+            address: "http://kyoo-streaming-auth:4568/auth/jwt"
+            authRequestHeaders:
+              - "Authorization"
+              - "X-Api-Key"
+              - "Cookie"
+              - "Sec-WebSocket-Protocol"
+            authResponseHeaders:
+              - Authorization
+      services:
+        api:
+          loadBalancer:
+            servers:
+            - url: http://kyoo-streaming-api:3567/
+        front:
+          loadBalancer:
+            servers:
+            - url: http://kyoo-streaming-front:8901/
+        transcoder:
+          loadBalancer:
+            servers:
+            - url: http://kyoo-streaming-transcoder:7666/
+        auth:
+          loadBalancer:
+            servers:
+            - url: http://kyoo-streaming-auth:4568/
+        scanner:
+          loadBalancer:
+            servers:
+            - url: http://kyoo-streaming-scanner:4389/
 
 ---
 # Source: kyoo/templates/api/pvc.yaml
@@ -253,6 +362,35 @@ spec:
     app.kubernetes.io/name: kyoo-scanner
     app.kubernetes.io/instance: kyoo-streaming
 
+---
+# Source: kyoo/templates/traefikproxy/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kyoo-streaming-traefik
+  namespace: stag01
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-traefik
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: traefik
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "5.0.0"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: web
+    - port: 443
+      targetPort: 443
+      protocol: TCP
+      name: websecure
+  selector:
+    app.kubernetes.io/name: kyoo-traefik
+    app.kubernetes.io/instance: kyoo-streaming
 ---
 # Source: kyoo/templates/transcoder/service.yaml
 apiVersion: v1
@@ -605,6 +743,74 @@ spec:
           persistentVolumeClaim:
             claimName: media
 
+---
+# Source: kyoo/templates/traefikproxy/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kyoo-streaming-traefik
+  namespace: stag01
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-traefik
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: traefik
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "5.0.0"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kyoo-traefik
+      app.kubernetes.io/instance: kyoo-streaming
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: kyoo-0.0.0
+        app.kubernetes.io/name: kyoo-traefik
+        app.kubernetes.io/instance: kyoo-streaming
+        app.kubernetes.io/component: traefik
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: kyoo
+        app.kubernetes.io/version: "5.0.0"
+    spec:
+      serviceAccountName: kyoo-streaming-traefik
+      containers:
+        - name: main
+          image: docker.io/traefik:v3.6.13
+          imagePullPolicy: IfNotPresent
+          args:
+            - --entryPoints.web.address=:80/tcp
+            - --entryPoints.websecure.address=:443/tcp
+            - --entryPoints.web.forwardedHeaders.insecure=true
+            - --entryPoints.websecure.forwardedHeaders.insecure=true
+            - --api.dashboard=true
+            - --api.insecure=true
+            - --log.level=INFO
+            - --providers.file.filename=/dynamic_config/dynamic_config.yaml
+          env:
+          ports:
+            - name: web
+              containerPort: 80
+              protocol: TCP
+            - name: websecure
+              containerPort: 443
+              protocol: TCP
+            - name: traefik
+              containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /dynamic_config
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: kyoo-streaming-traefik
+            items:
+              - key: dynamic_config.yaml
+                path: dynamic_config.yaml
 ---
 # Source: kyoo/templates/transcoder/deployment.yaml
 apiVersion: apps/v1
