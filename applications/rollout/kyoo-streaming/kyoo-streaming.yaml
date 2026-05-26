@@ -1,0 +1,713 @@
+---
+# Source: kyoo/templates/api/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: true
+metadata:
+  name: kyoo-streaming-api
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-api
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: api
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+
+---
+# Source: kyoo/templates/auth/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: true
+metadata:
+  name: kyoo-streaming-auth
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-auth
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: auth
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+
+---
+# Source: kyoo/templates/front/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: true
+metadata:
+  name: kyoo-streaming-front
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-front
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: front
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+
+---
+# Source: kyoo/templates/scanner/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: true
+metadata:
+  name: kyoo-streaming-scanner
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-scanner
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: scanner
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+
+---
+# Source: kyoo/templates/transcoder/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: true
+metadata:
+  name: kyoo-streaming-transcoder
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-transcoder
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: transcoder
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+
+---
+# Source: kyoo/templates/api/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kyoo-streaming-apimetadata
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-api
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: api
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+
+---
+# Source: kyoo/templates/auth/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kyoo-streaming-authprofile-pictures
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-auth
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: auth
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
+
+---
+# Source: kyoo/templates/transcoder/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kyoo-streaming-transcodermetadata
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-transcoder
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: transcoder
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+
+---
+# Source: kyoo/templates/api/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kyoo-streaming-api
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-api
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: api
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3567
+      targetPort: 3567
+      protocol: TCP
+      name: main
+  selector:
+    app.kubernetes.io/name: kyoo-api
+    app.kubernetes.io/instance: kyoo-streaming
+
+---
+# Source: kyoo/templates/auth/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kyoo-streaming-auth
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-auth
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: auth
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4568
+      targetPort: 4568
+      protocol: TCP
+      name: main
+  selector:
+    app.kubernetes.io/name: kyoo-auth
+    app.kubernetes.io/instance: kyoo-streaming
+
+---
+# Source: kyoo/templates/front/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kyoo-streaming-front
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-front
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: front
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8901
+      targetPort: 8901
+      protocol: TCP
+      name: main
+  selector:
+    app.kubernetes.io/name: kyoo-front
+    app.kubernetes.io/instance: kyoo-streaming
+
+---
+# Source: kyoo/templates/scanner/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kyoo-streaming-scanner
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-scanner
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: scanner
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4389
+      targetPort: 4389
+      protocol: TCP
+      name: main
+  selector:
+    app.kubernetes.io/name: kyoo-scanner
+    app.kubernetes.io/instance: kyoo-streaming
+
+---
+# Source: kyoo/templates/transcoder/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kyoo-streaming-transcoder
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-transcoder
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: transcoder
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 7666
+      targetPort: 7666
+      protocol: TCP
+      name: main
+  selector:
+    app.kubernetes.io/name: kyoo-transcoder
+    app.kubernetes.io/instance: kyoo-streaming
+
+---
+# Source: kyoo/templates/api/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kyoo-streaming-api
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-api
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: api
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kyoo-api
+      app.kubernetes.io/instance: kyoo-streaming
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: kyoo-0.0.0
+        app.kubernetes.io/name: kyoo-api
+        app.kubernetes.io/instance: kyoo-streaming
+        app.kubernetes.io/component: api
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: kyoo
+        app.kubernetes.io/version: "0.0.0"
+    spec:
+      serviceAccountName: kyoo-streaming-api
+      initContainers:
+      containers:
+        - name: main
+          image: ghcr.io/zoriya/kyoo_api:0.0.0
+          imagePullPolicy: IfNotPresent
+          args:
+          env:
+            - name: JWT_ISSUER
+              value: "https://kyoo.mydomain.com"
+            - name: AUTH_SERVER
+              value: "http://kyoo-streaming-auth:4568"
+            - name: TRANSCODER_SERVER
+              value: "http://kyoo-streaming-transcoder:7666"
+            - name: IMAGES_PATH
+              value: "/images"
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: kyoo-pg-credentials
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: kyoo-pg-credentials
+            - name: PGDATABASE
+              value: "kyoo_api"
+            - name: PGHOST
+              value: "kyoo-streaming-postgres"
+            - name: PGPORT
+              value: "5432"
+            - name: PGSSLMODE
+              value: "disable"
+          ports:
+            - name: main
+              containerPort: 3567
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: main
+          readinessProbe:
+            httpGet:
+              path: /api/ready
+              port: main
+          volumeMounts:
+            - name: apiimagedata
+              mountPath: /images
+      volumes:
+        - name: apiimagedata
+          persistentVolumeClaim:
+            claimName: kyoo-streaming-apimetadata
+
+---
+# Source: kyoo/templates/auth/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kyoo-streaming-auth
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-auth
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: auth
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kyoo-auth
+      app.kubernetes.io/instance: kyoo-streaming
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: kyoo-0.0.0
+        app.kubernetes.io/name: kyoo-auth
+        app.kubernetes.io/instance: kyoo-streaming
+        app.kubernetes.io/component: auth
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: kyoo
+        app.kubernetes.io/version: "0.0.0"
+    spec:
+      serviceAccountName: kyoo-streaming-auth
+      containers:
+        - name: main
+          image: ghcr.io/zoriya/kyoo_auth:0.0.0
+          imagePullPolicy: IfNotPresent
+          args:
+          env:
+            - name: EXTRA_CLAIMS
+              value: "{\"permissions\": [\"core.read\", \"core.play\"], \"verified\": false}"
+            - name: FIRST_USER_CLAIMS
+              value: "{\"permissions\": [\"users.read\", \"users.write\", \"apikeys.read\", \"apikeys.write\", \"users.delete\", \"core.read\", \"core.write\", \"core.play\", \"scanner.trigger\", \"scanner.guess\", \"scanner.search\", \"scanner.add\"], \"verified\": true}"
+            - name: GUEST_CLAIMS
+              value: "{\"permissions\": [\"core.read\"], \"verified\": true}"
+            - name: PROTECTED_CLAIMS
+              value: "permissions,verified"
+            - name: PUBLIC_URL
+              value: "https://kyoo.mydomain.com"
+            - name: KEIBI_APIKEY_SCANNER
+              valueFrom:
+                secretKeyRef:
+                  key: scanner_apikey
+                  name: bigsecret
+            - name: KEIBI_APIKEY_SCANNER_CLAIMS
+              value: "{\"permissions\": [\"core.read\", \"core.write\"]}"
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: kyoo-pg-credentials
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: kyoo-pg-credentials
+            - name: PGDATABASE
+              value: "kyoo_auth"
+            - name: PGHOST
+              value: "kyoo-streaming-postgres"
+            - name: PGPORT
+              value: "5432"
+            - name: PGSSLMODE
+              value: "prefer"
+          ports:
+            - name: main
+              containerPort: 4568
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /auth/health
+              port: main
+          readinessProbe:
+            httpGet:
+              path: /auth/ready
+              port: main
+          volumeMounts:
+            - name: profilepictures
+              mountPath: /profile_pictures
+      volumes:
+        - name: profilepictures
+          persistentVolumeClaim:
+            claimName: kyoo-streaming-authprofile-pictures
+
+---
+# Source: kyoo/templates/front/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kyoo-streaming-front
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-front
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: front
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kyoo-front
+      app.kubernetes.io/instance: kyoo-streaming
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: kyoo-0.0.0
+        app.kubernetes.io/name: kyoo-front
+        app.kubernetes.io/instance: kyoo-streaming
+        app.kubernetes.io/component: front
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: kyoo
+        app.kubernetes.io/version: "0.0.0"
+    spec:
+      serviceAccountName: kyoo-streaming-front
+      containers:
+        - name: main
+          image: ghcr.io/zoriya/kyoo_front:0.0.0
+          imagePullPolicy: IfNotPresent
+          args:
+          env:
+            - name: KYOO_URL
+              value: "http://kyoo-streaming-api:5000/api"
+          ports:
+            - name: main
+              containerPort: 8901
+              protocol: TCP
+---
+# Source: kyoo/templates/scanner/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kyoo-streaming-scanner
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-scanner
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: scanner
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kyoo-scanner
+      app.kubernetes.io/instance: kyoo-streaming
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: kyoo-0.0.0
+        app.kubernetes.io/name: kyoo-scanner
+        app.kubernetes.io/instance: kyoo-streaming
+        app.kubernetes.io/component: scanner
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: kyoo
+        app.kubernetes.io/version: "0.0.0"
+    spec:
+      serviceAccountName: kyoo-streaming-scanner
+      containers:
+        - name: main
+          image: ghcr.io/zoriya/kyoo_scanner:0.0.0
+          imagePullPolicy: IfNotPresent
+          args:
+          env:
+            - name: SCANNER_LIBRARY_ROOT
+              value: "/media"
+            - name: LIBRARY_IGNORE_PATTERN
+              value: ".*/[dD]ownloads?/.*"
+            - name: KYOO_URL
+              value: "http://kyoo-streaming-traefik/api"
+            - name: JWKS_URL
+              value: "http://kyoo-streaming-auth:4568/.well-known/jwks.json"
+            - name: JWT_ISSUER
+              value: "https://kyoo.mydomain.com"
+            - name: KYOO_APIKEY
+              valueFrom:
+                secretKeyRef:
+                  key: scanner_apikey
+                  name: bigsecret
+            - name: THEMOVIEDB_API_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: tmdb_apikey
+                  name: bigsecret
+                  optional: true
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: kyoo-pg-credentials
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: kyoo-pg-credentials
+            - name: PGDATABASE
+              value: "kyoo_scanner"
+            - name: PGHOST
+              value: "kyoo-streaming-postgres"
+            - name: PGPORT
+              value: "5432"
+            - name: PGSSLMODE
+              value: "prefer"
+          ports:
+            - name: main
+              containerPort: 4389
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: main
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: main
+          volumeMounts:
+            - mountPath: /media
+              name: media
+              readOnly: true
+      volumes:
+        - name: media
+          persistentVolumeClaim:
+            claimName: media
+
+---
+# Source: kyoo/templates/transcoder/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kyoo-streaming-transcoder
+  namespace: default
+  labels:
+    helm.sh/chart: kyoo-0.0.0
+    app.kubernetes.io/name: kyoo-transcoder
+    app.kubernetes.io/instance: kyoo-streaming
+    app.kubernetes.io/component: transcoder
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kyoo
+    app.kubernetes.io/version: "0.0.0"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kyoo-transcoder
+      app.kubernetes.io/instance: kyoo-streaming
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: kyoo-0.0.0
+        app.kubernetes.io/name: kyoo-transcoder
+        app.kubernetes.io/instance: kyoo-streaming
+        app.kubernetes.io/component: transcoder
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: kyoo
+        app.kubernetes.io/version: "0.0.0"
+    spec:
+      serviceAccountName: kyoo-streaming-transcoder
+      containers:
+        - name: main
+          image: ghcr.io/zoriya/kyoo_transcoder:0.0.0
+          imagePullPolicy: IfNotPresent
+          args:
+          env:
+            - name: JWKS_URL
+              value: "http://kyoo-streaming-auth:4568/.well-known/jwks.json"
+            - name: GOCODER_HWACCEL
+              value: "disabled"
+            - name: GOCODER_PRESET
+              value: "fast"
+            - name: GOCODER_CACHE_ROOT
+              value: "/cache"
+            - name: GOCODER_METADATA_ROOT
+              value: "/metadata"
+            # the vaapi device path (only used with GOCODER_HWACCEL=vaapi)
+            - name: GOCODER_VAAPI_RENDERER
+              value: "/dev/dri/renderD128"
+            # the qsv device path (only used with GOCODER_HWACCEL=qsv)
+            - name: GOCODER_QSV_RENDERER
+              value: "/dev/dri/renderD128"
+            - name: GOCODER_SAFE_PATH
+              value: "/media"
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: kyoo-pg-credentials
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: kyoo-pg-credentials
+            - name: PGDATABASE
+              value: "kyoo_transcoder"
+            - name: PGHOST
+              value: "kyoo-streaming-postgres"
+            - name: PGPORT
+              value: "5432"
+            - name: PGSSLMODE
+              value: "prefer"
+          ports:
+            - name: main
+              containerPort: 7666
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /video/health
+              port: main
+          readinessProbe:
+            httpGet:
+              path: /video/ready
+              port: main
+          volumeMounts:
+            - mountPath: /media
+              name: media
+              readOnly: true
+            - name: transcodermetadata
+              mountPath: /metadata
+            - mountPath: /cache
+              name: cache
+      volumes:
+        - name: media
+          persistentVolumeClaim:
+            claimName: media
+        - name: transcodermetadata
+          persistentVolumeClaim:
+            claimName: kyoo-streaming-transcodermetadata
+        - emptyDir: {}
+          name: cache
