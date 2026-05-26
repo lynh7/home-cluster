@@ -50,7 +50,7 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: cnpg-cluster-db-kyoo_api
+  name: cnpg-cluster-db-kyoo-api
   labels:
     helm.sh/chart: cnpg-cluster-2.1.0
     app.kubernetes.io/version: "1.29.0"
@@ -67,7 +67,7 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: cnpg-cluster-db-kyoo_auth
+  name: cnpg-cluster-db-kyoo-auth
   labels:
     helm.sh/chart: cnpg-cluster-2.1.0
     app.kubernetes.io/version: "1.29.0"
@@ -84,7 +84,7 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: cnpg-cluster-db-kyoo_scanner
+  name: cnpg-cluster-db-kyoo-scanner
   labels:
     helm.sh/chart: cnpg-cluster-2.1.0
     app.kubernetes.io/version: "1.29.0"
@@ -101,7 +101,7 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: cnpg-cluster-db-kyoo_transcoder
+  name: cnpg-cluster-db-kyoo-transcoder
   labels:
     helm.sh/chart: cnpg-cluster-2.1.0
     app.kubernetes.io/version: "1.29.0"
