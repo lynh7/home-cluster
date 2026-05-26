@@ -24,7 +24,7 @@ credentials:
 
 # -- Name of the database (Default is `fullnameOverride` > `nameOverride` > name of the Helm release).
 # @section -- Database
-dbName: "stag01"
+dbName: "kyoo-stag01"
 # -- Enable superuser access.
 # @section -- Database
 enableSuperuserAccess: true
@@ -391,19 +391,11 @@ monitoring:
     extraMatchLabels: {}
 
 databases:
-  - name: "kyoodb"
+  - name: "kyoo_api"
     owner: "kyoo"
-    ensure: "present"
-    databaseReclaimPolicy: "retain"
-    encoding: "UTF8"
-    locale: "en_US.UTF-8"
-    allowConnections: true
-    connectionLimit: -1
-    isTemplate: false
-    schemas:
-      - name: "public"
-        owner: "kyoo"
-        ensure: "present"
-    extensions: []
-    fdws: []
-    servers: []
+  - name: "kyoo_auth"
+    owner: "kyoo"
+  - name: "kyoo_scanner"
+    owner: "kyoo"
+  - name: "kyoo_transcoder"
+    owner: "kyoo"
