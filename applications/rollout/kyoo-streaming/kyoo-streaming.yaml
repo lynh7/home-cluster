@@ -333,12 +333,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: username
-                  name: kyoo-pg-credentials
+                  name: kyoo-pg-superuser
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
                   key: password
-                  name: kyoo-pg-credentials
+                  name: kyoo-pg-superuser
             - name: PGDATABASE
               value: "kyoo_api"
             - name: PGHOST
@@ -427,12 +427,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: username
-                  name: kyoo-pg-credentials
+                  name: kyoo-pg-superuser
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
                   key: password
-                  name: kyoo-pg-credentials
+                  name: kyoo-pg-superuser
             - name: PGDATABASE
               value: "kyoo_auth"
             - name: PGHOST
@@ -570,12 +570,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: username
-                  name: kyoo-pg-credentials
+                  name: kyoo-pg-superuser
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
                   key: password
-                  name: kyoo-pg-credentials
+                  name: kyoo-pg-superuser
             - name: PGDATABASE
               value: "kyoo_scanner"
             - name: PGHOST
@@ -668,12 +668,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: username
-                  name: kyoo-pg-credentials
+                  name: kyoo-pg-superuser
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
                   key: password
-                  name: kyoo-pg-credentials
+                  name: kyoo-pg-superuser
             - name: PGDATABASE
               value: "kyoo_transcoder"
             - name: PGHOST
