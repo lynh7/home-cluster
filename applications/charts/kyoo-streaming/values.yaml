@@ -5,7 +5,7 @@
 global:
   image:
     repositoryBase: "ghcr.io/zoriya"
-    tag: ""
+    tag: "5.0.0"
     imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   configmapAnnotations: {}
