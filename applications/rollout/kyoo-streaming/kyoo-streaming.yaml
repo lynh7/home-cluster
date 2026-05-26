@@ -342,7 +342,7 @@ spec:
             - name: PGDATABASE
               value: "kyoo_api"
             - name: PGHOST
-              value: "kyoo-streaming-postgres"
+              value: "cnpg-cluster-rw"
             - name: PGPORT
               value: "5432"
             - name: PGSSLMODE
@@ -436,7 +436,7 @@ spec:
             - name: PGDATABASE
               value: "kyoo_auth"
             - name: PGHOST
-              value: "kyoo-streaming-postgres"
+              value: "cnpg-cluster-rw"
             - name: PGPORT
               value: "5432"
             - name: PGSSLMODE
@@ -579,7 +579,7 @@ spec:
             - name: PGDATABASE
               value: "kyoo_scanner"
             - name: PGHOST
-              value: "kyoo-streaming-postgres"
+              value: "cnpg-cluster-rw"
             - name: PGPORT
               value: "5432"
             - name: PGSSLMODE
@@ -677,7 +677,7 @@ spec:
             - name: PGDATABASE
               value: "kyoo_transcoder"
             - name: PGHOST
-              value: "kyoo-streaming-postgres"
+              value: "cnpg-cluster-rw"
             - name: PGPORT
               value: "5432"
             - name: PGSSLMODE
