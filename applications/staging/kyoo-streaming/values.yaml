@@ -7,7 +7,7 @@ global:
       # subchart does not accept setting username via secret, so defining here
       user: kyoo_all
       passwordKey: password
-      existingSecret: kyoo-pg-credentials
+      existingSecret: kyoo-pg-superuser
     # shared postgres settings
     shared:
       # base setting for specifying host for all kyoo workloads
@@ -21,7 +21,7 @@ global:
       passwordOverride: ~
       sslmodeOverride: ~
       # base setting for specifying existingSecret for all kyoo workloads
-      existingSecret: kyoo-pg-credentials
+      existingSecret: kyoo-pg-superuser
       # base setting for specifying userKey for all kyoo workloads
       userKey: username
       # base setting for specifying passwordKey for all kyoo workloads
