@@ -6,7 +6,7 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: {{ printf "%s-db-%s" $fullname .name }}
+  name: {{ printf "%s-db-%s" $fullname .name | replace "_" "-" | lower }}
   labels: {{- $labels | nindent 4 }}
 spec:
   name: {{ .name }}
