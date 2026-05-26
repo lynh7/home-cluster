@@ -87,3 +87,5 @@ contentdatabase:
     apikeyKey: tvdb_apikey
     pinKey: tvdb_pin
     existingSecret: kyoo-pg-superuser
+traefikproxy:
+  enabled: true
