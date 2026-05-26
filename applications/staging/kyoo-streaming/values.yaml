@@ -1,0 +1,74 @@
+global:
+    # kyoo connectivity & subchart settings for postgres
+  # subchart configuration can be found at .postgresql
+  postgres:
+    # subchart specific settings
+    infra:
+      # subchart does not accept setting username via secret, so defining here
+      user: kyoo_all
+      passwordKey: password
+      existingSecret: kyoo-pg-credentials
+    # shared postgres settings
+    shared:
+      # base setting for specifying host for all kyoo workloads
+      # defaults to <release-name>-postgres
+      host: ~
+      # base setting for specifying ports for all kyoo workloads
+      port: 5432
+      # setting the database here will override the other database settings
+      databaseOverride: ~
+      userOverride: ~
+      passwordOverride: ~
+      sslmodeOverride: ~
+      # base setting for specifying existingSecret for all kyoo workloads
+      existingSecret: kyoo-pg-credentials
+      # base setting for specifying userKey for all kyoo workloads
+      userKey: username
+      # base setting for specifying passwordKey for all kyoo workloads
+      passwordKey: password
+    # overlay settings for connecting to kyoo_api database
+    kyoo_api:
+      host: ~
+      port: ~
+      database: kyoo_api
+      # upstream sql library does not support 'prefer' sslmode
+      # tracking: https://github.com/zoriya/Kyoo/issues/1154
+      sslmode: disable
+      # kyoo_api workload specific settings
+      kyoo_api:
+        userKey: ~
+        passwordKey: ~
+        existingSecret: ~
+    # overlay settings for connecting to kyoo_auth database
+    kyoo_auth:
+      host: ~
+      port: ~
+      database: kyoo_auth
+      sslmode: prefer
+      # kyoo_auth workload specific settings
+      kyoo_auth:
+        userKey: ~
+        passwordKey: ~
+        existingSecret: ~
+    # overlay settings for connecting to kyoo_scanner database
+    kyoo_scanner:
+      host: ~
+      port: ~
+      database: kyoo_scanner
+      sslmode: prefer
+      # kyoo_scanner workload specific settings
+      kyoo_scanner:
+        userKey: ~
+        passwordKey: ~
+        existingSecret: ~
+    # overlay settings for connecting to kyoo_transcoder database
+    kyoo_transcoder:
+      host: ~
+      port: ~
+      database: kyoo_transcoder
+      sslmode: prefer
+      # kyoo_transcoder workload specific settings
+      kyoo_transcoder:
+        userKey: ~
+        passwordKey: ~
+        existingSecret: ~
