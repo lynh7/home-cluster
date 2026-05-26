@@ -72,3 +72,18 @@ global:
         userKey: ~
         passwordKey: ~
         existingSecret: ~
+kyoo:
+  auth:
+    apikeys:
+      scanner:
+        existingSecret: kyoo-pg-superuser
+contentdatabase:
+  # TheMovieDB
+  tmdb:
+    apikeyKey: tmdb_apikey
+    existingSecret: kyoo-pg-superuser
+  # TVDatabase
+  tvdb:
+    apikeyKey: tvdb_apikey
+    pinKey: tvdb_pin
+    existingSecret: kyoo-pg-superuser
