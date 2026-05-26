@@ -420,7 +420,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: scanner_apikey
-                  name: bigsecret
+                  name: kyoo-pg-superuser
             - name: KEIBI_APIKEY_SCANNER_CLAIMS
               value: "{\"permissions\": [\"core.read\", \"core.write\"]}"
             - name: PGUSER
@@ -559,12 +559,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: scanner_apikey
-                  name: bigsecret
+                  name: kyoo-pg-superuser
             - name: THEMOVIEDB_API_ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:
                   key: tmdb_apikey
-                  name: bigsecret
+                  name: kyoo-pg-superuser
                   optional: true
             - name: PGUSER
               valueFrom:
