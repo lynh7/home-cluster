@@ -96,7 +96,7 @@ global:
 # kyoo application settings
 kyoo:
   # The url you can use to reach your kyoo instance. This is used during oidc to redirect users to your instance.
-  address: "https://kyoo.mydomain.com"
+  address: "https://kyoo.cluster.home.tlta.online"
   # base url for accessing kyoo microservices behind middleware proxy
   # defaults to traefikproxy service unless specified otherwise
   middlewareRootURL: ~
