@@ -473,7 +473,7 @@ spec:
           args:
           env:
             - name: JWT_ISSUER
-              value: "https://kyoo.mydomain.com"
+              value: "https://kyoo.cluster.home.tlta.online"
             - name: AUTH_SERVER
               value: "http://kyoo-streaming-auth:4568"
             - name: TRANSCODER_SERVER
@@ -566,7 +566,7 @@ spec:
             - name: PROTECTED_CLAIMS
               value: "permissions,verified"
             - name: PUBLIC_URL
-              value: "https://kyoo.mydomain.com"
+              value: "https://kyoo.cluster.home.tlta.online"
             - name: KEIBI_APIKEY_SCANNER
               valueFrom:
                 secretKeyRef:
@@ -705,7 +705,7 @@ spec:
             - name: JWKS_URL
               value: "http://kyoo-streaming-auth:4568/.well-known/jwks.json"
             - name: JWT_ISSUER
-              value: "https://kyoo.mydomain.com"
+              value: "https://kyoo.cluster.home.tlta.online"
             - name: KYOO_APIKEY
               valueFrom:
                 secretKeyRef:
