@@ -12,7 +12,7 @@ global:
     shared:
       # base setting for specifying host for all kyoo workloads
       # defaults to <release-name>-postgres
-      host: cnpg-cluster-rw
+      host: cnpg-cluster-rw.svc.cluster.local
       # base setting for specifying ports for all kyoo workloads
       port: 5432
       # setting the database here will override the other database settings
@@ -75,8 +75,14 @@ global:
 kyoo:
   auth:
     apikeys:
-      scanner:
+      scanner::pdos
         existingSecret: kyoo-pg-superuser
+
+media:
+  pvcInit:
+    # Set to true to have this chart create the PVC automatically
+    create: true
+
 contentdatabase:
   # TheMovieDB
   tmdb:

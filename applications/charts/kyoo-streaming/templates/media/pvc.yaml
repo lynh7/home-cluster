@@ -1,0 +1,15 @@
+{{- if .Values.media.pvcInit.create }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.media.pvc.claimName }}
+  labels:
+    {{- include "<your-chart-name>.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.media.pvc.accessMode | default "ReadWriteMany" }}
+  storageClassName: {{ .Values.media.pvc.storageClass | default "longhorn" }}
+  resources:
+    requests:
+      storage: {{ .Values.media.pvc.size | default "100Gi" }}
+{{- end }}

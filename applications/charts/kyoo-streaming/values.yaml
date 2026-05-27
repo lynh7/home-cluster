@@ -170,6 +170,16 @@ media:
   # note that this should align with .media.volumeMounts[].mountPath
   baseMountPath: "/media"
 
+  pvcInit:
+    # Set to true to have this chart create the PVC automatically
+    create: false
+    claimName: media
+    # longhorn        → dynamic provisioning (default), data managed by Longhorn
+    # longhorn-static → pre-provisioned volume, you manage the backing data
+    storageClass: longhorn
+    accessMode: ReadWriteMany   # RWX required if multiple pods mount it simultaneously
+    size: 10Gi
+
 # configures workloads that require access to contentdatabase
 # unused until autosync pulled into kyoo_api
 contentdatabase:
