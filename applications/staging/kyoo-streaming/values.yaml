@@ -72,7 +72,10 @@ global:
         userKey: ~
         passwordKey: ~
         existingSecret: ~
+
 kyoo:
+  # The url you can use to reach your kyoo instance. This is used during oidc to redirect users to your instance.
+  address: "https://kyoo.cluster.home.tlta.online"
   auth:
     apikeys:
       scanner:
