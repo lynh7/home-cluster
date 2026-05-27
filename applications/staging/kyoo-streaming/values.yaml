@@ -75,7 +75,7 @@ global:
 kyoo:
   auth:
     apikeys:
-      scanner::pdos
+      scanner:
         existingSecret: kyoo-pg-superuser
 
 media:
