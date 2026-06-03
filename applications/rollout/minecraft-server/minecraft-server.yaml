@@ -114,7 +114,7 @@ metadata:
   annotations:
     null
 spec:
-  type: NodePort
+  type: LoadBalancer
   ports:
     - port: 25565
       targetPort: minecraft
