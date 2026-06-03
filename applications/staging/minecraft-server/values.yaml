@@ -6,3 +6,7 @@ minecraft:
     limits:
       memory: 6Gi
       cpu: 4
+mc-router:
+  services:
+    minecraft:
+      type: LoadBalancer
