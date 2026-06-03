@@ -363,6 +363,8 @@ spec:
           value: "world"
         - name: MODRINTH_DOWNLOAD_DEPENDENCIES
           value: "none"
+        - name: ONLINE_MODE
+          value: "false"
         - name: MEMORY
           value: "2048M"
         - name: ENABLE_RCON
