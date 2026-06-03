@@ -1,4 +1,6 @@
 minecraft:
+  minecraftServer:
+    eula: "TRUE"
   resources:
     requests:
       memory: 512Mi
