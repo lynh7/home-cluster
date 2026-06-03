@@ -1,6 +1,7 @@
 minecraft:
   minecraftServer:
     eula: "TRUE"
+    serviceType: LoadBalancer
   resources:
     requests:
       memory: 512Mi
