@@ -61,6 +61,30 @@ data:
   cf-api-key: "Q0hBTkdFTUUh"
 
 ---
+# Source: minecraft-server/charts/minecraft/templates/datadir-pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: minecraft-server-datadir
+  namespace: minecraft
+  labels:
+    app: minecraft-server
+    chart: minecraft-5.1.3
+    release: "minecraft-server"
+    heritage: "Helm"
+    app.kubernetes.io/name: "minecraft"
+    app.kubernetes.io/instance: minecraft-server
+    app.kubernetes.io/version: 5.1.3
+  annotations:
+    volume.alpha.kubernetes.io/storage-class: default
+spec:
+  accessModes:
+    
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: "10Gi"
+---
 # Source: minecraft-server/charts/mc-router/templates/clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -373,6 +397,7 @@ spec:
       - name: tmp
         emptyDir: {}
       - name: datadir
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: minecraft-server-datadir
       - name: backupdir
         emptyDir: {}
