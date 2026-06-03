@@ -248,3 +248,131 @@ spec:
               port: 8080
           resources:
             {}
+
+---
+# Source: minecraft-server/charts/minecraft/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraft-server
+  namespace: minecraft
+  labels:
+    app: minecraft-server
+    chart: minecraft-5.1.3
+    release: "minecraft-server"
+    heritage: "Helm"
+    app.kubernetes.io/name: "minecraft"
+    app.kubernetes.io/instance: minecraft-server
+    app.kubernetes.io/version: 5.1.3
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: minecraft-server
+  template:
+    metadata:
+      labels:
+        app: minecraft-server
+        app.kubernetes.io/name: "minecraft"
+        app.kubernetes.io/instance: minecraft-server
+        app.kubernetes.io/version: 5.1.3
+    spec:
+      securityContext:
+        fsGroup: 2000
+        runAsGroup: 3000
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: minecraft-server
+        image: "itzg/minecraft-server:latest"
+        imagePullPolicy: Always
+        tty: true
+        stdin: true
+        resources:
+          limits:
+            cpu: 4
+            memory: 6Gi
+          requests:
+            cpu: 500m
+            memory: 512Mi
+        readinessProbe:
+          exec:
+            command:
+            - mc-health
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          failureThreshold: 20
+          successThreshold: 1
+          timeoutSeconds: 1
+        livenessProbe:
+          exec:
+            command:
+            - mc-health
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          failureThreshold: 20
+          successThreshold: 1
+          timeoutSeconds: 1
+        env:
+        - name: EULA
+          value: "TRUE"
+        - name: TYPE
+          value: "PAPER"
+        - name: VERSION
+          value: "LATEST"
+        - name: DIFFICULTY
+          value: "easy"
+        - name: SERVER_PORT
+          value: "25565"
+        - name: MODE
+          value: "survival"
+        - name: MOTD
+          value: "Welcome to Minecraft on Dang Khoa Home Server!"
+        - name: LEVEL_TYPE
+          value: "DEFAULT"
+        - name: LEVEL
+          value: "world"
+        - name: MODRINTH_DOWNLOAD_DEPENDENCIES
+          value: "none"
+        - name: MEMORY
+          value: "2048M"
+        - name: ENABLE_RCON
+          value: "false"
+        - name: CF_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minecraft-server-curseforge
+              key: cf-api-key
+        - name: CF_PARALLEL_DOWNLOADS
+          value: "4"
+
+        ports:
+        - name: minecraft
+          containerPort: 25565
+          protocol: TCP
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: datadir
+          mountPath: /data
+        - name: backupdir
+          mountPath: /backups
+          readOnly: true
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: datadir
+        emptyDir: {}
+      - name: backupdir
+        emptyDir: {}
