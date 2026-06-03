@@ -1,0 +1,530 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      },
+      {
+        "datasource": "Prometheus",
+        "enable": false,
+        "expr": "increase(kube_pod_container_status_restarts_total{namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\"}[2m])",
+        "hide": false,
+        "iconColor": "yellow",
+        "name": "Restarts",
+        "step": "1m",
+        "tagKeys": "{{pod}}:{{container}}",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "textFormat": "{{pod}}:{{container}}",
+        "titleFormat": "Restart: Pod:Container",
+        "useValueForTime": false
+      },
+      {
+        "datasource": null,
+        "enable": false,
+        "expr": "increase(kube_pod_status_reason{namespace=~\"$namespace\",pod=~\"$pod\",reason=\"Evicted\"}[2m])",
+        "iconColor": "dark-red",
+        "name": "Eviction",
+        "step": "2m",
+        "tagKeys": "{{pod}}",
+        "textFormat": "{{pod}}",
+        "titleFormat": "eviction"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "gnetId": null,
+  "graphTooltip": 1,
+  "id": 23,
+  "iteration": 1648646735890,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 5,
+      "panels": [],
+      "repeat": "container",
+      "title": "$container",
+      "type": "row"
+    },
+    {
+      "aliasColors": {
+        "instances": "dark-purple"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "hiddenSeries": false,
+      "id": 2,
+      "interval": "1m",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "maxDataPoints": 512,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.2.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "$$hashKey": "object:127",
+          "alias": "limit",
+          "color": "#F2495C"
+        },
+        {
+          "$$hashKey": "object:135",
+          "alias": "request",
+          "color": "#5794F2"
+        },
+        {
+          "$$hashKey": "object:143",
+          "alias": "current",
+          "color": "#73BF69",
+          "fill": 1
+        },
+        {
+          "$$hashKey": "object:139",
+          "alias": "instances",
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\",container=~\"$container\",pod=~\"$pod\"}[$__rate_interval])",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "current",
+          "refId": "A"
+        },
+        {
+          "exemplar": true,
+          "expr": "kube_pod_container_resource_requests{unit=\"core\",namespace=~\"$namespace\",container=~\"$container\",pod=~\"$pod\"}",
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "request",
+          "refId": "Request"
+        },
+        {
+          "exemplar": true,
+          "expr": "kube_pod_container_resource_limits{unit=\"core\",namespace=~\"$namespace\",container=~\"$container\",pod=~\"$pod\"}",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "limit",
+          "refId": "Limit"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum(up{namespace=\"$namespace\",container=\"$container\"})",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "instances",
+          "refId": "Instances"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "CPU",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:421",
+          "decimals": 2,
+          "format": "short",
+          "label": "Cores",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "$$hashKey": "object:422",
+          "decimals": 0,
+          "format": "short",
+          "label": "# of instances",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {
+        "instances": "dark-purple"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "current"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "decbytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "decbytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "decbytes"
+              }
+            ]
+          }
+        ]
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 11
+      },
+      "hiddenSeries": false,
+      "id": 3,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.2.2",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "$$hashKey": "object:127",
+          "alias": "limit",
+          "color": "#F2495C"
+        },
+        {
+          "$$hashKey": "object:135",
+          "alias": "request",
+          "color": "#5794F2"
+        },
+        {
+          "$$hashKey": "object:143",
+          "alias": "current",
+          "color": "#73BF69",
+          "fill": 1
+        },
+        {
+          "$$hashKey": "object:384",
+          "alias": "instances",
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "container_memory_working_set_bytes{namespace=~\"$namespace\",container=~\"$container\",pod=~\"$pod\"}",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "current",
+          "refId": "A"
+        },
+        {
+          "exemplar": true,
+          "expr": "kube_pod_container_resource_requests{unit=\"byte\",namespace=~\"$namespace\",container=~\"$container\",pod=~\"$pod\"}",
+          "interval": "",
+          "legendFormat": "request",
+          "refId": "Request"
+        },
+        {
+          "exemplar": true,
+          "expr": "kube_pod_container_resource_limits{unit=\"byte\",namespace=~\"$namespace\",container=~\"$container\",pod=~\"$pod\"}",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "limit",
+          "refId": "Limit"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum(up{namespace=\"$namespace\",container=\"$container\"})",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "instances",
+          "refId": "Instances"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Memory",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:197",
+          "format": "decbytes",
+          "label": "GB Memory",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:198",
+          "decimals": 0,
+          "format": "none",
+          "label": "# of instances",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 31,
+  "style": "dark",
+  "tags": [
+    "application",
+    "requests/limits"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "default"
+          ],
+          "value": [
+            "default"
+          ]
+        },
+        "datasource": null,
+        "definition": "label_values(kube_namespace_created, namespace)",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Namespace",
+        "multi": true,
+        "name": "namespace",
+        "options": [],
+        "query": {
+          "query": "label_values(kube_namespace_created, namespace)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": null,
+        "definition": "label_values(kube_pod_container_resource_requests{namespace=~\"$namespace\"},pod)",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Pod",
+        "multi": true,
+        "name": "pod",
+        "options": [],
+        "query": {
+          "query": "label_values(kube_pod_container_resource_requests{namespace=~\"$namespace\"},pod)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": "",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": null,
+        "definition": "label_values(kube_pod_container_resource_requests{namespace=~\"$namespace\",pod=~\"$pod\"},container)",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Container",
+        "multi": true,
+        "name": "container",
+        "options": [],
+        "query": {
+          "query": "label_values(kube_pod_container_resource_requests{namespace=~\"$namespace\",pod=~\"$pod\"},container)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Cluster - requests and limits - specific",
+  "uid": "cZB7u29Mz",
+  "version": 16
+}
