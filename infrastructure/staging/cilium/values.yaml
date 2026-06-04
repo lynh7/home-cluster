@@ -152,6 +152,7 @@ gateways:
       - monitoring
       - longhorn-system
       - kube-system
+    address: "192.168.100.1"
     listeners:
       - name: https
         protocol: HTTPS
