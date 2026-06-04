@@ -24,9 +24,6 @@ version: 0.1.0
 appVersion: "1.16.0"
 
 dependencies:
-  - name: mc-router
-    version: 1.5.0
-    repository: "file://./dependencies/mc-router"
   - name: minecraft
     version: 5.1.3
     repository: "file://./dependencies/minecraft"
