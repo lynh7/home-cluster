@@ -27,40 +27,14 @@ data:
     global:
       resolve_timeout: 5m
     receivers:
-    - discord_configs:
-      - message: |
-          **Status:** {{ .Status }}
-    
-          **Severity:** {{ .CommonLabels.severity }}
-    
-          **Namespace:** {{ .CommonLabels.namespace }}
-    
-          **Summary:**
-          {{ .CommonAnnotations.summary }}
-    
-          **Description:**
-          {{ .CommonAnnotations.description }}
-        send_resolved: true
-        title: "{{ if eq .Status \"firing\" }}\U0001F525{{ else }}✅{{ end }} {{ .CommonLabels.alertname
-          }}"
-        webhook_url: ${WEBHOOK_URL}
-      name: discord
+    - name: devnull
     route:
       group_by:
       - alertname
-      - severity
-      - namespace
-      group_interval: 5m
+      group_interval: 10s
       group_wait: 30s
-      receiver: discord
-      repeat_interval: 12h
-      routes:
-      - matchers:
-        - severity="critical"
-        receiver: discord
-      - matchers:
-        - severity="warning"
-        receiver: discord
+      receiver: devnull
+      repeat_interval: 24h
 
 ---
 # Source: alerting-stack/templates/server-alerts-configmap.yaml
@@ -79,25 +53,6 @@ data:
   alert-rules.yaml: |
     
     groups: []
----
-# Source: alerting-stack/templates/alertmanager-pvc.yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: alerting-stack-alertmanager
-  namespace: monitoring
-  labels:
-    app: alertmanager
-    app.kubernetes.io/name: alerting-stack
-    app.kubernetes.io/instance: alerting-stack
-    helm.sh/chart: alerting-stack-0.10.0
-    app.kubernetes.io/managed-by: Helm
-spec:
-  accessModes:
-    - "ReadWriteOnce"
-  resources:
-    requests:
-      storage: "50Mi"
 ---
 # Source: alerting-stack/templates/clusterrolebinding.yaml
 kind: ClusterRoleBinding
@@ -189,9 +144,6 @@ spec:
       app: alertmanager
       app.kubernetes.io/name: alerting-stack
       app.kubernetes.io/instance: alerting-stack
-  strategy:
-    # Must be "Recreate" when we have a persistent volume
-    type: Recreate
   template:
     metadata:
       labels: 
@@ -201,7 +153,7 @@ spec:
         helm.sh/chart: alerting-stack-0.10.0
         app.kubernetes.io/managed-by: Helm
       annotations: 
-        checksum/config: e5d43208ae70f4d8d3c9178f7c66497f309cff59579eb5920b26813132799449
+        checksum/config: 104e6d48101ba99edb65aa709d793e79c8576e8473a5fc3858e5a18a6bedac18
     spec:
       serviceAccountName: alerting-stack
       automountServiceAccountToken: true
@@ -219,9 +171,6 @@ spec:
           ports:
             - name: web
               containerPort: 9093
-          envFrom: 
-            - secretRef:
-                name: discord-webhook
           env:
             - name: POD_IP
               valueFrom:
@@ -249,13 +198,19 @@ spec:
             - name: config
               mountPath: /config
               readOnly: true
+            - mountPath: /config
+              name: alertmanager-config
+              readOnly: true
       volumes:
         - name: storage
-          persistentVolumeClaim:
-            claimName: alerting-stack-alertmanager
+          emptyDir: 
+            {}
         - name: config
           configMap:
             name: alerting-stack-alertmanager-alertmanager-config
+        - name: alertmanager-config
+          secret:
+            secretName: alertmanager-config
 ---
 # Source: alerting-stack/templates/server-deployment.yaml
 apiVersion: apps/v1
