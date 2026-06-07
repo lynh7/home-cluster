@@ -2259,6 +2259,29 @@ spec:
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
+  name: "alertmanager-route"
+  namespace: "monitoring"
+spec:
+  parentRefs:
+  - name: "internal-monitoring-gateway"
+    kind: Gateway
+    namespace: "monitoring"
+  hostnames:
+  - "alertmanager.cluster.home.tlta.online"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: "/"
+    backendRefs:
+    - name: "alerting-stack-alertmanager"
+      port: 9093
+      namespace: "monitoring"
+---
+# Source: cilium/templates/cilium-customizations/51-cilium-http-route.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
   name: "hubble-route"
   namespace: "kube-system"
 spec:

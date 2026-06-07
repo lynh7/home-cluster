@@ -54,6 +54,25 @@ data:
     
     groups: []
 ---
+# Source: alerting-stack/templates/alertmanager-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: alerting-stack-alertmanager
+  namespace: monitoring
+  labels:
+    app: alertmanager
+    app.kubernetes.io/name: alerting-stack
+    app.kubernetes.io/instance: alerting-stack
+    helm.sh/chart: alerting-stack-0.10.0
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "50Mi"
+---
 # Source: alerting-stack/templates/clusterrolebinding.yaml
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -144,6 +163,9 @@ spec:
       app: alertmanager
       app.kubernetes.io/name: alerting-stack
       app.kubernetes.io/instance: alerting-stack
+  strategy:
+    # Must be "Recreate" when we have a persistent volume
+    type: Recreate
   template:
     metadata:
       labels: 
@@ -200,8 +222,8 @@ spec:
               readOnly: true
       volumes:
         - name: storage
-          emptyDir: 
-            {}
+          persistentVolumeClaim:
+            claimName: alerting-stack-alertmanager
         - name: config
           configMap:
             name: alerting-stack-alertmanager-alertmanager-config
