@@ -5,7 +5,18 @@ alertmanager:
 server:
   name: server
   enabled: true
-
+  image:
+    registry: ""
+    repository: victoriametrics/vmalert
+    tag: "" # rewrites Chart.AppVersion
+    # Variant of the image to use.
+    # e.g. enterprise, scratch
+    variant: ""
+    pullPolicy: IfNotPresent
+  nameOverride: ""
+  fullnameOverride: ""
+  imagePullSecrets: []
+  
   # vmalert reads metrics from source
   datasource:
     url: "http://victoria-metrics-single-server.monitoring.svc.cluster.local:8428"
