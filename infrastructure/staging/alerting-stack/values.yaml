@@ -3,6 +3,7 @@ serviceMonitor:
 alertmanager:
   enabled: true
 server:
+  name: server
   enabled: true
   # vmalert reads metrics from source
   datasource:
