@@ -2,6 +2,8 @@ serviceMonitor:
   enabled: true
 alertmanager:
   enabled: true
+  persistentVolume:
+    enabled: true
 server:
   name: server
   enabled: true
