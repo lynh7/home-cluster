@@ -9,34 +9,6 @@ metadata:
     helm.sh/chart: alerting-stack-0.10.0
     app.kubernetes.io/managed-by: Helm
 ---
-# Source: alerting-stack/templates/alertmanager-configmap.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: alerting-stack-alertmanager-alertmanager-config
-  namespace: monitoring
-  labels:
-    app: alertmanager
-    app.kubernetes.io/name: alerting-stack
-    app.kubernetes.io/instance: alerting-stack
-    helm.sh/chart: alerting-stack-0.10.0
-    app.kubernetes.io/managed-by: Helm
-data:
-  alertmanager.yaml: |
-    
-    global:
-      resolve_timeout: 5m
-    receivers:
-    - name: devnull
-    route:
-      group_by:
-      - alertname
-      group_interval: 10s
-      group_wait: 30s
-      receiver: devnull
-      repeat_interval: 24h
-
----
 # Source: alerting-stack/templates/server-alerts-configmap.yaml
 apiVersion: v1
 kind: ConfigMap
@@ -53,6 +25,25 @@ data:
   alert-rules.yaml: |
     
     groups: []
+---
+# Source: alerting-stack/templates/alertmanager-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: alerting-stack-alertmanager
+  namespace: monitoring
+  labels:
+    app: alertmanager
+    app.kubernetes.io/name: alerting-stack
+    app.kubernetes.io/instance: alerting-stack
+    helm.sh/chart: alerting-stack-0.10.0
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "50Mi"
 ---
 # Source: alerting-stack/templates/clusterrolebinding.yaml
 kind: ClusterRoleBinding
@@ -144,6 +135,9 @@ spec:
       app: alertmanager
       app.kubernetes.io/name: alerting-stack
       app.kubernetes.io/instance: alerting-stack
+  strategy:
+    # Must be "Recreate" when we have a persistent volume
+    type: Recreate
   template:
     metadata:
       labels: 
@@ -153,7 +147,7 @@ spec:
         helm.sh/chart: alerting-stack-0.10.0
         app.kubernetes.io/managed-by: Helm
       annotations: 
-        checksum/config: 104e6d48101ba99edb65aa709d793e79c8576e8473a5fc3858e5a18a6bedac18
+        checksum/config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
     spec:
       serviceAccountName: alerting-stack
       automountServiceAccountToken: true
@@ -198,19 +192,13 @@ spec:
             - name: config
               mountPath: /config
               readOnly: true
-            - mountPath: /config
-              name: alertmanager-config
-              readOnly: true
       volumes:
         - name: storage
-          emptyDir: 
-            {}
+          persistentVolumeClaim:
+            claimName: alerting-stack-alertmanager
         - name: config
           configMap:
-            name: alerting-stack-alertmanager-alertmanager-config
-        - name: alertmanager-config
-          secret:
-            secretName: alertmanager-config
+            name: alertmanager-config
 ---
 # Source: alerting-stack/templates/server-deployment.yaml
 apiVersion: apps/v1
