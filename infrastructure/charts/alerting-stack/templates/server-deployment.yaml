@@ -2,8 +2,6 @@
 {{- $app := .Values.server }}
 {{- if and $app.enabled -}}
 {{- if not $app.extraArgs.rule }}
-{{- if and (eq $app.configMap "") (eq (len $app.config.alerts.groups) 0) -}}
-{{- fail "at least one item in `.server.config.alerts.groups` or `.server.extraArgs.rule` must be set " -}}
 {{- end -}}
 {{- end -}}
 {{- if eq $app.datasource.url "" -}}
