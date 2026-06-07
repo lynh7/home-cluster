@@ -59,3 +59,14 @@ externalSecrets:
         remoteKey: POSTGRES_SUPERUSER_PASSWORD
       - secretKey: scanner_apikey
         remoteKey: KEIBI_APIKEY_SCANNER
+
+  - name: discord-webhook
+    enabled: true
+    namespace: monitoring
+    targetSecret: discord-webhook
+    refreshInterval: "1h"
+    template:
+      type: kubernetes.io/basic-auth
+    data:
+      - secretKey: webhook_url
+        remoteKey: DISCORD_WEB_HOOK
