@@ -2,16 +2,10 @@ serviceMonitor:
   enabled: true
 alertmanager:
   enabled: true
-  configMap: ""
+  persistentVolume:
+    enabled: true
+  configMap: "alertmanager-config"
   config: {}
-  extraVolumes:
-    - name: alertmanager-config
-      secret:
-        secretName: alertmanager-config
-  extraVolumeMounts:
-    - name: alertmanager-config
-      mountPath: /config
-      readOnly: true
 server:
   name: server
   enabled: true
