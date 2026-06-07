@@ -10,7 +10,7 @@ metadata:
   labels: {{ include "vmalert.server.labels" $ctx | nindent 4 }}
   name: {{ template "vmalert.server.fullname" . }}
   {{- with $serviceMonitor.namespace }}
-  namespace: {{ . }}
+  namespace: {{ .Release.Namespace }}
   {{- end }}
 spec:
   namespaceSelector:
