@@ -216,6 +216,13 @@ httpRoutes:
     hostname: "victoria-metrics.cluster.home.tlta.online"
     service: victoria-metrics-single-server
     port: 8428
+  - name: alertmanager-route
+    gateway: internal-monitoring-gateway
+    gatewayNamespace: monitoring
+    namespace: monitoring
+    hostname: "alertmanager.cluster.home.tlta.online"
+    service: alerting-stack-alertmanager  
+    port: 9093
   ### Governance tools ###
   - name: hubble-route
     gateway: internal-monitoring-gateway
