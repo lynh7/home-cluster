@@ -43,7 +43,7 @@ data:
         send_resolved: true
         title: "{{ if eq .Status \"firing\" }}\U0001F525{{ else }}✅{{ end }} {{ .CommonLabels.alertname
           }}"
-        webhook_url: ${DISCORD_WEBHOOK}
+        webhook_url: ${WEBHOOK_URL}
       name: discord
     route:
       group_by:
@@ -201,7 +201,7 @@ spec:
         helm.sh/chart: alerting-stack-0.10.0
         app.kubernetes.io/managed-by: Helm
       annotations: 
-        checksum/config: 8a28b3daffb63f7cd5bbdce54a087b3e2f2164083b70badea53130456e0b98d1
+        checksum/config: e5d43208ae70f4d8d3c9178f7c66497f309cff59579eb5920b26813132799449
     spec:
       serviceAccountName: alerting-stack
       automountServiceAccountToken: true
