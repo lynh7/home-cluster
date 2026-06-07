@@ -23,25 +23,17 @@ apiVersion: v2
 appVersion: v1.102.1
 dependencies:
 - name: victoria-metrics-common
-  repository: file://../victoria-metrics-common
+  repository: "file://./dependencies/victoria-metrics-common"
   version: 0.0.*
-description: Victoria Metrics Alert - executes a list of given MetricsQL expressions
+- name: alertmanager
+  repository: file://./dependencies//alertmanager
+  version: 1.*
+description: Alerting includes vmalert, alertmanager which evaluates alerting rules
   (rules) and sends alerts to Alert Manager.
 home: https://github.com/VictoriaMetrics/helm-charts
 icon: https://avatars.githubusercontent.com/u/43720803?s=200&v=4
-keywords:
-- victoriametrics
-- vmalert
-- alerting
-- alerts
-- monitoring
-- kubernetes
-- observability
-- metrics
-- timeseries
-- rules
-kubeVersion: '>=1.25.0-0'
-name: victoria-metrics-alert
+
+name: alerting-stack
 sources:
 - https://github.com/VictoriaMetrics/helm-charts
 type: application
