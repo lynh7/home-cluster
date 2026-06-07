@@ -68,5 +68,5 @@ externalSecrets:
     template:
       type: kubernetes.io/basic-auth
     data:
-      - secretKey: webhook_url
+      - secretKey: WEBHOOK_URL
         remoteKey: DISCORD_WEB_HOOK
