@@ -1,0 +1,6 @@
+dependencies:
+- name: victoria-metrics-common
+  repository: file://./dependencies/victoria-metrics-common
+  version: 0.0.42
+digest: sha256:ada4f71687ab50d5a572910d93bf6681f1bfb4af6e0a72b5c3613fbf2fe66e95
+generated: "2026-06-07T12:48:19.438249129+07:00"
