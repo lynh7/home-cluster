@@ -1,0 +1,18 @@
+{{- if .Values.server.podDisruptionBudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ template "vmalert.server.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  {{- $ctx := merge (deepCopy .) (dict "extraLabels" .Values.server.podDisruptionBudget.labels) }}
+  labels: {{ include "vmalert.server.labels" $ctx | nindent 4 }}
+spec:
+  {{- with .Values.server.podDisruptionBudget.minAvailable }}
+  minAvailable: {{ . }}
+  {{- end }}
+  {{- with .Values.server.podDisruptionBudget.maxUnavailable }}
+  maxUnavailable: {{ . }}
+  {{- end }}
+  selector:
+    matchLabels: {{ include "vmalert.server.matchLabels" . | nindent 6 }}
+{{- end }}
