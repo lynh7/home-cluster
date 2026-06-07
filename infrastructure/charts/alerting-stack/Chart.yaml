@@ -22,12 +22,12 @@ annotations:
 apiVersion: v2
 appVersion: v1.102.1
 dependencies:
-- name: victoria-metrics-common
-  repository: "file://./dependencies/victoria-metrics-common"
-  version: 0.0.*
-- name: alertmanager
-  repository: file://./dependencies//alertmanager
-  version: 1.*
+  - name: victoria-metrics-common
+    repository: "file://./dependencies/victoria-metrics-common"
+    version: 0.0.*
+  - name: alertmanager
+    repository: "file://./dependencies/alertmanager"
+    version: 1.*
 description: Alerting includes vmalert, alertmanager which evaluates alerting rules
   (rules) and sends alerts to Alert Manager.
 home: https://github.com/VictoriaMetrics/helm-charts
