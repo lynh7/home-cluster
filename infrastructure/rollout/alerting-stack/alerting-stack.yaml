@@ -1,0 +1,312 @@
+---
+# Source: alerting-stack/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: alerting-stack
+  namespace: monitoring
+  labels:
+    helm.sh/chart: alerting-stack-0.10.0
+    app.kubernetes.io/managed-by: Helm
+---
+# Source: alerting-stack/templates/alertmanager-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alerting-stack-alertmanager-alertmanager-config
+  namespace: monitoring
+  labels:
+    app: alertmanager
+    app.kubernetes.io/name: alerting-stack
+    app.kubernetes.io/instance: alerting-stack
+    helm.sh/chart: alerting-stack-0.10.0
+    app.kubernetes.io/managed-by: Helm
+data:
+  alertmanager.yaml: |
+    
+    global:
+      resolve_timeout: 5m
+    receivers:
+    - name: devnull
+    route:
+      group_by:
+      - alertname
+      group_interval: 10s
+      group_wait: 30s
+      receiver: devnull
+      repeat_interval: 24h
+
+---
+# Source: alerting-stack/templates/server-alerts-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alerting-stack-server-alert-rules-config
+  namespace: monitoring
+  labels:
+    app: server
+    app.kubernetes.io/name: alerting-stack
+    app.kubernetes.io/instance: alerting-stack
+    helm.sh/chart: alerting-stack-0.10.0
+    app.kubernetes.io/managed-by: Helm
+data:
+  alert-rules.yaml: |
+    
+    groups: []
+---
+# Source: alerting-stack/templates/clusterrolebinding.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: alerting-stack-server-clusterrolebinding
+  namespace: monitoring
+  labels:
+    app: server
+    app.kubernetes.io/name: alerting-stack
+    app.kubernetes.io/instance: alerting-stack
+    helm.sh/chart: alerting-stack-0.10.0
+    app.kubernetes.io/managed-by: Helm
+subjects:
+  - kind: ServiceAccount
+    name: alerting-stack
+    namespace: monitoring
+roleRef:
+  kind: ClusterRole
+  name: alerting-stack-server-clusterrole
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: alerting-stack/templates/alertmanager-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: monitoring
+  labels: 
+    app: alertmanager
+    app.kubernetes.io/name: alerting-stack
+    app.kubernetes.io/instance: alerting-stack
+    helm.sh/chart: alerting-stack-0.10.0
+    app.kubernetes.io/managed-by: Helm
+  name: alerting-stack-alertmanager
+spec:
+  type: ClusterIP
+  ports:
+    - name: web
+      port: 9093
+      targetPort: web
+      protocol: TCP
+  selector: 
+    app: alertmanager
+    app.kubernetes.io/name: alerting-stack
+    app.kubernetes.io/instance: alerting-stack
+
+---
+# Source: alerting-stack/templates/server-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: monitoring
+  labels: 
+    app: server
+    app.kubernetes.io/name: alerting-stack
+    app.kubernetes.io/instance: alerting-stack
+    helm.sh/chart: alerting-stack-0.10.0
+    app.kubernetes.io/managed-by: Helm
+  name: alerting-stack-server
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8880
+      targetPort: http
+      protocol: TCP
+  selector: 
+    app: server
+    app.kubernetes.io/name: alerting-stack
+    app.kubernetes.io/instance: alerting-stack
+
+---
+# Source: alerting-stack/templates/alertmanager-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alerting-stack-alertmanager
+  namespace: monitoring
+  labels: 
+    app: alertmanager
+    app.kubernetes.io/name: alerting-stack
+    app.kubernetes.io/instance: alerting-stack
+    helm.sh/chart: alerting-stack-0.10.0
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      app: alertmanager
+      app.kubernetes.io/name: alerting-stack
+      app.kubernetes.io/instance: alerting-stack
+  template:
+    metadata:
+      labels: 
+        app: alertmanager
+        app.kubernetes.io/name: alerting-stack
+        app.kubernetes.io/instance: alerting-stack
+        helm.sh/chart: alerting-stack-0.10.0
+        app.kubernetes.io/managed-by: Helm
+      annotations: 
+        checksum/config: 104e6d48101ba99edb65aa709d793e79c8576e8473a5fc3858e5a18a6bedac18
+    spec:
+      serviceAccountName: alerting-stack
+      automountServiceAccountToken: true
+      containers:
+        - name: alertmanager
+          image: prom/alertmanager:v0.25.0
+          args:
+            - --config.file=/config/alertmanager.yaml
+            - --storage.path=/data
+            - --data.retention=120h
+            - --web.listen-address=0.0.0.0:9093
+            - --cluster.advertise-address=$(POD_IP):6783
+            
+            
+          ports:
+            - name: web
+              containerPort: 9093
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+          readinessProbe: 
+            httpGet:
+              path: /-/ready
+              port: web
+              scheme: HTTP
+          livenessProbe: 
+            httpGet:
+              path: /-/healthy
+              port: web
+              scheme: HTTP
+          startupProbe: 
+            httpGet:
+              path: /-/ready
+              port: web
+              scheme: HTTP
+          volumeMounts:
+            - name: storage
+              mountPath: /data
+            - name: config
+              mountPath: /config
+              readOnly: true
+      volumes:
+        - name: storage
+          emptyDir: 
+            {}
+        - name: config
+          configMap:
+            name: alerting-stack-alertmanager-alertmanager-config
+---
+# Source: alerting-stack/templates/server-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alerting-stack-server
+  namespace: monitoring
+  labels: 
+    app: server
+    app.kubernetes.io/name: alerting-stack
+    app.kubernetes.io/instance: alerting-stack
+    helm.sh/chart: alerting-stack-0.10.0
+    app.kubernetes.io/managed-by: Helm
+spec:
+  minReadySeconds: 0
+  replicas: 1
+  selector:
+    matchLabels: 
+      app: server
+      app.kubernetes.io/name: alerting-stack
+      app.kubernetes.io/instance: alerting-stack
+  strategy: 
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels: 
+        app: server
+        app.kubernetes.io/name: alerting-stack
+        app.kubernetes.io/instance: alerting-stack
+        helm.sh/chart: alerting-stack-0.10.0
+        app.kubernetes.io/managed-by: Helm
+      annotations: 
+        checksum/config: f18f428ccefd08d50f70ddc8d52e68d95a1514e7596ebe279e0909c506ad0e94
+    spec:
+      serviceAccountName: alerting-stack
+      securityContext: 
+        {}
+      automountServiceAccountToken: true
+      containers:
+        - name: vmalert
+          securityContext: 
+            {}
+          image: victoriametrics/vmalert:v1.102.1
+          args:
+            - -rule=/config/alert-rules.yaml
+            - -datasource.url=http://victoria-metrics-single-server.monitoring.svc.cluster.local:8428
+            - -notifier.url=http://alerting-stack-alertmanager:9093
+            - -envflag.enable=true
+            - -envflag.prefix=VM_
+            - -loggerFormat=json
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8880
+          readinessProbe: 
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 15
+            timeoutSeconds: 5
+          livenessProbe: 
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 15
+            tcpSocket:
+              port: http
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: alerts-config
+              mountPath: /config
+            
+      volumes:
+        - name: alerts-config
+          configMap:
+            name: alerting-stack-server-alert-rules-config
+        
+---
+# Source: alerting-stack/templates/service-monitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels: 
+    app: server
+    app.kubernetes.io/name: alerting-stack
+    app.kubernetes.io/instance: alerting-stack
+    helm.sh/chart: alerting-stack-0.10.0
+    app.kubernetes.io/managed-by: Helm
+  name: alerting-stack-server
+spec:
+  namespaceSelector:
+    matchNames:
+      - monitoring
+  selector:
+    matchLabels: 
+      app: server
+      app.kubernetes.io/name: alerting-stack
+      app.kubernetes.io/instance: alerting-stack
+  endpoints:
+    - port: http
