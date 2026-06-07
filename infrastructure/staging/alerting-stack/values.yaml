@@ -32,7 +32,7 @@ alertmanager:
     receivers:
       - name: discord
         discord_configs:
-          - webhook_url: ${DISCORD_WEBHOOK}
+          - webhook_url: ${WEBHOOK_URL}
 
             send_resolved: true
 
