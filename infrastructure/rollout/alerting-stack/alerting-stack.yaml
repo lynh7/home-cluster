@@ -299,6 +299,7 @@ metadata:
     helm.sh/chart: alerting-stack-0.10.0
     app.kubernetes.io/managed-by: Helm
   name: alerting-stack-server
+  namespace: monitoring
 spec:
   namespaceSelector:
     matchNames:
