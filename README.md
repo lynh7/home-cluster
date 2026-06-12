@@ -7,6 +7,11 @@ It does not describe the full estate alone. The current environment is split acr
 - `home-server`: Kubernetes cluster charts, values, and rendered manifests
 - `home-docker-compose`: Docker Compose services running on a separate host layer beside the cluster
 
+## Roadmap
+
+- [Production-like roadmap](./docs/production-roadmap.md)
+- [Phase 1 hardening checklist](./docs/phase-1-hardening-checklist.md)
+
 ## High-level Routing
 
 <img width="1912" height="493" alt="image" src="https://github.com/user-attachments/assets/ac085ee2-ab44-4bc9-99b2-3efb3930623d" />
