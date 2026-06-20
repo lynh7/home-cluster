@@ -1,15 +1,15 @@
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: rollout-minecraft-server
-  namespace: flux-system
-spec:
-  interval: 2m
-  path: ./applications/rollout/minecraft-server
-  prune: true
-  targetNamespace: minecraft
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  wait: true
-  timeout: 35m
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: rollout-minecraft-server
+#   namespace: flux-system
+# spec:
+#   interval: 2m
+#   path: ./applications/rollout/minecraft-server
+#   prune: true
+#   targetNamespace: minecraft
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-system
+#   wait: true
+#   timeout: 35m
