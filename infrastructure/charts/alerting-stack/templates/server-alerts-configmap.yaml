@@ -8,6 +8,14 @@
     {{- end }}
   {{- end }}
 {{- end }}
+{{- range $path, $bytes := .Files.Glob "prometheus-rules/**/*.yaml" }}
+  {{- $parsed := fromYaml ($bytes | toString) }}
+  {{- if and $parsed $parsed.spec $parsed.spec.groups }}
+    {{- range $group := $parsed.spec.groups }}
+      {{- $groups = append $groups $group }}
+    {{- end }}
+  {{- end }}
+{{- end }}
 {{- if and .Values.server.config .Values.server.config.alerts .Values.server.config.alerts.groups }}
   {{- range $group := .Values.server.config.alerts.groups }}
     {{- $groups = append $groups $group }}

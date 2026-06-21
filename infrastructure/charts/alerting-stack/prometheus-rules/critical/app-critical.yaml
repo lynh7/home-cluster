@@ -1,0 +1,60 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: app-critical
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/part-of: alerting-stack
+    prometheus: homelab
+    role: alert-rules
+spec:
+  groups:
+    - name: app-critical-cnpg
+      rules:
+        - alert: CloudNativePGPodNotReady
+          expr: max by (cluster, namespace, pod) (kube_pod_status_ready{namespace="stag01",pod=~"cnpg-cluster-.*",condition="true"} == 0) > 0
+          for: 10m
+          labels:
+            severity: critical
+            category: database
+            scope: app
+            app: cnpg
+          annotations:
+            summary: "CNPG pod {{ $labels.namespace }}/{{ $labels.pod }} is not Ready"
+            description: "CloudNativePG pod {{ $labels.namespace }}/{{ $labels.pod }} has remained NotReady for more than 10 minutes."
+            impact: "Kyoo database availability may be degraded or unavailable."
+            investigate: "Check CNPG pod events, storage state, secrets, and postgres logs."
+            dashboard_url: "https://grafana.cluster.home.tlta.online/d/cloudnative-pg/cloudnative-pg?var-namespace={{ $labels.namespace }}&var-instances={{ $labels.pod }}"
+            runbook_url: "https://cloudnative-pg.io/documentation/current/troubleshooting/"
+
+        - alert: CloudNativePGConnectionsHigh
+          expr: 100 * sum by (cluster, namespace, pod) (cnpg_backends_total{namespace="stag01",pod=~"cnpg-cluster-.*"}) / sum by (cluster, namespace, pod) (cnpg_pg_settings_setting{name="max_connections",namespace="stag01",pod=~"cnpg-cluster-.*"}) > 85
+          for: 15m
+          labels:
+            severity: warning
+            category: database
+            scope: app
+            app: cnpg
+          annotations:
+            summary: "CNPG pod {{ $labels.namespace }}/{{ $labels.pod }} is near max connections"
+            description: "CloudNativePG pod {{ $labels.namespace }}/{{ $labels.pod }} is above 85% of max PostgreSQL connections for more than 15 minutes."
+            impact: "Kyoo requests may fail or queue when new database sessions cannot be opened."
+            investigate: "Check active Kyoo workloads, idle sessions, and whether pooler or app-side connection limits need tuning."
+            dashboard_url: "https://grafana.cluster.home.tlta.online/d/cloudnative-pg/cloudnative-pg?var-namespace={{ $labels.namespace }}&var-instances={{ $labels.pod }}"
+            runbook_url: "https://cloudnative-pg.io/documentation/current/monitoring/"
+
+        - alert: CloudNativePGMetricsCollectionError
+          expr: max by (cluster, namespace, pod) (cnpg_collector_last_collection_error{namespace="stag01",pod=~"cnpg-cluster-.*"}) > 0
+          for: 10m
+          labels:
+            severity: warning
+            category: database
+            scope: app
+            app: cnpg
+          annotations:
+            summary: "CNPG metrics collection is failing on {{ $labels.namespace }}/{{ $labels.pod }}"
+            description: "CloudNativePG exporter reports collection errors for pod {{ $labels.namespace }}/{{ $labels.pod }}."
+            impact: "Database health may degrade while monitoring visibility becomes incomplete."
+            investigate: "Check postgres logs, exporter health, and whether the instance is under storage or CPU pressure."
+            dashboard_url: "https://grafana.cluster.home.tlta.online/d/cloudnative-pg/cloudnative-pg?var-namespace={{ $labels.namespace }}&var-instances={{ $labels.pod }}"
+            runbook_url: "https://cloudnative-pg.io/documentation/current/monitoring/"
