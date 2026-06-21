@@ -24,6 +24,7 @@ spec:
     app: server
     app.kubernetes.io/instance: victoria-logs-single
     app.kubernetes.io/name: victoria-logs-single
+
 ---
 # Source: victoria-logs-single/templates/server.yaml
 apiVersion: apps/v1
@@ -126,6 +127,7 @@ spec:
         resources:
           requests:
             storage: 10Gi
+
 ---
 # Source: victoria-logs-single/templates/monitor.yaml
 apiVersion: monitoring.coreos.com/v1

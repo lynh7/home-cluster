@@ -8,6 +8,7 @@ metadata:
     helm.sh/chart: victoria-metrics-single-0.22.0
   name: victoria-metrics-single-server
   namespace: monitoring
+
 ---
 # Source: victoria-metrics-single/templates/service.yaml
 apiVersion: v1
@@ -34,6 +35,7 @@ spec:
     app: server
     app.kubernetes.io/instance: victoria-metrics-single
     app.kubernetes.io/name: victoria-metrics-single
+
 ---
 # Source: victoria-metrics-single/templates/server.yaml
 apiVersion: apps/v1
@@ -133,6 +135,7 @@ spec:
         resources:
           requests:
             storage: 16Gi
+
 ---
 # Source: victoria-metrics-single/templates/monitor.yaml
 apiVersion: monitoring.coreos.com/v1
