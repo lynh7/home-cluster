@@ -25,11 +25,72 @@ data:
   alert-rules.yaml: |
     
     groups:
+    - name: app-critical-cnpg
+      rules:
+      - alert: CloudNativePGPodNotReady
+        annotations:
+          dashboard_url: https://grafana.cluster.home.tlta.online/d/cloudnative-pg/cloudnative-pg?var-namespace={{
+            $labels.namespace }}&var-instances={{ $labels.pod }}
+          description: CloudNativePG pod {{ $labels.namespace }}/{{ $labels.pod }} has
+            remained NotReady for more than 10 minutes.
+          impact: Kyoo database availability may be degraded or unavailable.
+          investigate: Check CNPG pod events, storage state, secrets, and postgres logs.
+          runbook_url: https://cloudnative-pg.io/documentation/current/troubleshooting/
+          summary: CNPG pod {{ $labels.namespace }}/{{ $labels.pod }} is not Ready
+        expr: max by (cluster, namespace, pod) (kube_pod_status_ready{namespace="stag01",pod=~"cnpg-cluster-.*",condition="true"}
+          == 0) > 0
+        for: 10m
+        labels:
+          app: cnpg
+          category: database
+          scope: app
+          severity: critical
+      - alert: CloudNativePGConnectionsHigh
+        annotations:
+          dashboard_url: https://grafana.cluster.home.tlta.online/d/cloudnative-pg/cloudnative-pg?var-namespace={{
+            $labels.namespace }}&var-instances={{ $labels.pod }}
+          description: CloudNativePG pod {{ $labels.namespace }}/{{ $labels.pod }} is
+            above 85% of max PostgreSQL connections for more than 15 minutes.
+          impact: Kyoo requests may fail or queue when new database sessions cannot be
+            opened.
+          investigate: Check active Kyoo workloads, idle sessions, and whether pooler
+            or app-side connection limits need tuning.
+          runbook_url: https://cloudnative-pg.io/documentation/current/monitoring/
+          summary: CNPG pod {{ $labels.namespace }}/{{ $labels.pod }} is near max connections
+        expr: 100 * sum by (cluster, namespace, pod) (cnpg_backends_total{namespace="stag01",pod=~"cnpg-cluster-.*"})
+          / sum by (cluster, namespace, pod) (cnpg_pg_settings_setting{name="max_connections",namespace="stag01",pod=~"cnpg-cluster-.*"})
+          > 85
+        for: 15m
+        labels:
+          app: cnpg
+          category: database
+          scope: app
+          severity: warning
+      - alert: CloudNativePGMetricsCollectionError
+        annotations:
+          dashboard_url: https://grafana.cluster.home.tlta.online/d/cloudnative-pg/cloudnative-pg?var-namespace={{
+            $labels.namespace }}&var-instances={{ $labels.pod }}
+          description: CloudNativePG exporter reports collection errors for pod {{ $labels.namespace
+            }}/{{ $labels.pod }}.
+          impact: Database health may degrade while monitoring visibility becomes incomplete.
+          investigate: Check postgres logs, exporter health, and whether the instance
+            is under storage or CPU pressure.
+          runbook_url: https://cloudnative-pg.io/documentation/current/monitoring/
+          summary: CNPG metrics collection is failing on {{ $labels.namespace }}/{{ $labels.pod
+            }}
+        expr: max by (cluster, namespace, pod) (cnpg_collector_last_collection_error{namespace="stag01",pod=~"cnpg-cluster-.*"})
+          > 0
+        for: 10m
+        labels:
+          app: cnpg
+          category: database
+          scope: app
+          severity: warning
     - name: cluster-critical-health
       rules:
       - alert: KubernetesNodeNotReady
         annotations:
-          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          dashboard_url: https://grafana.cluster.home.tlta.online/d/dUMN5x0mk/kubernetes-nodes
           description: Kubernetes node {{ $labels.node }} has reported NotReady for more
             than 10 minutes.
           impact: Pods may not schedule or may be evicted. Cluster redundancy is reduced.
@@ -45,7 +106,8 @@ data:
           severity: critical
       - alert: KubernetesDeploymentReplicasMismatch
         annotations:
-          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          dashboard_url: https://grafana.cluster.home.tlta.online/d/cZB7u29Mz/cluster-requests-and-limits-specific?var-namespace={{
+            $labels.namespace }}&var-pod={{ $labels.deployment }}.*
           description: Available replicas for deployment {{ $labels.namespace }}/{{ $labels.deployment
             }} are below spec for more than 15 minutes.
           impact: User-facing capacity or availability may be degraded.
@@ -62,7 +124,8 @@ data:
           severity: critical
       - alert: KubernetesStatefulSetReplicasMismatch
         annotations:
-          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          dashboard_url: https://grafana.cluster.home.tlta.online/d/cZB7u29Mz/cluster-requests-and-limits-specific?var-namespace={{
+            $labels.namespace }}&var-pod={{ $labels.statefulset }}.*
           description: Ready replicas for statefulset {{ $labels.namespace }}/{{ $labels.statefulset
             }} are below spec for more than 15 minutes.
           impact: Stateful app durability or service availability may be reduced.
@@ -79,7 +142,8 @@ data:
           severity: critical
       - alert: KubernetesPersistentVolumeClaimPending
         annotations:
-          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          dashboard_url: https://grafana.cluster.home.tlta.online/d/cZB7u29Mz/cluster-requests-and-limits-specific?var-namespace={{
+            $labels.namespace }}
           description: PersistentVolumeClaim {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim
             }} has remained Pending for more than 15 minutes.
           impact: Stateful workloads may fail to start or recover.
@@ -95,7 +159,8 @@ data:
           severity: critical
       - alert: KubernetesJobFailures
         annotations:
-          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          dashboard_url: https://grafana.cluster.home.tlta.online/d/cZB7u29Mz/cluster-requests-and-limits-specific?var-namespace={{
+            $labels.namespace }}
           description: Job {{ $labels.namespace }}/{{ $labels.job_name }} reports one
             or more failed pods.
           impact: Scheduled automation such as backup, sync, or maintenance may not have
@@ -103,7 +168,8 @@ data:
           investigate: Check the Job, related pods, and their logs.
           runbook_url: https://kubernetes.io/docs/concepts/workloads/controllers/job/
           summary: Job {{ $labels.namespace }}/{{ $labels.job_name }} has failed
-        expr: kube_job_status_failed > 0
+        expr: kube_job_status_failed{namespace!~"kube-system"} > 0 unless on (namespace,
+          job_name) kube_job_status_succeeded{namespace!~"kube-system"} > 0
         for: 15m
         labels:
           category: kubernetes
@@ -113,7 +179,8 @@ data:
       rules:
       - alert: KubernetesContainerCrashLooping
         annotations:
-          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          dashboard_url: https://grafana.cluster.home.tlta.online/d/cZB7u29Mz/cluster-requests-and-limits-specific?var-namespace={{
+            $labels.namespace }}&var-pod={{ $labels.pod }}
           description: Container {{ $labels.container }} in pod {{ $labels.namespace }}/{{
             $labels.pod }} has been in CrashLoopBackOff for more than 10 minutes.
           impact: Application availability is degraded or unavailable.
@@ -121,7 +188,7 @@ data:
             secret changes.
           runbook_url: https://kubernetes.io/docs/tasks/debug/debug-application/debug-pods/
           summary: Pod {{ $labels.namespace }}/{{ $labels.pod }} is crash looping
-        expr: max by (cluster, namespace, pod, container) (kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"})
+        expr: max by (cluster, namespace, pod, container) (kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff",namespace!~"kube-system"})
           > 0
         for: 10m
         labels:
@@ -130,7 +197,8 @@ data:
           severity: critical
       - alert: KubernetesPodHighRestarts
         annotations:
-          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          dashboard_url: https://grafana.cluster.home.tlta.online/d/cZB7u29Mz/cluster-requests-and-limits-specific?var-namespace={{
+            $labels.namespace }}&var-pod={{ $labels.pod }}
           description: Container {{ $labels.container }} in pod {{ $labels.namespace }}/{{
             $labels.pod }} restarted more than 5 times in 30 minutes.
           impact: Application may be unstable even if it still appears up.
@@ -138,7 +206,8 @@ data:
             dependency failures.
           runbook_url: https://kubernetes.io/docs/tasks/debug/debug-application/debug-pods/
           summary: Pod {{ $labels.namespace }}/{{ $labels.pod }} is restarting frequently
-        expr: increase(kube_pod_container_status_restarts_total[30m]) > 5
+        expr: increase(kube_pod_container_status_restarts_total{namespace!~"kube-system",container!="POD"}[30m])
+          > 5
         for: 10m
         labels:
           category: kubernetes
@@ -146,7 +215,8 @@ data:
           severity: warning
       - alert: NodeFilesystemAlmostFull
         annotations:
-          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          dashboard_url: https://grafana.cluster.home.tlta.online/d/dUMN5x0mk/kubernetes-nodes?var-server={{
+            $labels.instance }}
           description: Available space on {{ $labels.instance }} root filesystem is below
             10% for more than 15 minutes.
           impact: Pods, logs, and node services may fail unexpectedly.
@@ -156,7 +226,8 @@ data:
           summary: Root filesystem on node {{ $labels.instance }} is almost full
         expr: (node_filesystem_avail_bytes{mountpoint="/",fstype!~"tmpfs|fuse.lxcfs|overlay"}
           / node_filesystem_size_bytes{mountpoint="/",fstype!~"tmpfs|fuse.lxcfs|overlay"})
-          < 0.10
+          < 0.10 and node_filesystem_readonly{mountpoint="/",fstype!~"tmpfs|fuse.lxcfs|overlay"}
+          == 0
         for: 15m
         labels:
           category: node
@@ -166,15 +237,17 @@ data:
       rules:
       - alert: CiliumDaemonSetUnavailable
         annotations:
-          dashboard_url: https://grafana.cluster.home.tlta.online/explore
-          description: The Cilium daemonset has one or more unavailable pods for more
-            than 10 minutes.
+          dashboard_url: https://grafana.cluster.home.tlta.online/d/0a93a907-30c0-4f93-86f2-a34f3b4ed0d7/cilium-metrics?var-node={{
+            $labels.node }}
+          description: Cilium pod {{ $labels.pod }} on node {{ $labels.node }} has been
+            NotReady for more than 10 minutes.
           impact: Cluster networking, service routing, and policy enforcement may be degraded.
           investigate: Check Cilium pod health, node conditions, recent upgrades, and
             Hubble/Cilium metrics.
           runbook_url: https://docs.cilium.io/en/stable/operations/troubleshooting/
-          summary: Cilium has unavailable daemonset pods
-        expr: kube_daemonset_status_number_unavailable{namespace="kube-system",daemonset="cilium"}
+          summary: Cilium pod {{ $labels.pod }} on node {{ $labels.node }} is unavailable
+        expr: max by (cluster, namespace, pod, node) ((kube_pod_status_ready{namespace="kube-system",condition="true",pod=~"cilium-.*"}
+          == 0) * on (namespace, pod) group_left(node) kube_pod_info{namespace="kube-system",pod=~"cilium-.*"})
           > 0
         for: 10m
         labels:
@@ -183,7 +256,7 @@ data:
           severity: critical
       - alert: HubbleRelayUnavailable
         annotations:
-          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          dashboard_url: https://grafana.cluster.home.tlta.online/d/cZB7u29Mz/cluster-requests-and-limits-specific?var-namespace=kube-system&var-pod=hubble-relay.*
           description: The Hubble Relay deployment in kube-system has no available replicas
             for more than 10 minutes.
           impact: Network flow visibility and troubleshooting are degraded.
@@ -199,7 +272,8 @@ data:
           severity: warning
       - alert: ExternalMonitoringTargetDown
         annotations:
-          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          dashboard_url: https://grafana.cluster.home.tlta.online/d/dUMN5x0mk/kubernetes-nodes?var-server={{
+            $labels.instance }}
           description: Alloy cannot scrape external target {{ $labels.job }} at {{ $labels.instance
             }} for more than 10 minutes.
           impact: Visibility into LAN infrastructure is incomplete.
@@ -424,7 +498,7 @@ spec:
         helm.sh/chart: alerting-stack-0.10.0
         app.kubernetes.io/managed-by: Helm
       annotations: 
-        checksum/config: a21e63e39a2d87e9df0df6e878f22e02a6df5965bc62c63920ee1be4e65d579c
+        checksum/config: b52f926009fdaed9cfd6d2b0838cc3ec245151567fe222bd28d2d575b92c68b1
     spec:
       serviceAccountName: alerting-stack
       securityContext: 
