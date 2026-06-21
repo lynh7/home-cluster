@@ -24,7 +24,197 @@ metadata:
 data:
   alert-rules.yaml: |
     
-    groups: []
+    groups:
+    - name: cluster-critical-health
+      rules:
+      - alert: KubernetesNodeNotReady
+        annotations:
+          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          description: Kubernetes node {{ $labels.node }} has reported NotReady for more
+            than 10 minutes.
+          impact: Pods may not schedule or may be evicted. Cluster redundancy is reduced.
+          investigate: Check node status, recent events, kubelet health, Cilium state,
+            and host resource pressure.
+          runbook_url: https://kubernetes.io/docs/tasks/debug/debug-cluster/
+          summary: Node {{ $labels.node }} is not Ready
+        expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+        for: 10m
+        labels:
+          category: kubernetes
+          scope: node
+          severity: critical
+      - alert: KubernetesDeploymentReplicasMismatch
+        annotations:
+          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          description: Available replicas for deployment {{ $labels.namespace }}/{{ $labels.deployment
+            }} are below spec for more than 15 minutes.
+          impact: User-facing capacity or availability may be degraded.
+          investigate: Check rollout status, pod scheduling, image pulls, recent events,
+            and dependent services.
+          runbook_url: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+          summary: Deployment {{ $labels.namespace }}/{{ $labels.deployment }} is below
+            desired replicas
+        expr: kube_deployment_spec_replicas{namespace!~"kube-system|monitoring"} > kube_deployment_status_replicas_available{namespace!~"kube-system|monitoring"}
+        for: 15m
+        labels:
+          category: kubernetes
+          scope: workload
+          severity: critical
+      - alert: KubernetesStatefulSetReplicasMismatch
+        annotations:
+          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          description: Ready replicas for statefulset {{ $labels.namespace }}/{{ $labels.statefulset
+            }} are below spec for more than 15 minutes.
+          impact: Stateful app durability or service availability may be reduced.
+          investigate: Check PVC binding, pod startup, storage backend health, and recent
+            events.
+          runbook_url: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
+          summary: StatefulSet {{ $labels.namespace }}/{{ $labels.statefulset }} is below
+            desired replicas
+        expr: kube_statefulset_replicas{namespace!~"kube-system|monitoring"} > kube_statefulset_status_replicas_ready{namespace!~"kube-system|monitoring"}
+        for: 15m
+        labels:
+          category: kubernetes
+          scope: workload
+          severity: critical
+      - alert: KubernetesPersistentVolumeClaimPending
+        annotations:
+          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          description: PersistentVolumeClaim {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim
+            }} has remained Pending for more than 15 minutes.
+          impact: Stateful workloads may fail to start or recover.
+          investigate: Check storage class, Longhorn health, capacity, and PVC events.
+          runbook_url: https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+          summary: PVC {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} is
+            Pending
+        expr: kube_persistentvolumeclaim_status_phase{phase="Pending"} == 1
+        for: 15m
+        labels:
+          category: storage
+          scope: pvc
+          severity: critical
+      - alert: KubernetesJobFailures
+        annotations:
+          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          description: Job {{ $labels.namespace }}/{{ $labels.job_name }} reports one
+            or more failed pods.
+          impact: Scheduled automation such as backup, sync, or maintenance may not have
+            completed.
+          investigate: Check the Job, related pods, and their logs.
+          runbook_url: https://kubernetes.io/docs/concepts/workloads/controllers/job/
+          summary: Job {{ $labels.namespace }}/{{ $labels.job_name }} has failed
+        expr: kube_job_status_failed > 0
+        for: 15m
+        labels:
+          category: kubernetes
+          scope: job
+          severity: warning
+    - name: cluster-critical-runtime
+      rules:
+      - alert: KubernetesContainerCrashLooping
+        annotations:
+          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          description: Container {{ $labels.container }} in pod {{ $labels.namespace }}/{{
+            $labels.pod }} has been in CrashLoopBackOff for more than 10 minutes.
+          impact: Application availability is degraded or unavailable.
+          investigate: Inspect pod logs, restart history, events, and recent config or
+            secret changes.
+          runbook_url: https://kubernetes.io/docs/tasks/debug/debug-application/debug-pods/
+          summary: Pod {{ $labels.namespace }}/{{ $labels.pod }} is crash looping
+        expr: max by (cluster, namespace, pod, container) (kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"})
+          > 0
+        for: 10m
+        labels:
+          category: kubernetes
+          scope: pod
+          severity: critical
+      - alert: KubernetesPodHighRestarts
+        annotations:
+          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          description: Container {{ $labels.container }} in pod {{ $labels.namespace }}/{{
+            $labels.pod }} restarted more than 5 times in 30 minutes.
+          impact: Application may be unstable even if it still appears up.
+          investigate: Check pod logs, readiness/liveness probes, resource pressure, and
+            dependency failures.
+          runbook_url: https://kubernetes.io/docs/tasks/debug/debug-application/debug-pods/
+          summary: Pod {{ $labels.namespace }}/{{ $labels.pod }} is restarting frequently
+        expr: increase(kube_pod_container_status_restarts_total[30m]) > 5
+        for: 10m
+        labels:
+          category: kubernetes
+          scope: pod
+          severity: warning
+      - alert: NodeFilesystemAlmostFull
+        annotations:
+          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          description: Available space on {{ $labels.instance }} root filesystem is below
+            10% for more than 15 minutes.
+          impact: Pods, logs, and node services may fail unexpectedly.
+          investigate: Check disk usage, container logs, image cache, and Longhorn or
+            application storage growth.
+          runbook_url: https://kubernetes.io/docs/concepts/cluster-administration/logging/
+          summary: Root filesystem on node {{ $labels.instance }} is almost full
+        expr: (node_filesystem_avail_bytes{mountpoint="/",fstype!~"tmpfs|fuse.lxcfs|overlay"}
+          / node_filesystem_size_bytes{mountpoint="/",fstype!~"tmpfs|fuse.lxcfs|overlay"})
+          < 0.10
+        for: 15m
+        labels:
+          category: node
+          scope: node
+          severity: critical
+    - name: cluster-critical-platform
+      rules:
+      - alert: CiliumDaemonSetUnavailable
+        annotations:
+          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          description: The Cilium daemonset has one or more unavailable pods for more
+            than 10 minutes.
+          impact: Cluster networking, service routing, and policy enforcement may be degraded.
+          investigate: Check Cilium pod health, node conditions, recent upgrades, and
+            Hubble/Cilium metrics.
+          runbook_url: https://docs.cilium.io/en/stable/operations/troubleshooting/
+          summary: Cilium has unavailable daemonset pods
+        expr: kube_daemonset_status_number_unavailable{namespace="kube-system",daemonset="cilium"}
+          > 0
+        for: 10m
+        labels:
+          category: networking
+          scope: platform
+          severity: critical
+      - alert: HubbleRelayUnavailable
+        annotations:
+          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          description: The Hubble Relay deployment in kube-system has no available replicas
+            for more than 10 minutes.
+          impact: Network flow visibility and troubleshooting are degraded.
+          investigate: Check hubble-relay pods, service, and cilium-agent connectivity.
+          runbook_url: https://docs.cilium.io/en/stable/observability/hubble/setup/
+          summary: Hubble Relay is unavailable
+        expr: kube_deployment_status_replicas_available{namespace="kube-system",deployment="hubble-relay"}
+          < 1
+        for: 10m
+        labels:
+          category: networking
+          scope: platform
+          severity: warning
+      - alert: ExternalMonitoringTargetDown
+        annotations:
+          dashboard_url: https://grafana.cluster.home.tlta.online/explore
+          description: Alloy cannot scrape external target {{ $labels.job }} at {{ $labels.instance
+            }} for more than 10 minutes.
+          impact: Visibility into LAN infrastructure is incomplete.
+          investigate: Check host reachability, exporter health, LAN routing, and firewall
+            rules.
+          runbook_url: https://prometheus.io/docs/prometheus/latest/querying/basics/
+          summary: External monitoring target {{ $labels.job }} is down
+        expr: up{job=~"rasp4-node|minidesk-host|maindesk-host|openwrt-router|haproxy-router"}
+          == 0
+        for: 10m
+        labels:
+          category: external-dependency
+          scope: monitoring
+          severity: warning
+
 ---
 # Source: alerting-stack/templates/alertmanager-pvc.yaml
 apiVersion: v1
@@ -234,7 +424,7 @@ spec:
         helm.sh/chart: alerting-stack-0.10.0
         app.kubernetes.io/managed-by: Helm
       annotations: 
-        checksum/config: f18f428ccefd08d50f70ddc8d52e68d95a1514e7596ebe279e0909c506ad0e94
+        checksum/config: a21e63e39a2d87e9df0df6e878f22e02a6df5965bc62c63920ee1be4e65d579c
     spec:
       serviceAccountName: alerting-stack
       securityContext: 
