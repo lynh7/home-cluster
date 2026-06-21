@@ -17,4 +17,4 @@ server:
   # Multiple notifiers can be enabled by using `notifiers` section
   notifier:
     alertmanager:
-      url: "http://alertmanager.monitoring.svc.cluster.local:8428"
+      url: "http://alertmanager.monitoring.svc.cluster.local:9093"
