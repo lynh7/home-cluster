@@ -199,6 +199,12 @@ grafana-alloy:
             target_label  = "namespace"
           }
 
+          // Match metrics external_labels so log queries correlate with alerts.
+          rule {
+            target_label = "cluster"
+            replacement  = "homelab-staging"
+          }
+
           // Pod name
           rule {
             source_labels = ["__meta_kubernetes_pod_name"]

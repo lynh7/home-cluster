@@ -1,4 +1,18 @@
 {{- if eq .Values.server.configMap "" }}
+{{- $groups := list }}
+{{- range $path, $bytes := .Files.Glob "rules/**/*.yaml" }}
+  {{- $parsed := fromYaml ($bytes | toString) }}
+  {{- if and $parsed $parsed.groups }}
+    {{- range $group := $parsed.groups }}
+      {{- $groups = append $groups $group }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- if and .Values.server.config .Values.server.config.alerts .Values.server.config.alerts.groups }}
+  {{- range $group := .Values.server.config.alerts.groups }}
+    {{- $groups = append $groups $group }}
+  {{- end }}
+{{- end }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,5 +21,5 @@ metadata:
   labels: {{- include "vmalert.server.labels" . | nindent 4 }}
 data:
   alert-rules.yaml: |
-    {{ toYaml .Values.server.config.alerts | nindent 4 }}
+    {{ toYaml (dict "groups" $groups) | nindent 4 }}
 {{- end }}
