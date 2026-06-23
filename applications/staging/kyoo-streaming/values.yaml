@@ -1,3 +1,10 @@
+securityBaseline:
+  networkPolicy:
+    enabled: false
+    defaultDeny:
+      ingress: true
+      egress: true
+
 global:
     # kyoo connectivity & subchart settings for postgres
   # subchart configuration can be found at .postgresql

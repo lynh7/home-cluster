@@ -93,6 +93,13 @@ global:
         passwordKey: ~
         existingSecret: ~
 
+securityBaseline:
+  networkPolicy:
+    enabled: false
+    defaultDeny:
+      ingress: true
+      egress: true
+
 # kyoo application settings
 kyoo:
   # The url you can use to reach your kyoo instance. This is used during oidc to redirect users to your instance.

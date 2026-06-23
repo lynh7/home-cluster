@@ -33,6 +33,13 @@ nameOverride: ""
 fullnameOverride: ""
 namespaceOverride: ""
 
+namespaceLabels:
+  podSecurity:
+    enforce: privileged
+    audit: privileged
+    warn: privileged
+  sharedGatewayAccess: "true"
+
 hostNetwork: false
 dnsPolicy: ""
 

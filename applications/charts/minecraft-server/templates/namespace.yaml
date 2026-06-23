@@ -3,6 +3,6 @@ kind: Namespace
 metadata:
   name: minecraft
   labels:
-    pod-security.kubernetes.io/enforce: privileged
-    pod-security.kubernetes.io/audit: privileged
-    pod-security.kubernetes.io/warn: privileged
+    pod-security.kubernetes.io/enforce: {{ .Values.namespaceLabels.podSecurity.enforce | quote }}
+    pod-security.kubernetes.io/audit: {{ .Values.namespaceLabels.podSecurity.audit | quote }}
+    pod-security.kubernetes.io/warn: {{ .Values.namespaceLabels.podSecurity.warn | quote }}
