@@ -44,31 +44,31 @@ clusterSecretStore:
 # Toggle enabled: false to skip without removing the block.
 externalSecrets:
 
-  - name: kyoo-pg-credentials
-    enabled: true
-    namespace: stag01
-    targetSecret: kyoo-pg-credentials
-    refreshInterval: "1h"
-    data:
-      - secretKey: username
-        remoteKey: CNPG_USER
-      - secretKey: password
-        remoteKey: CNPG_PASSWORD
+  # - name: kyoo-pg-credentials
+  #   enabled: true
+  #   namespace: stag01
+  #   targetSecret: kyoo-pg-credentials
+  #   refreshInterval: "1h"
+  #   data:
+  #     - secretKey: username
+  #       remoteKey: CNPG_USER
+  #     - secretKey: password
+  #       remoteKey: CNPG_PASSWORD
 
-  - name: kyoo-pg-superuser
-    enabled: true
-    namespace: stag01
-    targetSecret: kyoo-pg-superuser
-    refreshInterval: "1h"
-    template:
-      type: kubernetes.io/basic-auth
-    data:
-      - secretKey: username
-        remoteKey: POSTGRES_SUPERUSER_USER
-      - secretKey: password
-        remoteKey: POSTGRES_SUPERUSER_PASSWORD
-      - secretKey: scanner_apikey
-        remoteKey: KEIBI_APIKEY_SCANNER
+  # - name: kyoo-pg-superuser
+  #   enabled: true
+  #   namespace: stag01
+  #   targetSecret: kyoo-pg-superuser
+  #   refreshInterval: "1h"
+  #   template:
+  #     type: kubernetes.io/basic-auth
+  #   data:
+  #     - secretKey: username
+  #       remoteKey: POSTGRES_SUPERUSER_USER
+  #     - secretKey: password
+  #       remoteKey: POSTGRES_SUPERUSER_PASSWORD
+  #     - secretKey: scanner_apikey
+  #       remoteKey: KEIBI_APIKEY_SCANNER
 
   - name: discord-webhook
     enabled: true
