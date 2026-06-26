@@ -116,9 +116,9 @@ externalSecrets:
     template:
       type: kubernetes.io/basic-auth
     data:
-      - secretKey: docker-username
+      - secretKey: DOCKER_USERNAME
         remoteKey: GHCR_USERNAME
-      - secretKey: docker-password
+      - secretKey: DOCKER_PASSWORD
         remoteKey: GHCR_PAT
-      - secretKey: docker-server
+      - secretKey: DOCKER_SERVER
         remoteKey: GHCR_SERVER
