@@ -107,3 +107,18 @@ externalSecrets:
     data:
       - secretKey: WEBHOOK_URL
         remoteKey: DISCORD_WEB_HOOK
+
+  - name: ghcr-creds
+    enabled: true
+    namespace: stag01
+    targetSecret: ghcr-creds
+    refreshInterval: "1h"
+    template:
+      type: kubernetes.io/basic-auth
+    data:
+      - secretKey: docker-username
+        remoteKey: GHCR_USERNAME
+      - secretKey: docker-password
+        remoteKey: GHCR_PAT
+      - secretKey: docker-server
+        remoteKey: GHCR_SERVER
