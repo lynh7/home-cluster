@@ -1,6 +1,6 @@
-global:
-  imagePullSecrets:
-    - name: ghcr-creds
+# global:
+#   imagePullSecrets:
+#     - name: ghcr-creds
 
 crawlerApi:
   useBrowserImage: true
