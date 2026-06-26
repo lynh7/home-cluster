@@ -6,9 +6,6 @@ global:
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
-  envFrom:
-    - secretRef:
-        name: job-aggregator-env
   podAnnotations: {}
   podLabels: {}
 
