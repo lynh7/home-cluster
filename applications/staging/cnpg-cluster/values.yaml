@@ -1,5 +1,5 @@
 ######################################################################
-##### This chart is used as Kyoo DB and bootstrap a CNPG cluster #####
+### This chart bootstraps the shared CNPG cluster for job-aggregator ###
 ######################################################################
 
 instances: 1
@@ -11,20 +11,20 @@ imageName: "ghcr.io/cloudnative-pg/postgresql:18"
 # @section -- Database
 imagePullPolicy: "IfNotPresent"
 credentials:
-  username: "kyoo"        # not sensitive — fine in values.yaml
+  username: "job_aggregator"        # not sensitive — fine in values.yaml
   password: ""            # leave empty — secret comes from K8s secret below
   postgresPassword: ""    # leave empty — same
 
   existingSecrets:
     enabled: true
     app:
-      secretName: "kyoo-pg-credentials"      # ESO syncs this from Infisical
+      secretName: "job-aggregator-pg-credentials"      # ESO syncs this from Infisical
     postgres:
-      secretName: "kyoo-pg-superuser"        # ESO syncs this from Infisical
+      secretName: "job-aggregator-pg-superuser"        # ESO syncs this from Infisical
 
 # -- Name of the database (Default is `fullnameOverride` > `nameOverride` > name of the Helm release).
 # @section -- Database
-dbName: "kyoo-stag01"
+dbName: "job_aggregator"
 # -- Enable superuser access.
 # @section -- Database
 enableSuperuserAccess: true
@@ -391,11 +391,5 @@ monitoring:
     extraMatchLabels: {}
 
 databases:
-  - name: "kyoo_api"
-    owner: "kyoo"
-  - name: "kyoo_auth"
-    owner: "kyoo"
-  - name: "kyoo_scanner"
-    owner: "kyoo"
-  - name: "kyoo_transcoder"
-    owner: "kyoo"
+  - name: "job_aggregator"
+    owner: "job_aggregator"
