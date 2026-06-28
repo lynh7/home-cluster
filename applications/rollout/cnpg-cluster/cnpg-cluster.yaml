@@ -17,7 +17,7 @@ spec:
   postgresql:
   enableSuperuserAccess: true
   superuserSecret:
-    name: kyoo-pg-superuser
+    name: job-aggregator-pg-superuser
   primaryUpdateStrategy: unsupervised
   storage:
     size: 10Gi
@@ -34,10 +34,10 @@ spec:
   
   bootstrap:
     initdb:
-      database: kyoo-stag01
-      owner: kyoo
+      database: job_aggregator
+      owner: job_aggregator
       secret:
-        name: kyoo-pg-credentials
+        name: job-aggregator-pg-credentials
   
   monitoring:
     enablePodMonitor: true 
@@ -50,7 +50,7 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: cnpg-cluster-db-kyoo-api
+  name: cnpg-cluster-db-job-aggregator
   labels:
     helm.sh/chart: cnpg-cluster-2.1.0
     app.kubernetes.io/version: "1.29.0"
@@ -58,59 +58,8 @@ metadata:
     app.kubernetes.io/name: cnpg-cluster
     app.kubernetes.io/instance: cnpg-cluster
 spec:
-  name: kyoo_api
-  owner: kyoo
-  cluster:
-    name: cnpg-cluster
----
-# Source: cnpg-cluster/templates/databases.yaml
-apiVersion: postgresql.cnpg.io/v1
-kind: Database
-metadata:
-  name: cnpg-cluster-db-kyoo-auth
-  labels:
-    helm.sh/chart: cnpg-cluster-2.1.0
-    app.kubernetes.io/version: "1.29.0"
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: cnpg-cluster
-    app.kubernetes.io/instance: cnpg-cluster
-spec:
-  name: kyoo_auth
-  owner: kyoo
-  cluster:
-    name: cnpg-cluster
----
-# Source: cnpg-cluster/templates/databases.yaml
-apiVersion: postgresql.cnpg.io/v1
-kind: Database
-metadata:
-  name: cnpg-cluster-db-kyoo-scanner
-  labels:
-    helm.sh/chart: cnpg-cluster-2.1.0
-    app.kubernetes.io/version: "1.29.0"
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: cnpg-cluster
-    app.kubernetes.io/instance: cnpg-cluster
-spec:
-  name: kyoo_scanner
-  owner: kyoo
-  cluster:
-    name: cnpg-cluster
----
-# Source: cnpg-cluster/templates/databases.yaml
-apiVersion: postgresql.cnpg.io/v1
-kind: Database
-metadata:
-  name: cnpg-cluster-db-kyoo-transcoder
-  labels:
-    helm.sh/chart: cnpg-cluster-2.1.0
-    app.kubernetes.io/version: "1.29.0"
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: cnpg-cluster
-    app.kubernetes.io/instance: cnpg-cluster
-spec:
-  name: kyoo_transcoder
-  owner: kyoo
+  name: job_aggregator
+  owner: job_aggregator
   cluster:
     name: cnpg-cluster
 
