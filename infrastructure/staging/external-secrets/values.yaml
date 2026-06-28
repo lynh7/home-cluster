@@ -55,20 +55,18 @@ externalSecrets:
   #     - secretKey: password
   #       remoteKey: CNPG_PASSWORD
 
-  # - name: kyoo-pg-superuser
-  #   enabled: true
-  #   namespace: stag01
-  #   targetSecret: kyoo-pg-superuser
-  #   refreshInterval: "1h"
-  #   template:
-  #     type: kubernetes.io/basic-auth
-  #   data:
-  #     - secretKey: username
-  #       remoteKey: POSTGRES_SUPERUSER_USER
-  #     - secretKey: password
-  #       remoteKey: POSTGRES_SUPERUSER_PASSWORD
-  #     - secretKey: scanner_apikey
-  #       remoteKey: KEIBI_APIKEY_SCANNER
+  - name: job-aggregator-pg-superuser
+    enabled: true
+    namespace: stag01
+    targetSecret: job-aggregator-pg-superuser
+    refreshInterval: "1h"
+    template:
+      type: kubernetes.io/basic-auth
+    data:
+      - secretKey: username
+        remoteKey: POSTGRES_SUPERUSER_USER
+      - secretKey: password
+        remoteKey: POSTGRES_SUPERUSER_PASSWORD
 
   - name: discord-webhook
     enabled: true
