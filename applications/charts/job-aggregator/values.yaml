@@ -2,7 +2,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 global:
-  imageTag: "0.1.4"
+  imageTag: "0.1.3"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
