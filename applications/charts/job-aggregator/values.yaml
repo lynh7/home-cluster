@@ -2,12 +2,19 @@ nameOverride: ""
 fullnameOverride: ""
 
 global:
-  imageTag: "0.1.0"
+  imageTag: "0.1.4"
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   env: []
+  envFrom: []
   podAnnotations: {}
   podLabels: {}
+
+database:
+  connection:
+    enabled: false
+    secretName: ""
+    secretKey: "uri"
 
 serviceAccount:
   create: false
@@ -71,7 +78,7 @@ crawlerApi:
   enabled: true
   replicaCount: 1
   backend: http
-  useBrowserImage: false
+  imageVariant: lightweight
   enabledProviders: topcv,itviec
   coreApi:
     ingestPath: /api/v1/ingest/raw-jobs

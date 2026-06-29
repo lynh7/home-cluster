@@ -2,6 +2,12 @@
 #   imagePullSecrets:
 #     - name: ghcr-creds
 
+database:
+  connection:
+    enabled: true
+    secretName: cnpg-cluster-app
+    secretKey: uri
+
 crawlerApi:
   useBrowserImage: true
   resources:
