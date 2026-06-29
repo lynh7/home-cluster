@@ -97,9 +97,13 @@ externalSecrets:
     refreshInterval: "1h"
     template:
       type: kubernetes.io/basic-auth
+      engineVersion: v2
+      data:
+        username: |
+          postgres
+        password: |
+          {{ .password }}
     data:
-      - secretKey: username
-        remoteKey: POSTGRES_SUPERUSER_USER
       - secretKey: password
         remoteKey: POSTGRES_SUPERUSER_PASSWORD
 
