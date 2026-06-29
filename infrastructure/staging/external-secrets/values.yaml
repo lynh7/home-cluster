@@ -55,6 +55,41 @@ externalSecrets:
   #     - secretKey: password
   #       remoteKey: CNPG_PASSWORD
 
+  - name: job-aggregator-pg-credentials
+    enabled: true
+    namespace: stag01
+    targetSecret: job-aggregator-pg-credentials
+    refreshInterval: "1h"
+    template:
+      type: kubernetes.io/basic-auth
+      engineVersion: v2
+      data:
+        username: |
+          job_aggregator
+        password: |
+          {{ .password }}
+    data:
+      - secretKey: password
+        remoteKey: CNPG_PASSWORD
+
+  - name: job-aggregator-db-connection
+    enabled: true
+    namespace: stag01
+    targetSecret: job-aggregator-db-connection
+    refreshInterval: "1h"
+    template:
+      engineVersion: v2
+      data:
+        uri: |
+          postgresql://job_aggregator:{{ .password }}@cnpg-cluster-rw.stag01.svc:5432/job_aggregator
+        DATABASE_URL: |
+          postgresql://job_aggregator:{{ .password }}@cnpg-cluster-rw.stag01.svc:5432/job_aggregator
+        DB_URL: |
+          postgresql://job_aggregator:{{ .password }}@cnpg-cluster-rw.stag01.svc:5432/job_aggregator
+    data:
+      - secretKey: password
+        remoteKey: CNPG_PASSWORD
+
   - name: job-aggregator-pg-superuser
     enabled: true
     namespace: stag01

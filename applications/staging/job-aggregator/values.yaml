@@ -5,7 +5,7 @@
 database:
   connection:
     enabled: true
-    secretName: cnpg-cluster-app
+    secretName: job-aggregator-db-connection
     secretKey: uri
 
 crawlerApi:
