@@ -1,0 +1,87 @@
+name: Sync Job Aggregator Chart
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install --disable-pip-version-check --no-python-version-warning PyYAML
+
+      - name: Check for newer chart version
+        id: sync
+        run: |
+          python3 - <<'PY'
+          import os
+          import urllib.request
+          from pathlib import Path
+
+          import yaml
+
+          source_file = Path('applications/staging/job-aggregator/chart-source.yaml')
+          data = yaml.safe_load(source_file.read_text(encoding='utf-8'))
+          repo = str(data['repo']).rstrip('/')
+          chart_name = str(data['name'])
+          current_version = str(data['version'])
+
+          with urllib.request.urlopen(f'{repo}/index.yaml') as resp:
+              index = yaml.safe_load(resp.read().decode('utf-8'))
+
+          entries = index.get('entries', {}).get(chart_name, [])
+          if not entries:
+              raise SystemExit(f'Chart {chart_name!r} not found in {repo}/index.yaml')
+
+          def parse(version: str) -> tuple[int, ...]:
+              parts = version.split('.')
+              try:
+                  return tuple(int(part) for part in parts)
+              except ValueError as exc:
+                  raise SystemExit(f'Unsupported semver format: {version!r}') from exc
+
+          latest_version = sorted((str(entry['version']) for entry in entries), key=parse)[-1]
+
+          print(f'Current version: {current_version}')
+          print(f'Latest version: {latest_version}')
+
+          changed = parse(latest_version) > parse(current_version)
+          output = Path(os.environ['GITHUB_OUTPUT'])
+          with output.open('a', encoding='utf-8') as fh:
+              fh.write(f"changed={'true' if changed else 'false'}\n")
+              fh.write(f"latest_version={latest_version}\n")
+
+          if changed:
+              data['version'] = latest_version
+              source_file.write_text(yaml.safe_dump(data, sort_keys=False), encoding='utf-8')
+          PY
+
+      - name: Commit updated chart source
+        if: ${{ steps.sync.outputs.changed == 'true' }}
+        env:
+          LATEST_VERSION: ${{ steps.sync.outputs.latest_version }}
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add applications/staging/job-aggregator/chart-source.yaml
+          git commit -m "chore: bump job-aggregator chart to ${LATEST_VERSION}"
+          git push
+
+      - name: No update needed
+        if: ${{ steps.sync.outputs.changed != 'true' }}
+        run: echo "job-aggregator chart already up to date"

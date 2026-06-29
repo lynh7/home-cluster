@@ -8,12 +8,12 @@ on:
     branches:
       - main
     paths:
-      - 'applications/staging/**/values.yaml'
+      - 'applications/staging/**'
 
   workflow_dispatch:
     inputs:
       chart:
-        description: "Chart name (optional)" 
+        description: "Chart name (optional)"
         required: false
 
 jobs:
@@ -41,24 +41,21 @@ jobs:
 
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             if [ -n "${{ github.event.inputs.chart }}" ]; then
-              # Manual with specific chart
               CHARTS="${{ github.event.inputs.chart }}"
             else
-              # Manual with no input → render all charts
               CHARTS=$(ls applications/staging | tr '\n' ' ')
             fi
           else
-            # Push event → detect changed charts
             CHARTS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
-              | grep applications/staging/ \
+              | grep '^applications/staging/' \
               | cut -d/ -f3 \
               | sort -u \
               | tr '\n' ' ')
           fi
 
           echo "Charts: $CHARTS"
-          echo "charts=$CHARTS" >> $GITHUB_OUTPUT
-          
+          echo "charts=$CHARTS" >> "$GITHUB_OUTPUT"
+
       - name: Fetch latest main
         run: |
           git fetch origin main
@@ -66,29 +63,55 @@ jobs:
 
       - name: Render Charts
         run: |
+          set -euo pipefail
+
+          mkdir -p .render-cache/charts
+
           for chart in ${{ steps.changed.outputs.charts }}; do
+            [ -n "$chart" ] || continue
             echo "Rendering $chart"
 
-            # Default namespace
             NAMESPACE="default"
-
-            # If meta.yaml exists, read namespace from it
-            if [ -f applications/charts/$chart/meta.yaml ]; then
-              NAMESPACE=$(yq '.namespace' applications/charts/$chart/meta.yaml)
+            if [ -f "applications/charts/$chart/meta.yaml" ]; then
+              NAMESPACE=$(yq -r '.namespace' "applications/charts/$chart/meta.yaml")
             fi
 
-            helm dependency build applications/charts/$chart
+            CHART_PATH="applications/charts/$chart"
+            SOURCE_FILE="applications/staging/$chart/chart-source.yaml"
 
-            helm template $chart applications/charts/$chart \
-              --values applications/staging/$chart/values.yaml \
-              --namespace $NAMESPACE \
-              > applications/rollout/$chart/$chart.yaml
+            if [ -f "$SOURCE_FILE" ]; then
+              REPO_URL=$(yq -r '.repo' "$SOURCE_FILE")
+              CHART_NAME=$(yq -r '.name' "$SOURCE_FILE")
+              CHART_VERSION=$(yq -r '.version' "$SOURCE_FILE")
+              SOURCE_NAMESPACE=$(yq -r '.namespace // ""' "$SOURCE_FILE")
+
+              if [ -n "$SOURCE_NAMESPACE" ] && [ "$SOURCE_NAMESPACE" != "null" ]; then
+                NAMESPACE="$SOURCE_NAMESPACE"
+              fi
+
+              REPO_ALIAS=$(echo "$chart" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')
+              CHART_DIR=".render-cache/charts/$chart"
+
+              rm -rf "$CHART_DIR"
+              helm repo add "$REPO_ALIAS" "$REPO_URL" --force-update
+              helm repo update "$REPO_ALIAS"
+              helm pull "$REPO_ALIAS/$CHART_NAME" --version "$CHART_VERSION" --untar --untardir "$CHART_DIR"
+              CHART_PATH="$CHART_DIR/$CHART_NAME"
+            else
+              helm dependency build "$CHART_PATH"
+            fi
+
+            mkdir -p "applications/rollout/$chart"
+            helm template "$chart" "$CHART_PATH" \
+              --values "applications/staging/$chart/values.yaml" \
+              --namespace "$NAMESPACE" \
+              > "applications/rollout/$chart/$chart.yaml"
           done
 
       - name: Commit rendered manifests
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add applications/rollout/*.yaml
+          git add applications/rollout
           git commit -m "Auto-render updated Helm manifests" || echo "No changes"
           git push
