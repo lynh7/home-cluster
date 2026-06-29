@@ -16,7 +16,6 @@ spec:
   resources:
     requests:
       storage: 10Gi
-
 ---
 # Source: job-aggregator/templates/candidate-api.yaml
 apiVersion: v1
@@ -40,7 +39,6 @@ spec:
       port: 8100
       targetPort: 8100
       protocol: TCP
-
 ---
 # Source: job-aggregator/templates/crawler-api.yaml
 apiVersion: v1
@@ -64,7 +62,6 @@ spec:
       port: 8200
       targetPort: 8200
       protocol: TCP
-
 ---
 # Source: job-aggregator/templates/job-api.yaml
 apiVersion: v1
@@ -88,7 +85,6 @@ spec:
       port: 8000
       targetPort: 8000
       protocol: TCP
-
 ---
 # Source: job-aggregator/templates/candidate-api.yaml
 apiVersion: apps/v1
@@ -118,7 +114,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: candidate-api
-          image: "ghcr.io/lynh7/job-aggregator-candidate-api:0.1.3"
+          image: "ghcr.io/lynh7/job-aggregator-candidate-api:0.1.4"
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8100
@@ -178,7 +174,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: candidate-worker
-          image: "ghcr.io/lynh7/job-aggregator-candidate-worker:0.1.3"
+          image: "ghcr.io/lynh7/job-aggregator-candidate-worker:0.1.4"
           imagePullPolicy: IfNotPresent
           env:
             
@@ -198,7 +194,6 @@ spec:
         - name: shared-data
           persistentVolumeClaim:
             claimName: job-aggregator-shared-data
-
 ---
 # Source: job-aggregator/templates/crawler-api.yaml
 apiVersion: apps/v1
@@ -228,7 +223,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: crawler-api
-          image: "ghcr.io/lynh7/job-aggregator-crawler-api:0.1.3"
+          image: "ghcr.io/lynh7/job-aggregator-crawler-api:0.1.4"
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8200
@@ -289,7 +284,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: job-api
-          image: "ghcr.io/lynh7/job-aggregator-job-api:0.1.3"
+          image: "ghcr.io/lynh7/job-aggregator-job-api:0.1.4"
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
