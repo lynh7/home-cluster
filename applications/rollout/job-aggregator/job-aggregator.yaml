@@ -6,7 +6,7 @@ metadata:
   name: job-aggregator-shared-data
   labels:
     app.kubernetes.io/name: job-aggregator
-    helm.sh/chart: job-aggregator-0.1.4
+    helm.sh/chart: job-aggregator-0.1.5
     app.kubernetes.io/instance: job-aggregator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: shared-data
@@ -25,7 +25,7 @@ metadata:
   name: job-aggregator-candidate-api
   labels:
     app.kubernetes.io/name: job-aggregator
-    helm.sh/chart: job-aggregator-0.1.4
+    helm.sh/chart: job-aggregator-0.1.5
     app.kubernetes.io/instance: job-aggregator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: candidate-api
@@ -49,7 +49,7 @@ metadata:
   name: job-aggregator-crawler-api
   labels:
     app.kubernetes.io/name: job-aggregator
-    helm.sh/chart: job-aggregator-0.1.4
+    helm.sh/chart: job-aggregator-0.1.5
     app.kubernetes.io/instance: job-aggregator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: crawler-api
@@ -73,7 +73,7 @@ metadata:
   name: job-aggregator-job-api
   labels:
     app.kubernetes.io/name: job-aggregator
-    helm.sh/chart: job-aggregator-0.1.4
+    helm.sh/chart: job-aggregator-0.1.5
     app.kubernetes.io/instance: job-aggregator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: job-api
@@ -97,7 +97,7 @@ metadata:
   name: job-aggregator-candidate-api
   labels:
     app.kubernetes.io/name: job-aggregator
-    helm.sh/chart: job-aggregator-0.1.4
+    helm.sh/chart: job-aggregator-0.1.5
     app.kubernetes.io/instance: job-aggregator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: candidate-api
@@ -118,7 +118,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: candidate-api
-          image: "ghcr.io/lynh7/job-aggregator-candidate-api:0.1.4"
+          image: "ghcr.io/lynh7/job-aggregator-candidate-api:0.1.5"
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8100
@@ -157,7 +157,7 @@ metadata:
   name: job-aggregator-candidate-worker
   labels:
     app.kubernetes.io/name: job-aggregator
-    helm.sh/chart: job-aggregator-0.1.4
+    helm.sh/chart: job-aggregator-0.1.5
     app.kubernetes.io/instance: job-aggregator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: candidate-worker
@@ -178,7 +178,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: candidate-worker
-          image: "ghcr.io/lynh7/job-aggregator-candidate-worker:0.1.4"
+          image: "ghcr.io/lynh7/job-aggregator-candidate-worker:0.1.5"
           imagePullPolicy: IfNotPresent
           env:
             
@@ -207,7 +207,7 @@ metadata:
   name: job-aggregator-crawler-api
   labels:
     app.kubernetes.io/name: job-aggregator
-    helm.sh/chart: job-aggregator-0.1.4
+    helm.sh/chart: job-aggregator-0.1.5
     app.kubernetes.io/instance: job-aggregator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: crawler-api
@@ -228,7 +228,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: crawler-api
-          image: "ghcr.io/lynh7/job-aggregator-crawler-api:0.1.4"
+          image: "ghcr.io/lynh7/job-aggregator-crawler-api:0.1.5"
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8200
@@ -268,7 +268,7 @@ metadata:
   name: job-aggregator-job-api
   labels:
     app.kubernetes.io/name: job-aggregator
-    helm.sh/chart: job-aggregator-0.1.4
+    helm.sh/chart: job-aggregator-0.1.5
     app.kubernetes.io/instance: job-aggregator
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: job-api
@@ -289,7 +289,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: job-api
-          image: "ghcr.io/lynh7/job-aggregator-job-api:0.1.4"
+          image: "ghcr.io/lynh7/job-aggregator-job-api:0.1.5"
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
