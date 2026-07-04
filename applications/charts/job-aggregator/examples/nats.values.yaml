@@ -1,8 +1,0 @@
-nats:
-  enabled: true
-
-candidateApi:
-  queueBackend: nats
-
-candidateWorker:
-  queueBackend: nats

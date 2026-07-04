@@ -1,9 +1,0 @@
-{{- if .Values.candidateWorker.enabled }}
-{{- $databaseEnv := include "job-aggregator.databaseUrlEnv" . | fromYamlArray -}}
-{{- $defaultEnv := concat $databaseEnv (list (dict "name" "QUEUE_BACKEND" "value" .Values.candidateWorker.queueBackend)) -}}
-{{ include "job-aggregator.componentDeployment" (dict "root" . "name" "candidate-worker" "component" .Values.candidateWorker "defaultEnv" $defaultEnv) }}
-{{- if .Values.candidateWorker.autoscaling.enabled }}
----
-{{ include "job-aggregator.componentHpa" (dict "root" . "name" "candidate-worker" "component" .Values.candidateWorker) }}
-{{- end }}
-{{- end }}
