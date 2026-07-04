@@ -4,3 +4,8 @@ description: Helm chart for the recommended job-aggregator application topology
 name: job-aggregator
 type: application
 version: 0.1.4
+dependencies:
+  - condition: job-aggregator
+    name: job-aggregator
+    repository: "file://./dependencies/garage-webui"
+    version: 0.1.5
