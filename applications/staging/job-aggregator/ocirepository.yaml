@@ -7,4 +7,4 @@ spec:
   interval: 5m
   url: oci://ghcr.io/lynh7/job-aggregator
   ref:
-    semver: ">=0.0.0"   # always track the latest published semver
+      tag: latest

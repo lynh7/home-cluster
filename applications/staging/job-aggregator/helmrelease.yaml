@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: job-aggregator
-      sourceRef:
+      chartRef:
         kind: OCIRepository
         name: job-aggregator
       reconcileStrategy: Revision
