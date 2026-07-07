@@ -179,6 +179,9 @@ grafana-alloy:
         // ─────────────────────────────────────────────────────────
         // Logs 
         // ─────────────────────────────────────────────────────────
+        // Collect pod logs via the Kubernetes API. This avoids privileged
+        // host mounts, but it means a single Alloy replica should own
+        // collection unless clustering/sharding is introduced deliberately.
         discovery.kubernetes "pods" {
           role = "pod"
         }
@@ -217,6 +220,12 @@ grafana-alloy:
             target_label  = "container"
           }
 
+          // Stable pod UID helps correlate restarts/re-creations of the same pod name.
+          rule {
+            source_labels = ["__meta_kubernetes_pod_uid"]
+            target_label  = "pod_uid"
+          }
+
           // App label (most deployments set this)
           rule {
             source_labels = ["__meta_kubernetes_pod_label_app"]
@@ -228,6 +237,19 @@ grafana-alloy:
             source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
             target_label  = "app"
             regex         = "(.+)"  // only override if non-empty
+          }
+
+          // Helm releases often only set app.kubernetes.io/instance.
+          rule {
+            source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_instance"]
+            target_label  = "instance"
+          }
+
+          // Capture the owning workload when app labels are weak or missing.
+          rule {
+            source_labels = ["__meta_kubernetes_pod_controller_name"]
+            target_label  = "workload"
+            regex         = "(.+)"
           }
 
           // Node the pod runs on
