@@ -5,14 +5,11 @@ metadata:
   namespace: flux-system
 spec:
   interval: 5m
-  targetNamespace: monitoring
-  chart:
-    spec:
-      chart: job-aggregator
-      chartRef:
-        kind: OCIRepository
-        name: job-aggregator
-      reconcileStrategy: Revision
+  targetNamespace: stag01
+  chartRef:
+    kind: OCIRepository
+    name: job-aggregator
+    namespace: flux-system
   install:
     remediation:
       retries: 3
