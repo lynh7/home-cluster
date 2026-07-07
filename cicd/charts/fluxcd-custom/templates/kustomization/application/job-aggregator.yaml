@@ -5,7 +5,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 2m
-  path: ./applications/rollout/job-aggregator
+  path: ./applications/staging/job-aggregator
   prune: true
   targetNamespace: stag01
   sourceRef:
