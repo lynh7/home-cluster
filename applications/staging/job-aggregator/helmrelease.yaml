@@ -9,7 +9,7 @@ spec:
   chartRef:
     kind: OCIRepository
     name: job-aggregator
-    namespace: flux-system
+    namespace: stag01
   install:
     remediation:
       retries: 3
