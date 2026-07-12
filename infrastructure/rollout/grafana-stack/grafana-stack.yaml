@@ -183,7 +183,7 @@ data:
         insecure_skip_verify = true
       }
     
-      forward_to = [prometheus.remote_write.vm.receiver]
+      forward_to = [prometheus.remote_write.victoria.receiver]
     }
     
     // ─────────────────────────────────────────────────────────
@@ -665,7 +665,7 @@ spec:
     metadata:
       annotations:
         kubectl.kubernetes.io/default-container: alloy
-        checksum/config: 42530fb1218754325323745c9f1294954ee72d90f7368bfb15d00251048d40f
+        checksum/config: b03e9f7837df4ba45e7db143a9ad6eccab638e1d9b8e098c0cbb6a39ebb1ee1
       labels:
         app.kubernetes.io/name: grafana-alloy
         app.kubernetes.io/instance: grafana-stack
