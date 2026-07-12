@@ -177,6 +177,27 @@ grafana-alloy:
         }
 
         // ─────────────────────────────────────────────────────────
+        // cAdvisor metrics from kubelet 
+        // ─────────────────────────────────────────────────────────        
+        discovery.kubernetes "nodes" {
+          role = "node"
+        }
+
+        prometheus.scrape "kubelet_cadvisor" {
+          targets    = discovery.kubernetes.nodes.targets
+          scheme     = "https"
+          metrics_path = "/metrics/cadvisor"
+
+          bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+          tls_config {
+            insecure_skip_verify = true
+          }
+
+          forward_to = [prometheus.remote_write.vm.receiver]
+        }
+
+        // ─────────────────────────────────────────────────────────
         // Logs 
         // ─────────────────────────────────────────────────────────
         // Collect pod logs via the Kubernetes API. This avoids privileged
