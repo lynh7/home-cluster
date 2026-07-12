@@ -194,7 +194,7 @@ grafana-alloy:
             insecure_skip_verify = true
           }
 
-          forward_to = [prometheus.remote_write.vm.receiver]
+          forward_to = [prometheus.remote_write.victoria.receiver]
         }
 
         // ─────────────────────────────────────────────────────────
