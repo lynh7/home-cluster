@@ -166,6 +166,27 @@ data:
     }
     
     // ─────────────────────────────────────────────────────────
+    // cAdvisor metrics from kubelet 
+    // ─────────────────────────────────────────────────────────        
+    discovery.kubernetes "nodes" {
+      role = "node"
+    }
+    
+    prometheus.scrape "kubelet_cadvisor" {
+      targets    = discovery.kubernetes.nodes.targets
+      scheme     = "https"
+      metrics_path = "/metrics/cadvisor"
+    
+      bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    
+      tls_config {
+        insecure_skip_verify = true
+      }
+    
+      forward_to = [prometheus.remote_write.vm.receiver]
+    }
+    
+    // ─────────────────────────────────────────────────────────
     // Logs 
     // ─────────────────────────────────────────────────────────
     // Collect pod logs via the Kubernetes API. This avoids privileged
@@ -644,7 +665,7 @@ spec:
     metadata:
       annotations:
         kubectl.kubernetes.io/default-container: alloy
-        checksum/config: ed71dd45c0ca95da22c652e18ecf8cacf5a794e44f2dac87ccd8c0e4a8653ab
+        checksum/config: 42530fb1218754325323745c9f1294954ee72d90f7368bfb15d00251048d40f
       labels:
         app.kubernetes.io/name: grafana-alloy
         app.kubernetes.io/instance: grafana-stack
