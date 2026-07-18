@@ -14,6 +14,8 @@ This repo has 3 GitOps layers:
 3. Deployed outputs and bootstrap
    `infrastructure/rollout/*`, `applications/rollout/*`, `cicd/charts/fluxcd*`
 
+Treat any path or chart containing `(deprecated)` as retired unless the current staging values or rollout paths prove it is still active.
+
 ## Read First
 
 - `README.md`
@@ -50,6 +52,7 @@ This repo has 3 GitOps layers:
 - Manual namespace YAML outside Flux path
 - Workflow triggers only on `values.yaml`, not chart templates
 - `git add` pattern missing nested rollout files
+- Reading retired `(deprecated)` app paths as current deployment inputs
 
 ## Verify Before Answer
 

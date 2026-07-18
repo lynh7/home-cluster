@@ -7,6 +7,8 @@ description: Repo-specific platform operations skill for the home-talos-cluster 
 
 This repo manages cluster platform, but not whole estate. Many operational answers depend on in-cluster plus external services together.
 
+Any path or app directory containing `(deprecated)` is retired unless current staging values or rollout output show otherwise.
+
 ## Read First
 
 - `README.md`
@@ -64,3 +66,4 @@ Treat these as operational dependencies. Call them out when recommending changes
 - Assuming namespace exists because chart targets it
 - Ignoring manual Longhorn namespace setup if still present
 - Recommending destructive storage or secret changes without dependency review
+- Treating retired `(deprecated)` app paths as active platform dependencies

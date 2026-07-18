@@ -7,6 +7,8 @@ description: Repo-specific cluster architecture skill for the home-talos-cluster
 
 Understand repo before proposing cluster changes. This skill maps repo files to deployed architecture, ownership boundaries, and rollout order.
 
+Any path, chart, or app directory containing `(deprecated)` is retired unless a current values file or rollout path explicitly proves otherwise.
+
 ## When to Use
 
 - User asks how cluster is organized
@@ -61,6 +63,7 @@ Answer:
 - Which stacks are missing or manual
 - Whether deploy order is explicit or accidental
 - Whether a change belongs in Flux bootstrap, rendered manifests, or chart source
+- Whether the target path is current or `(deprecated)`
 
 ### Networking / Cilium / Gateway / Policy
 
@@ -94,6 +97,7 @@ Check:
 - Which chart owns namespace creation
 - Which workloads assume namespace already exists
 - Which namespaces are manual or out-of-band
+- Whether a namespace only exists because a retired app still has rendered output
 
 ### Secrets / Storage / Monitoring
 
@@ -161,6 +165,7 @@ Surface these when relevant:
 - Router and firewall not in repo
 - Some supporting services run outside Kubernetes
 - `rollout/*` is generated, not hand-authored
+- App directories with `(deprecated)` are historical and should not be treated as active without confirmation
 
 ## Red Flags
 

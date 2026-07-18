@@ -7,6 +7,8 @@ description: Repo-specific networking skill for the home-talos-cluster repo. Use
 
 Cilium is network platform in this repo. Networking answers must start from Cilium values, custom templates, and Flux deployment path.
 
+Any path or app directory containing `(deprecated)` is retired unless a current staging value or rollout manifest shows it is still live.
+
 ## Read First
 
 - `README.md`
@@ -64,3 +66,4 @@ Cilium is network platform in this repo. Networking answers must start from Cili
 - Mixing Gateway API and ad hoc ingress without reason
 - Recommending policy in `rollout/*`
 - Forgetting external LAN dependencies on `192.168.10.x`
+- Treating retired `(deprecated)` app paths as active networking targets
