@@ -43,5 +43,5 @@ The address ranges in use are documented in the cluster values and rollout manif
 
 ## Roadmap
 
-- [Production-like roadmap](./docs/production-roadmap.md)
+- [Read Me First](./docs/read-me-first.md)
 - [Phase 1 hardening checklist](./docs/phase-1-hardening-checklist.md)
