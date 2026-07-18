@@ -341,6 +341,56 @@ Avoid first rollout in:
 - `longhorn-system`
 - `cert-manager`
 
+## CI/CD Baseline
+
+This repository can stay render-to-git without adding a promotion gate, but the render path should still be deterministic and validated.
+
+Target outcomes:
+
+- rendered manifests stay reproducible
+- chart changes cannot bypass validation
+- the render-to-git flow remains simple enough for one operator
+- rollout diffs are easy to review and debug
+
+Recommended checks:
+
+- `helm lint`
+- `helm template`
+- manifest validation against the cluster schema
+- basic policy or schema checks where practical
+
+Render workflows should react to both:
+
+- `*/charts/*`
+- `*/staging/*/values.yaml`
+
+This avoids a drift where template edits do not regenerate rollout output.
+
+Avoid downloading CI helpers from floating `latest` URLs.
+
+Prefer pinned versions for:
+
+- Helm setup actions
+- `yq`
+- any validation binaries used in render jobs
+
+Keep the render commit, but make it clearly machine-generated and easy to inspect.
+
+Good signals:
+
+- a short diff summary in CI
+- deterministic file paths
+- explicit failure when render output is empty or malformed
+
+After render or apply, verify the expected service shape exists.
+
+Useful checks:
+
+- namespace exists
+- expected workload objects were rendered
+- ingress or gateway objects reference the intended hostnames
+- basic HTTP or readiness smoke check for exposed apps
+
 ## Phase 4: Backup, Restore, and Recovery Confidence
 
 Target outcomes:
