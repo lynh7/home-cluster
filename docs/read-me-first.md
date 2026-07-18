@@ -16,7 +16,7 @@ Use this document to choose the right doc before making changes.
 
 ## `hybrid-topology.md`
 
-- Purpose: define the home-plus-cloud deployment shape when adding OCI or Hetzner nodes.
+- Purpose: define the home-plus-cloud deployment shape when adding Hetzner, Vultr or OCI nodes.
 - Scope: node roles, private connectivity, join flow, provider guardrails, and capacity tracking.
 - Tone: how should home and cloud pieces fit together?
 

@@ -19,7 +19,7 @@ This document defines how the home cluster and cloud VMs should fit together whe
 
 ### Cloud extension
 
-- add OCI or Hetzner VMs as disposable Talos nodes
+- add OCI, Hetzner, or Vultr VMs as disposable Talos nodes
 - start with workers first
 - only add control-plane nodes if the private connectivity and recovery story is strong
 - treat cloud nodes as capacity or placement expansion, not as the only cluster home
@@ -45,14 +45,23 @@ This document defines how the home cluster and cloud VMs should fit together whe
 
 ### OCI
 
-- watch Always Free quota and idle-reclamation behavior
-- track which instances are free-tier and which are not
-- keep provider usage visible so nodes do not drift out of free status unnoticed
+- track free-tier or paid-tier usage explicitly
+- keep instance count, size, and age visible
+- watch for quota or idle-reclamation behavior if you rely on free capacity
 
 ### Hetzner
 
-- treat Hetzner as a cost-optimized provider, not a guaranteed free tier
-- if using it, still track resource and cost drift explicitly
+- treat Hetzner as a cost-optimized provider with Singapore availability
+- track instance count, size, and age
+- track resource and cost drift explicitly
+- verify smaller instances stay stable under Talos and cluster load
+
+### Vultr
+
+- treat Vultr as the cloud expansion provider, not the cluster home
+- track instance count, size, and age
+- track resource and cost drift explicitly
+- verify smaller instances stay stable under Talos and cluster load
 
 ## Capacity Tracking
 
