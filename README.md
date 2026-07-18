@@ -44,4 +44,5 @@ The address ranges in use are documented in the cluster values and rollout manif
 ## Roadmap
 
 - [Read Me First](./docs/read-me-first.md)
+- [Hybrid Topology](./docs/hybrid-topology.md)
 - [Phase 1 hardening checklist](./docs/phase-1-hardening-checklist.md)
