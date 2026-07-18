@@ -61,8 +61,6 @@ Every component should improve at least one of:
 The following should be treated as real infrastructure, not playground apps:
 
 - Infisical
-- Vaultwarden
-- Immich
 - Longhorn
 - CloudNativePG
 - Grafana / Victoria stack
@@ -118,8 +116,7 @@ Target state:
 
 Start with:
 
-- `stag01`
-- `minecraft`
+- the current application namespace(s)
 - future app namespaces
 
 Be cautious with:
@@ -147,10 +144,9 @@ Start with application namespaces first.
 
 Recommended order:
 
-1. `stag01`
-2. `minecraft`
-3. new application namespaces
-4. selective restrictions in `monitoring`
+1. current application namespace(s)
+2. new application namespaces
+3. selective restrictions in `monitoring`
 
 Minimum explicit allow rules:
 
@@ -207,11 +203,10 @@ Questions answered:
 Suggested checks:
 
 - Grafana
-- Kyoo
 - Infisical
 - CNPG endpoint
 - Gateway API public/internal endpoints
-- Vaultwarden and Immich if they remain daily-use services
+- any current customer-facing or daily-use service
 
 #### C. Data Safety
 
@@ -263,7 +258,6 @@ Suggested panels:
 Blackbox checks should cover:
 
 - `grafana.cluster...`
-- `kyoo.cluster...`
 - Infisical API
 - CNPG reachable endpoint where safe
 - DNS resolution
@@ -284,7 +278,7 @@ Suggested approach:
 
 Good first candidate:
 
-- Kyoo request path and database latency correlation
+- one current production-like app request path and database latency correlation
 
 ## Phase 3: Runtime Security and Compliance
 
@@ -332,7 +326,7 @@ Do not start by meshing the entire cluster.
 
 Good starting scope:
 
-- `stag01`
+- one current application namespace
 - one future internal app namespace
 
 Avoid first rollout in:
@@ -467,8 +461,8 @@ Interpretation:
 Good candidates for serious hosting:
 
 - password and secret workflows
-- personal/work file and photo systems already in active use
-- private dashboards and monitoring for personal services or side projects
+- personal/work file and media systems already in active use
+- private dashboards and monitoring for services or side projects
 - lightweight internal CI runners or automation jobs
 - documentation, search, or knowledge tools used weekly
 - backup/archive services
@@ -486,7 +480,7 @@ Low-value candidates:
 1. move Infisical path to HTTPS
 2. add Pod Security Admission labels
 3. add Kyverno baseline policies
-4. add default-deny policy for `stag01`
+4. add default-deny policy for the active application namespace
 5. add blackbox monitoring
 6. create top-level cluster health dashboard
 7. configure Longhorn backup target
@@ -533,6 +527,25 @@ Priority order:
 4. optional control-plane resilience improvement if not already present elsewhere
 
 This phase raises reliability more than any software-only addition.
+
+## Current vs Retired
+
+Current platform primitives:
+
+- Cilium
+- cert-manager
+- External Secrets
+- Longhorn
+- CloudNativePG
+- Grafana / Victoria stack
+
+Retired or historical app names in this repo:
+
+- `job-aggregator`
+- `kyoo-streaming`
+- `minecraft-server`
+
+Treat retired names as historical only unless current staging values and rollout output bring them back.
 
 ## Concrete Next Artifacts To Add In Repo
 
