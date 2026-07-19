@@ -10,6 +10,8 @@ on:
     paths:
       - 'applications/staging/**'
       - 'applications/charts/**'
+    paths-ignore:
+      - 'applications/staging/plane-prod/**'
 
   workflow_dispatch:
     inputs:
