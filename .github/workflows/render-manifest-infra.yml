@@ -9,6 +9,7 @@ on:
       - main
     paths:
       - 'infrastructure/staging/**/values.yaml'
+      - 'infrastructure/charts/**'
 
   workflow_dispatch:
     inputs:
@@ -31,7 +32,7 @@ jobs:
 
       - name: Install yq
         run: |
-          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
 
       - name: Fetch latest main
@@ -78,12 +79,19 @@ jobs:
             fi
 
             helm dependency build infrastructure/charts/$chart
+            helm lint infrastructure/charts/$chart --values infrastructure/staging/$chart/values.yaml
 
             helm template $chart infrastructure/charts/$chart \
               --values infrastructure/staging/$chart/values.yaml \
               --namespace $NAMESPACE \
               > infrastructure/rollout/$chart/$chart.yaml
+
+            kubectl apply --dry-run=client -f infrastructure/rollout/$chart/$chart.yaml >/dev/null
           done
+
+      - name: Render diff summary
+        run: |
+          git diff --stat -- infrastructure/rollout
 
       - name: Commit rendered manifests
         run: |

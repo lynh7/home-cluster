@@ -9,6 +9,7 @@ on:
       - main
     paths:
       - 'applications/staging/**'
+      - 'applications/charts/**'
 
   workflow_dispatch:
     inputs:
@@ -31,7 +32,7 @@ jobs:
 
       - name: Install yq
         run: |
-          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
 
       - name: Detect changed charts (auto/manual)
@@ -101,12 +102,20 @@ jobs:
               helm dependency build "$CHART_PATH"
             fi
 
+            helm lint "$CHART_PATH" --values "applications/staging/$chart/values.yaml"
+
             mkdir -p "applications/rollout/$chart"
             helm template "$chart" "$CHART_PATH" \
               --values "applications/staging/$chart/values.yaml" \
               --namespace "$NAMESPACE" \
               > "applications/rollout/$chart/$chart.yaml"
+
+            kubectl apply --dry-run=client -f "applications/rollout/$chart/$chart.yaml" >/dev/null
           done
+
+      - name: Render diff summary
+        run: |
+          git diff --stat -- applications/rollout
 
       - name: Commit rendered manifests
         run: |

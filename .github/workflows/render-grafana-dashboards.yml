@@ -25,7 +25,7 @@ jobs:
 
       - name: Install yq
         run: |
-          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
 
       - name: Bump patch version in Chart.yaml
@@ -60,6 +60,8 @@ jobs:
 
           git fetch origin main
           git pull origin main
+
+          git diff --stat -- infrastructure/charts/grafana-dashboards
 
           git add infrastructure/charts/grafana-dashboards/Chart.yaml
 
