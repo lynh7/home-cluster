@@ -65,13 +65,11 @@
   - ingress or gateway objects point at the intended hostnames
   - basic readiness or HTTP smoke checks
 
-### Tomorrow's First Pass
+### Design Doc
 
-- [ ] Draft Plane folder structure in the repo style
-- [ ] Map Plane secrets into External Secrets
-- [ ] Decide whether Plane should use CNPG or an external DB pattern
-- [ ] Decide how to keep dev/prod config separate without copying too much
-- [ ] Update the Plane-specific docs before implementation
+- [ ] Read `docs/plane-cd.md` before implementation
+- [ ] Keep the workflow split there as the source of truth
+- [ ] Use that doc to drive folder structure and workflow files
 
 ## App Docs Cleanup
 

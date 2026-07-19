@@ -20,9 +20,16 @@ Use this document to choose the right doc before making changes.
 - Scope: node roles, private connectivity, join flow, provider guardrails, and capacity tracking.
 - Tone: how should home and cloud pieces fit together?
 
+## `plane-cd.md`
+
+- Purpose: define the Plane-only CD flow for `plane-dev` and `plane-prod`.
+- Scope: workflow split, approval behavior, render targets, and secret flow.
+- Tone: how should Plane deploy differently in dev and prod?
+
 ## When To Read Which
 
 - Read `infra-foundation.md` when deciding whether the platform base is complete.
 - Read `hybrid-topology.md` when adding cloud VMs or defining how home and cloud nodes relate.
+- Read `plane-cd.md` when implementing Plane deployment workflows.
 - Read `production-roadmap.md` when deciding what improvement comes next.
 - Read both when planning changes that affect bootstrap, GitOps, recovery, or cluster-wide behavior.
