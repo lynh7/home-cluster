@@ -1,0 +1,142 @@
+name: Deploy Plane Prod
+
+permissions:
+  contents: write
+  deployments: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Deployment action"
+        required: true
+        default: "render"
+        type: choice
+        options:
+          - render
+          - deploy
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Install yq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 -O /usr/local/bin/yq
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Verify Plane sources
+        run: |
+          set -euo pipefail
+
+          CHART_PATH="applications/charts/plane"
+          VALUES_FILE="applications/staging/plane-prod/values.yaml"
+
+          if [ ! -d "$CHART_PATH" ]; then
+            echo "Missing chart path: $CHART_PATH"
+            exit 1
+          fi
+
+          if [ ! -f "$VALUES_FILE" ]; then
+            echo "Missing values file: $VALUES_FILE"
+            exit 1
+          fi
+
+      - name: Build dependencies and validate
+        run: |
+          set -euo pipefail
+
+          CHART_PATH="applications/charts/plane"
+          VALUES_FILE="applications/staging/plane-prod/values.yaml"
+
+          helm dependency build "$CHART_PATH"
+          helm lint "$CHART_PATH" --values "$VALUES_FILE"
+
+  plane-prod:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment:
+      name: plane-prod
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Install yq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 -O /usr/local/bin/yq
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Verify Plane sources
+        run: |
+          set -euo pipefail
+
+          CHART_PATH="applications/charts/plane"
+          VALUES_FILE="applications/staging/plane-prod/values.yaml"
+
+          if [ ! -d "$CHART_PATH" ]; then
+            echo "Missing chart path: $CHART_PATH"
+            exit 1
+          fi
+
+          if [ ! -f "$VALUES_FILE" ]; then
+            echo "Missing values file: $VALUES_FILE"
+            exit 1
+          fi
+
+      - name: Build dependencies and validate
+        run: |
+          set -euo pipefail
+
+          CHART_PATH="applications/charts/plane"
+          VALUES_FILE="applications/staging/plane-prod/values.yaml"
+
+          helm dependency build "$CHART_PATH"
+          helm lint "$CHART_PATH" --values "$VALUES_FILE"
+
+      - name: Render Plane prod
+        run: |
+          set -euo pipefail
+
+          CHART_PATH="applications/charts/plane"
+          VALUES_FILE="applications/staging/plane-prod/values.yaml"
+          OUTPUT_DIR="applications/rollout/plane-prod"
+          OUTPUT_FILE="$OUTPUT_DIR/plane-prod.yaml"
+          NAMESPACE="plane-prod"
+
+          mkdir -p "$OUTPUT_DIR"
+
+          helm template plane-prod "$CHART_PATH" \
+            --values "$VALUES_FILE" \
+            --namespace "$NAMESPACE" \
+            > "$OUTPUT_FILE"
+
+          kubectl apply --dry-run=client -f "$OUTPUT_FILE" >/dev/null
+
+      - name: Render diff summary
+        run: |
+          git diff --stat -- applications/rollout/plane-prod
+
+      - name: Commit rendered manifests
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+          git add applications/rollout/plane-prod/plane-prod.yaml
+          git commit -m "Deploy Plane prod manifests" || echo "No changes"
+          git push
