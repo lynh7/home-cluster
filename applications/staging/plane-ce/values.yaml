@@ -1,0 +1,20 @@
+planeVersion: v1.3.1
+
+ingress:
+  appHost: "plane.example.com"
+  ingressClass: "traefik"
+
+postgres:
+  local_setup: false
+  # CNPG service in the staging namespace.
+  # The local_setup=false path uses env.pgdb_remote_url instead of the in-chart StatefulSet.
+  # Keep the database name aligned with the Plane release.
+
+env:
+  pgdb_remote_url: "postgresql://plane:plane@cnpg-cluster-rw.stag01.svc.cluster.local:5432/plane"
+
+minio:
+  local_setup: false
+
+external_secrets:
+  doc_store_existingSecret: "plane-ce-doc-store-secrets"
