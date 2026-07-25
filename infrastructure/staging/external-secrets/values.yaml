@@ -16,21 +16,38 @@ serviceMonitor:
   renderMode: alwaysRender
 
 # ── ClusterSecretStore ────────────────────────────────────────────
-clusterSecretStore:
-  enabled: true
-  name: infisical
+clusterSecretStores:
+  - name: infisical
+    enabled: true
+    auth:
+      secretName: infisical-auth
+      clientIdKey: clientId
+      clientSecretKey: clientSecret
+      namespace: stag01
 
-  auth:
-    secretName: infisical-auth
-    clientIdKey: clientId
-    clientSecretKey: clientSecret
-    namespace: stag01
+    infisical:
+      hostAPI: http://192.168.10.99/
+      projectSlug: home-server-83-az
+      environmentSlug: staging
+      secretsPath: /
+      recursive: false
+      expandSecretReferences: true
 
-  infisical:
-    projectSlug: "home-server-83-az"
-    environmentSlug: "staging"
-    secretsPath: "/"
-    hostAPI: "http://192.168.10.99/"
+  - name: infisical-r2
+    enabled: true
+    auth:
+      secretName: infisical-auth
+      clientIdKey: clientId
+      clientSecretKey: clientSecret
+      namespace: stag01
+
+    infisical:
+      hostAPI: http://192.168.10.99/
+      projectSlug: home-server-83-az
+      environmentSlug: staging
+      secretsPath: /R2-stag01
+      recursive: false
+      expandSecretReferences: true
     # Phase 1 target:
     # hostAPI: "https://infisical.home.arpa/api"
     # caProvider:
@@ -187,13 +204,13 @@ externalSecrets:
 
     data:
       - secretKey: accessKeyId
-        remoteKey: R2-stag01/R2_AWS_ACCESS_KEY_ID
+        remoteKey: R2_AWS_ACCESS_KEY_ID
 
       - secretKey: secretAccessKey
-        remoteKey: R2-stag01/R2_AWS_SECRET_ACCESS_KEY
+        remoteKey: R2_AWS_SECRET_ACCESS_KEY
 
       - secretKey: bucketName
-        remoteKey: R2-stag01/R2_AWS_S3_BUCKET_NAME
+        remoteKey: R2_AWS_S3_BUCKET_NAME
 
       - secretKey: endpointUrl
-        remoteKey: R2-stag01/R2_AWS_S3_ENDPOINT_URL
+        remoteKey: R2_AWS_S3_ENDPOINT_URL
