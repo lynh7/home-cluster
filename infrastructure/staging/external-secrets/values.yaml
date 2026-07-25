@@ -162,8 +162,8 @@ externalSecrets:
 
   - name: plane-ce-doc-store
     enabled: true
-    namespace: plane-ce
-    targetSecret: plane-ce-doc-store-secrets
+    namespace: stag01
+    targetSecret: plane-ce-doc-store
     refreshInterval: "1h"
     template:
       engineVersion: v2
