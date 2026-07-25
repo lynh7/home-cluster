@@ -179,15 +179,25 @@ externalSecrets:
         AWS_SECRET_ACCESS_KEY: |
           {{ .secretAccessKey }}
         AWS_S3_BUCKET_NAME: |
-          plane-ce-uploads
+          {{ .bucketName }}
         AWS_S3_ENDPOINT_URL: |
-          http://s3.garage.tld
-        AWS_REGION: |
-          garage
+          {{ .endpointUrl }}
         FILE_SIZE_LIMIT: |
           5242880
+
     data:
       - secretKey: accessKeyId
-        remoteKey: GARAGE_S3_ACCESS_KEY_ID
+        remoteRef:
+          key: R2-STAG01/R2_AWS_ACCESS_KEY_ID
+
       - secretKey: secretAccessKey
-        remoteKey: GARAGE_S3_SECRET_ACCESS_KEY
+        remoteRef:
+          key: R2-STAG01/R2_AWS_SECRET_ACCESS_KEY
+
+      - secretKey: bucketName
+        remoteRef:
+          key: R2-STAG01/R2_AWS_S3_BUCKET_NAME
+
+      - secretKey: endpointUrl
+        remoteRef:
+          key: R2-STAG01/R2_AWS_S3_ENDPOINT_URL
