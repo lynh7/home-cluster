@@ -209,13 +209,13 @@ externalSecrets:
 
     data:
       - secretKey: accessKeyId
-        remoteKey: R2_AWS_ACCESS_KEY_ID
+        remoteKey: R2_AWS_ACCESS_KEY
 
       - secretKey: secretAccessKey
         remoteKey: R2_AWS_SECRET_ACCESS_KEY
 
       - secretKey: bucketName
-        remoteKey: R2_AWS_S3_BUCKET_NAME
+        remoteKey: R2_AWS_BUCKET_NAME
 
       - secretKey: endpointUrl
         remoteKey: R2_AWS_S3_ENDPOINT_URL
