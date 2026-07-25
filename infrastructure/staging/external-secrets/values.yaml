@@ -8,6 +8,10 @@ installCRDs: true
 # -- Specifies whether an external secret operator deployment be created.
 createOperator: true
 
+genericTargets:
+  # -- Enable generic target support
+  enabled: true
+
 extraArgs:
   unsafe-allow-generic-targets: "true"
 
@@ -162,20 +166,20 @@ externalSecrets:
       - secretKey: WEBHOOK_URL
         remoteKey: DISCORD_WEB_HOOK
 
-  - name: ghcr-creds
-    enabled: true
-    namespace: stag01
-    targetSecret: ghcr-creds
-    refreshInterval: "1h"
-    template:
-      type: kubernetes.io/basic-auth
-    data:
-      - secretKey: DOCKER_USERNAME
-        remoteKey: GHCR_USERNAME
-      - secretKey: DOCKER_PASSWORD
-        remoteKey: GHCR_PAT
-      - secretKey: DOCKER_SERVER
-        remoteKey: GHCR_SERVER
+  # - name: ghcr-creds
+  #   enabled: true
+  #   namespace: stag01
+  #   targetSecret: ghcr-creds
+  #   refreshInterval: "1h"
+  #   template:
+  #     type: kubernetes.io/basic-auth
+  #   data:
+  #     - secretKey: DOCKER_USERNAME
+  #       remoteKey: GHCR_USERNAME
+  #     - secretKey: DOCKER_PASSWORD
+  #       remoteKey: GHCR_PAT
+  #     - secretKey: DOCKER_SERVER
+  #       remoteKey: GHCR_SERVER
 
   - name: plane-ce-doc-store
     enabled: true
