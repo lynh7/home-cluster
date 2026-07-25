@@ -111,8 +111,6 @@ jobs:
               --values "applications/staging/$chart/values.yaml" \
               --namespace "$NAMESPACE" \
               > "applications/rollout/$chart/$chart.yaml"
-
-            kubectl apply --dry-run=client -f "applications/rollout/$chart/$chart.yaml" >/dev/null
           done
 
       - name: Render diff summary
