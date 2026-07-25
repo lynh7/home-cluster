@@ -179,6 +179,7 @@ externalSecrets:
 
   - name: plane-ce-doc-store
     enabled: true
+    secretStore: infisical-r2
     namespace: stag01
     targetSecret: plane-ce-doc-store
     refreshInterval: "1h"
