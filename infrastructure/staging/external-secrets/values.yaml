@@ -187,16 +187,13 @@ externalSecrets:
 
     data:
       - secretKey: accessKeyId
-        remoteKey: R2-STAG01/AWS_ACCESS_KEY_ID
+        remoteKey: R2-STAG01/R2_AWS_ACCESS_KEY_ID
 
       - secretKey: secretAccessKey
-        remoteKey: R2-STAG01/AWS_SECRET_ACCESS_KEY
+        remoteKey: R2-STAG01/R2_AWS_SECRET_ACCESS_KEY
 
       - secretKey: bucketName
-        remoteKey: R2-STAG01/AWS_S3_BUCKET_NAME
+        remoteKey: R2-STAG01/R2_AWS_S3_BUCKET_NAME
 
       - secretKey: endpointUrl
-        remoteKey: R2-STAG01/AWS_S3_ENDPOINT_URL
-
-      - secretKey: region
-        remoteKey: R2-STAG01/AWS_REGION
+        remoteKey: R2-STAG01/R2_AWS_S3_ENDPOINT_URL
