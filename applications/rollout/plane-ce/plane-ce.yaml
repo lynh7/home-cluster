@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: plane-ce
+  name: stag01
 
 ---
 # Source: plane-ce/templates/service-account.yaml
@@ -11,7 +11,7 @@ apiVersion: v1
 automountServiceAccountToken: true
 kind: ServiceAccount
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-srv-account
   labels:
     helm.sh/chart: plane-ce-1.6.0
@@ -25,7 +25,7 @@ apiVersion: v1
 kind: Secret
 type: Opaque
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-app-secrets
   labels:
     helm.sh/chart: plane-ce-1.6.0
@@ -36,16 +36,16 @@ metadata:
 stringData:
   SECRET_KEY: "60gp0byfz2dvffa45cxl20p1scy9xbpf6d8c5y0geejgkyp1b5"
   LIVE_SERVER_SECRET_KEY: "htbqvBJAgpm9bzvf3r4urJer0ENReatceh"
-  REDIS_URL: "redis://plane-ce-redis.plane-ce.svc.cluster.local:6379/"
+  REDIS_URL: "redis://plane-ce-redis.stag01.svc.cluster.local:6379/"
   DATABASE_URL: postgresql://plane:plane@cnpg-cluster-rw.stag01.svc.cluster.local:5432/plane
-  AMQP_URL: "amqp://plane:plane@plane-ce-rabbitmq.plane-ce.svc.cluster.local/"
+  AMQP_URL: "amqp://plane:plane@plane-ce-rabbitmq.stag01.svc.cluster.local/"
 ---
 # Source: plane-ce/templates/config-secrets/live-env.yaml
 apiVersion: v1
 kind: Secret
 type: Opaque
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-live-secrets
   labels:
     helm.sh/chart: plane-ce-1.6.0
@@ -55,14 +55,14 @@ metadata:
     app.kubernetes.io/version: "1.3.1"
 stringData:
   LIVE_SERVER_SECRET_KEY: "htbqvBJAgpm9bzvf3r4urJer0ENReatceh"
-  REDIS_URL: "redis://plane-ce-redis.plane-ce.svc.cluster.local:6379/"
+  REDIS_URL: "redis://plane-ce-redis.stag01.svc.cluster.local:6379/"
 ---
 # Source: plane-ce/templates/config-secrets/rabbitmqdb.yaml
 apiVersion: v1
 kind: Secret
 type: Opaque
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-rabbitmq-secrets
   labels:
     helm.sh/chart: plane-ce-1.6.0
@@ -78,7 +78,7 @@ stringData:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-app-vars
   labels:
     helm.sh/chart: plane-ce-1.6.0
@@ -102,7 +102,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-live-vars
   labels:
     helm.sh/chart: plane-ce-1.6.0
@@ -111,17 +111,17 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/version: "1.3.1"
 data:
-  API_BASE_URL: "http://plane-ce-api.plane-ce.svc.cluster.local:8000/"
+  API_BASE_URL: "http://plane-ce-api.stag01.svc.cluster.local:8000/"
   LIVE_BASE_PATH: "/live"
 ---
 # Source: plane-ce/templates/workloads/admin.deployment.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-admin
   labels:
-    app.name: plane-ce-plane-ce-admin
+    app.name: stag01-plane-ce-admin
     helm.sh/chart: plane-ce-1.6.0
     app.kubernetes.io/name: plane-ce
     app.kubernetes.io/instance: plane-ce
@@ -135,16 +135,16 @@ spec:
     protocol: TCP
     targetPort: 3000
   selector:
-    app.name: plane-ce-plane-ce-admin
+    app.name: stag01-plane-ce-admin
 ---
 # Source: plane-ce/templates/workloads/api.deployment.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-api
   labels:
-    app.name: plane-ce-plane-ce-api
+    app.name: stag01-plane-ce-api
     helm.sh/chart: plane-ce-1.6.0
     app.kubernetes.io/name: plane-ce
     app.kubernetes.io/instance: plane-ce
@@ -158,16 +158,16 @@ spec:
     protocol: TCP
     targetPort: 8000
   selector:
-    app.name: plane-ce-plane-ce-api
+    app.name: stag01-plane-ce-api
 ---
 # Source: plane-ce/templates/workloads/live.deployment.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-live
   labels:
-    app.name: plane-ce-plane-ce-live
+    app.name: stag01-plane-ce-live
     helm.sh/chart: plane-ce-1.6.0
     app.kubernetes.io/name: plane-ce
     app.kubernetes.io/instance: plane-ce
@@ -181,16 +181,16 @@ spec:
     protocol: TCP
     targetPort: 3000
   selector:
-    app.name: plane-ce-plane-ce-live
+    app.name: stag01-plane-ce-live
 ---
 # Source: plane-ce/templates/workloads/rabbitmq.stateful.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-rabbitmq
   labels:
-    app.name: plane-ce-plane-ce-rabbitmq
+    app.name: stag01-plane-ce-rabbitmq
     helm.sh/chart: plane-ce-1.6.0
     app.kubernetes.io/name: plane-ce
     app.kubernetes.io/instance: plane-ce
@@ -208,16 +208,16 @@ spec:
     protocol: TCP
     targetPort: 15672
   selector:
-    app.name: plane-ce-plane-ce-rabbitmq
+    app.name: stag01-plane-ce-rabbitmq
 ---
 # Source: plane-ce/templates/workloads/redis.stateful.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-redis
   labels:
-    app.name: plane-ce-plane-ce-redis
+    app.name: stag01-plane-ce-redis
     helm.sh/chart: plane-ce-1.6.0
     app.kubernetes.io/name: plane-ce
     app.kubernetes.io/instance: plane-ce
@@ -231,16 +231,16 @@ spec:
     protocol: TCP
     targetPort: 6379
   selector:
-    app.name: plane-ce-plane-ce-redis
+    app.name: stag01-plane-ce-redis
 ---
 # Source: plane-ce/templates/workloads/space.deployment.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-space
   labels:
-    app.name: plane-ce-plane-ce-space
+    app.name: stag01-plane-ce-space
     helm.sh/chart: plane-ce-1.6.0
     app.kubernetes.io/name: plane-ce
     app.kubernetes.io/instance: plane-ce
@@ -254,16 +254,16 @@ spec:
     protocol: TCP
     targetPort: 3000
   selector:
-    app.name: plane-ce-plane-ce-space
+    app.name: stag01-plane-ce-space
 ---
 # Source: plane-ce/templates/workloads/web.deployment.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-web
   labels:
-    app.name: plane-ce-plane-ce-web
+    app.name: stag01-plane-ce-web
     helm.sh/chart: plane-ce-1.6.0
     app.kubernetes.io/name: plane-ce
     app.kubernetes.io/instance: plane-ce
@@ -277,13 +277,13 @@ spec:
     protocol: TCP
     targetPort: 3000
   selector:
-    app.name: plane-ce-plane-ce-web
+    app.name: stag01-plane-ce-web
 ---
 # Source: plane-ce/templates/workloads/admin.deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-admin-wl
   labels:
     helm.sh/chart: plane-ce-1.6.0
@@ -295,19 +295,19 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.name: plane-ce-plane-ce-admin
+      app.name: stag01-plane-ce-admin
   template:
     metadata:
-      namespace: plane-ce
+      namespace: stag01
       labels:
-        app.name: plane-ce-plane-ce-admin
+        app.name: stag01-plane-ce-admin
         helm.sh/chart: plane-ce-1.6.0
         app.kubernetes.io/name: plane-ce
         app.kubernetes.io/instance: plane-ce
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-26 03:36:55.377745664 +0000 UTC m=+0.044369929"
+        timestamp: "2026-07-26 03:41:49.177057503 +0000 UTC m=+0.042271478"
     spec:
       containers:
       - name: plane-ce-admin
@@ -329,7 +329,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-api-wl
   labels:
     helm.sh/chart: plane-ce-1.6.0
@@ -341,19 +341,19 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.name: plane-ce-plane-ce-api
+      app.name: stag01-plane-ce-api
   template:
     metadata:
-      namespace: plane-ce
+      namespace: stag01
       labels:
-        app.name: plane-ce-plane-ce-api
+        app.name: stag01-plane-ce-api
         helm.sh/chart: plane-ce-1.6.0
         app.kubernetes.io/name: plane-ce
         app.kubernetes.io/instance: plane-ce
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-26 03:36:55.377683638 +0000 UTC m=+0.044307903"
+        timestamp: "2026-07-26 03:41:49.176938586 +0000 UTC m=+0.042152561"
     spec:
       containers:
       - name: plane-ce-api
@@ -396,7 +396,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-beat-worker-wl
   labels:
     helm.sh/chart: plane-ce-1.6.0
@@ -408,19 +408,19 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.name: plane-ce-plane-ce-beat-worker
+      app.name: stag01-plane-ce-beat-worker
   template:
     metadata:
-      namespace: plane-ce
+      namespace: stag01
       labels:
-        app.name: plane-ce-plane-ce-beat-worker
+        app.name: stag01-plane-ce-beat-worker
         helm.sh/chart: plane-ce-1.6.0
         app.kubernetes.io/name: plane-ce
         app.kubernetes.io/instance: plane-ce
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-26 03:36:55.377619408 +0000 UTC m=+0.044243673"
+        timestamp: "2026-07-26 03:41:49.176821831 +0000 UTC m=+0.042035806"
     spec:
       containers:
       - name: plane-ce-beat-worker
@@ -454,7 +454,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-live-wl
   labels:
     helm.sh/chart: plane-ce-1.6.0
@@ -466,19 +466,19 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.name: plane-ce-plane-ce-live
+      app.name: stag01-plane-ce-live
   template:
     metadata:
-      namespace: plane-ce
+      namespace: stag01
       labels:
-        app.name: plane-ce-plane-ce-live
+        app.name: stag01-plane-ce-live
         helm.sh/chart: plane-ce-1.6.0
         app.kubernetes.io/name: plane-ce
         app.kubernetes.io/instance: plane-ce
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-26 03:36:55.377563613 +0000 UTC m=+0.044187868"
+        timestamp: "2026-07-26 03:41:49.176735733 +0000 UTC m=+0.041949708"
     spec:
       containers:
       - name: plane-ce-live
@@ -507,7 +507,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-space-wl
   labels:
     helm.sh/chart: plane-ce-1.6.0
@@ -519,19 +519,19 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.name: plane-ce-plane-ce-space
+      app.name: stag01-plane-ce-space
   template:
     metadata:
-      namespace: plane-ce
+      namespace: stag01
       labels:
-        app.name: plane-ce-plane-ce-space
+        app.name: stag01-plane-ce-space
         helm.sh/chart: plane-ce-1.6.0
         app.kubernetes.io/name: plane-ce
         app.kubernetes.io/instance: plane-ce
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-26 03:36:55.377345214 +0000 UTC m=+0.043969479"
+        timestamp: "2026-07-26 03:41:49.176316026 +0000 UTC m=+0.041530001"
     spec:
       containers:
       - name: plane-ce-space
@@ -553,7 +553,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-web-wl
   labels:
     helm.sh/chart: plane-ce-1.6.0
@@ -565,19 +565,19 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.name: plane-ce-plane-ce-web
+      app.name: stag01-plane-ce-web
   template:
     metadata:
-      namespace: plane-ce
+      namespace: stag01
       labels:
-        app.name: plane-ce-plane-ce-web
+        app.name: stag01-plane-ce-web
         helm.sh/chart: plane-ce-1.6.0
         app.kubernetes.io/name: plane-ce
         app.kubernetes.io/instance: plane-ce
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-26 03:36:55.377283248 +0000 UTC m=+0.043907513"
+        timestamp: "2026-07-26 03:41:49.176181535 +0000 UTC m=+0.041395530"
     spec:
       containers:
       - name: plane-ce-web
@@ -599,7 +599,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-worker-wl
   labels:
     helm.sh/chart: plane-ce-1.6.0
@@ -611,19 +611,19 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.name: plane-ce-plane-ce-worker
+      app.name: stag01-plane-ce-worker
   template:
     metadata:
-      namespace: plane-ce
+      namespace: stag01
       labels:
-        app.name: plane-ce-plane-ce-worker
+        app.name: stag01-plane-ce-worker
         helm.sh/chart: plane-ce-1.6.0
         app.kubernetes.io/name: plane-ce
         app.kubernetes.io/instance: plane-ce
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-26 03:36:55.377189503 +0000 UTC m=+0.043813767"
+        timestamp: "2026-07-26 03:41:49.176011531 +0000 UTC m=+0.041225516"
     spec:
       containers:
       - name: plane-ce-worker
@@ -657,7 +657,7 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-rabbitmq-wl
   labels:
     helm.sh/chart: plane-ce-1.6.0
@@ -668,12 +668,12 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app.name: plane-ce-plane-ce-rabbitmq
+      app.name: stag01-plane-ce-rabbitmq
   serviceName:  plane-ce-rabbitmq
   template:
     metadata:
       labels:
-        app.name: plane-ce-plane-ce-rabbitmq
+        app.name: stag01-plane-ce-rabbitmq
         helm.sh/chart: plane-ce-1.6.0
         app.kubernetes.io/name: plane-ce
         app.kubernetes.io/instance: plane-ce
@@ -701,7 +701,7 @@ spec:
     kind: PersistentVolumeClaim
     metadata:
       creationTimestamp: null
-      namespace: plane-ce
+      namespace: stag01
       name: pvc-plane-ce-rabbitmq-vol
     spec:
       accessModes:
@@ -718,7 +718,7 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-redis-wl
   labels:
     helm.sh/chart: plane-ce-1.6.0
@@ -729,12 +729,12 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app.name: plane-ce-plane-ce-redis
+      app.name: stag01-plane-ce-redis
   serviceName:  plane-ce-redis
   template:
     metadata:
       labels:
-        app.name: plane-ce-plane-ce-redis
+        app.name: stag01-plane-ce-redis
         helm.sh/chart: plane-ce-1.6.0
         app.kubernetes.io/name: plane-ce
         app.kubernetes.io/instance: plane-ce
@@ -758,7 +758,7 @@ spec:
     kind: PersistentVolumeClaim
     metadata:
       creationTimestamp: null
-      namespace: plane-ce
+      namespace: stag01
       name: pvc-plane-ce-redis-vol
     spec:
       accessModes:
@@ -773,7 +773,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  namespace: plane-ce
+  namespace: stag01
   name: plane-ce-api-migrate-1
   labels:
     helm.sh/chart: plane-ce-1.6.0
@@ -786,14 +786,14 @@ spec:
   template:
     metadata:
       labels:
-        app.name: plane-ce-plane-ce-api-migrate
+        app.name: stag01-plane-ce-api-migrate
         helm.sh/chart: plane-ce-1.6.0
         app.kubernetes.io/name: plane-ce
         app.kubernetes.io/instance: plane-ce
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-26 03:36:55.377501757 +0000 UTC m=+0.044126012"
+        timestamp: "2026-07-26 03:41:49.176621612 +0000 UTC m=+0.041835587"
     spec:
       containers:
       - name: plane-ce-api-migrate
