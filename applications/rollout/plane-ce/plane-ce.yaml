@@ -4,6 +4,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: plane-ce
+
 ---
 # Source: plane-ce/templates/service-account.yaml
 apiVersion: v1
@@ -95,6 +96,7 @@ data:
   API_KEY_RATE_LIMIT: "60/minute"
   WEB_URL: "http://plane.example.com"
   CORS_ALLOWED_ORIGINS: "http://plane.example.com,https://plane.example.com"
+
 ---
 # Source: plane-ce/templates/config-secrets/live-env.yaml
 apiVersion: v1
@@ -305,7 +307,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-22 22:26:14.245567573 +0700 +07 m=+0.067428578"
+        timestamp: "2026-07-26 03:36:55.377745664 +0000 UTC m=+0.044369929"
     spec:
       containers:
       - name: plane-ce-admin
@@ -351,7 +353,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-22 22:26:14.245445509 +0700 +07 m=+0.067306518"
+        timestamp: "2026-07-26 03:36:55.377683638 +0000 UTC m=+0.044307903"
     spec:
       containers:
       - name: plane-ce-api
@@ -376,7 +378,7 @@ spec:
               name: plane-ce-app-secrets
               optional: false
           - secretRef:
-              name: plane-ce-doc-store-secrets
+              name: plane-ce-doc-store
               optional: false
         readinessProbe:
           failureThreshold: 30
@@ -418,7 +420,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-22 22:26:14.245328279 +0700 +07 m=+0.067189286"
+        timestamp: "2026-07-26 03:36:55.377619408 +0000 UTC m=+0.044243673"
     spec:
       containers:
       - name: plane-ce-beat-worker
@@ -443,7 +445,7 @@ spec:
                 name: plane-ce-app-secrets
                 optional: false
           - secretRef:
-              name: plane-ce-doc-store-secrets
+              name: plane-ce-doc-store
               optional: false
       serviceAccount: plane-ce-srv-account
       serviceAccountName: plane-ce-srv-account
@@ -476,7 +478,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-22 22:26:14.24524028 +0700 +07 m=+0.067101285"
+        timestamp: "2026-07-26 03:36:55.377563613 +0000 UTC m=+0.044187868"
     spec:
       containers:
       - name: plane-ce-live
@@ -529,7 +531,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-22 22:26:14.244846897 +0700 +07 m=+0.066707902"
+        timestamp: "2026-07-26 03:36:55.377345214 +0000 UTC m=+0.043969479"
     spec:
       containers:
       - name: plane-ce-space
@@ -575,7 +577,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-22 22:26:14.244733505 +0700 +07 m=+0.066594509"
+        timestamp: "2026-07-26 03:36:55.377283248 +0000 UTC m=+0.043907513"
     spec:
       containers:
       - name: plane-ce-web
@@ -621,7 +623,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-22 22:26:14.24456849 +0700 +07 m=+0.066429505"
+        timestamp: "2026-07-26 03:36:55.377189503 +0000 UTC m=+0.043813767"
     spec:
       containers:
       - name: plane-ce-worker
@@ -646,7 +648,7 @@ spec:
               name: plane-ce-app-secrets
               optional: false
           - secretRef:
-              name: plane-ce-doc-store-secrets
+              name: plane-ce-doc-store
               optional: false
       serviceAccount: plane-ce-srv-account
       serviceAccountName: plane-ce-srv-account
@@ -791,7 +793,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-22 22:26:14.245137855 +0700 +07 m=+0.066998863"
+        timestamp: "2026-07-26 03:36:55.377501757 +0000 UTC m=+0.044126012"
     spec:
       containers:
       - name: plane-ce-api-migrate
@@ -807,96 +809,8 @@ spec:
               name: plane-ce-app-secrets
               optional: false
           - secretRef:
-              name:  plane-ce-doc-store-secrets
+              name:  plane-ce-doc-store
               optional: false
       restartPolicy: OnFailure
       serviceAccount: plane-ce-srv-account
       serviceAccountName: plane-ce-srv-account
----
-# Source: plane-ce/templates/ingress-traefik.yaml
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: plane-ce-ingress
-  labels:
-    helm.sh/chart: plane-ce-1.6.0
-    app.kubernetes.io/name: plane-ce
-    app.kubernetes.io/instance: plane-ce
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/version: "1.3.1"
-  namespace: plane-ce
-spec:
-  entryPoints:
-    - websecure
-
-  routes:
-
-  # IMPORTANT: specific paths FIRST
-
-  - match: Host(`plane.example.com`) && PathPrefix(`/spaces`)
-    kind: Rule
-    middlewares:
-      - name: plane-ce-body-limit
-    services:
-      - name: plane-ce-space
-        port: 3000
-
-  - match: Host(`plane.example.com`) && PathPrefix(`/god-mode`)
-    kind: Rule
-    middlewares:
-      - name: plane-ce-body-limit
-    services:
-      - name: plane-ce-admin
-        port: 3000
-
-  - match: Host(`plane.example.com`) && PathPrefix(`/api`)
-    kind: Rule
-    middlewares:
-      - name: plane-ce-body-limit
-    services:
-      - name: plane-ce-api
-        port: 8000
-
-  - match: Host(`plane.example.com`) && PathPrefix(`/auth`)
-    kind: Rule
-    middlewares:
-      - name: plane-ce-body-limit
-    services:
-      - name: plane-ce-api
-        port: 8000
-
-  - match: Host(`plane.example.com`) && PathPrefix(`/live`)
-    kind: Rule
-    middlewares:
-      - name: plane-ce-body-limit
-    services:
-      - name: plane-ce-live
-        port: 3000
-
-  # LAST: catch all
-  - match: Host(`plane.example.com`) && PathPrefix(`/`)
-    kind: Rule
-    middlewares:
-      - name: plane-ce-body-limit
-    services:
-      - name: plane-ce-web
-        port: 3000
-
-  tls:
-    secretName: plane-ce-ssl-cert
----
-# Source: plane-ce/templates/traefik-middleware.yaml
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: plane-ce-body-limit
-  labels:
-    helm.sh/chart: plane-ce-1.6.0
-    app.kubernetes.io/name: plane-ce
-    app.kubernetes.io/instance: plane-ce
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/version: "1.3.1"
-  namespace: plane-ce
-spec:
-  buffering:
-    maxRequestBodyBytes: 2.097152e+07
