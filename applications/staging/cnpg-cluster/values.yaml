@@ -11,7 +11,7 @@ imageName: "ghcr.io/cloudnative-pg/postgresql:18"
 # @section -- Database
 imagePullPolicy: "IfNotPresent"
 credentials:
-  username: "job_aggregator"        # not sensitive — fine in values.yaml
+  username: "plane"        # not sensitive — fine in values.yaml
   password: ""            # leave empty — secret comes from K8s secret below
   postgresPassword: ""    # leave empty — same
 
@@ -24,7 +24,7 @@ credentials:
 
 # -- Name of the database (Default is `fullnameOverride` > `nameOverride` > name of the Helm release).
 # @section -- Database
-dbName: "job_aggregator"
+dbName: "planece"
 # -- Enable superuser access.
 # @section -- Database
 enableSuperuserAccess: true
@@ -391,5 +391,5 @@ monitoring:
     extraMatchLabels: {}
 
 databases:
-  - name: "job_aggregator"
-    owner: "job_aggregator"
+  - name: "planece"
+    owner: "plane"

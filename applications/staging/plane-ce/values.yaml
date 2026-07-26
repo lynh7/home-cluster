@@ -192,8 +192,8 @@ env:
   # POSTGRES DB VALUES
   pgdb_username: plane
   pgdb_password: plane
-  pgdb_name: plane
-  pgdb_remote_url: "postgresql://plane:plane@cnpg-cluster-rw.stag01.svc.cluster.local:5432/plane" #INCASE OF REMOTE PG DB URL ONLY
+  pgdb_name: planece
+  pgdb_remote_url: "postgresql://plane:plane@cnpg-cluster-rw.stag01.svc.cluster.local:5432/planece" #INCASE OF REMOTE PG DB URL ONLY
 
   # DATA STORE
   docstore_bucket: "uploads"
