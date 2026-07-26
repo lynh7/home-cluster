@@ -8,6 +8,8 @@ spec:
   path: ./applications/rollout/cnpg-cluster
   prune: true
   targetNamespace: stag01
+  dependsOn:
+    - name: rollout-cloudnative-pg
   sourceRef:
     kind: GitRepository
     name: flux-system
