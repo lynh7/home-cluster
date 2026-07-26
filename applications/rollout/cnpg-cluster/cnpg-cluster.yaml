@@ -34,8 +34,8 @@ spec:
   
   bootstrap:
     initdb:
-      database: job_aggregator
-      owner: job_aggregator
+      database: planece
+      owner: plane
       secret:
         name: job-aggregator-pg-credentials
   
@@ -50,7 +50,7 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: cnpg-cluster-db-job-aggregator
+  name: cnpg-cluster-db-planece
   labels:
     helm.sh/chart: cnpg-cluster-2.1.0
     app.kubernetes.io/version: "1.29.0"
@@ -58,8 +58,8 @@ metadata:
     app.kubernetes.io/name: cnpg-cluster
     app.kubernetes.io/instance: cnpg-cluster
 spec:
-  name: job_aggregator
-  owner: job_aggregator
+  name: planece
+  owner: plane
   cluster:
     name: cnpg-cluster
 

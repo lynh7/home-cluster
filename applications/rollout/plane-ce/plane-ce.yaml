@@ -37,7 +37,7 @@ stringData:
   SECRET_KEY: "60gp0byfz2dvffa45cxl20p1scy9xbpf6d8c5y0geejgkyp1b5"
   LIVE_SERVER_SECRET_KEY: "htbqvBJAgpm9bzvf3r4urJer0ENReatceh"
   REDIS_URL: "redis://plane-ce-redis.stag01.svc.cluster.local:6379/"
-  DATABASE_URL: postgresql://plane:plane@cnpg-cluster-rw.stag01.svc.cluster.local:5432/plane
+  DATABASE_URL: postgresql://plane:plane@cnpg-cluster-rw.stag01.svc.cluster.local:5432/planece
   AMQP_URL: "amqp://plane:plane@plane-ce-rabbitmq.stag01.svc.cluster.local/"
 ---
 # Source: plane-ce/templates/config-secrets/live-env.yaml
@@ -307,7 +307,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-26 03:41:49.177057503 +0000 UTC m=+0.042271478"
+        timestamp: "2026-07-26 04:29:55.232318632 +0000 UTC m=+0.038122642"
     spec:
       containers:
       - name: plane-ce-admin
@@ -353,7 +353,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-26 03:41:49.176938586 +0000 UTC m=+0.042152561"
+        timestamp: "2026-07-26 04:29:55.232100835 +0000 UTC m=+0.037904835"
     spec:
       containers:
       - name: plane-ce-api
@@ -420,7 +420,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-26 03:41:49.176821831 +0000 UTC m=+0.042035806"
+        timestamp: "2026-07-26 04:29:55.231907152 +0000 UTC m=+0.037711163"
     spec:
       containers:
       - name: plane-ce-beat-worker
@@ -478,7 +478,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-26 03:41:49.176735733 +0000 UTC m=+0.041949708"
+        timestamp: "2026-07-26 04:29:55.231738537 +0000 UTC m=+0.037542537"
     spec:
       containers:
       - name: plane-ce-live
@@ -531,7 +531,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-26 03:41:49.176316026 +0000 UTC m=+0.041530001"
+        timestamp: "2026-07-26 04:29:55.230767832 +0000 UTC m=+0.036571832"
     spec:
       containers:
       - name: plane-ce-space
@@ -577,7 +577,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-26 03:41:49.176181535 +0000 UTC m=+0.041395530"
+        timestamp: "2026-07-26 04:29:55.230640123 +0000 UTC m=+0.036444123"
     spec:
       containers:
       - name: plane-ce-web
@@ -623,7 +623,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-26 03:41:49.176011531 +0000 UTC m=+0.041225516"
+        timestamp: "2026-07-26 04:29:55.230492006 +0000 UTC m=+0.036296016"
     spec:
       containers:
       - name: plane-ce-worker
@@ -793,7 +793,7 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/version: "1.3.1"
       annotations:
-        timestamp: "2026-07-26 03:41:49.176621612 +0000 UTC m=+0.041835587"
+        timestamp: "2026-07-26 04:29:55.231073624 +0000 UTC m=+0.036877633"
     spec:
       containers:
       - name: plane-ce-api-migrate
