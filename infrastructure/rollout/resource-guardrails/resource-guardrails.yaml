@@ -25,7 +25,7 @@ spec:
       - namespaces
       scope: Cluster
   validations:
-  - expression: '!(has(object.metadata.labels) && object.metadata.labels.exists(labelKey,
+  - expression: '!(has(oldObject.metadata.labels) && oldObject.metadata.labels.exists(labelKey,
       labelKey.startsWith(''kustomize.toolkit.fluxcd.io'')))'
     message: Protected namespaces cannot be deleted.
 ---
