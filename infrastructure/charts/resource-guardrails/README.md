@@ -18,6 +18,7 @@ The chart installs two default policy/binding pairs:
 - protect secrets
 
 Both defaults can be disabled from `values.yaml`, and additional policies can be added by appending to the `policies` list.
+The namespace policy blocks deletion when the namespace carries any label whose key starts with `kustomize.toolkit.fluxcd.io`; the secret policy still uses the chart's protected label.
 
 ## Notes
 

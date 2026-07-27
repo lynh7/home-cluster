@@ -18,11 +18,8 @@ policies:
               resources:
                 - namespaces
               scope: Cluster
-        objectSelector:
-          matchLabels:
-            policy.home-talos-cluster.io/protected: "true"
         validations:
-          - expression: "false"
+          - expression: "has(object.metadata.labels) && object.metadata.labels.exists(labelKey, labelKey.startsWith('kustomize.toolkit.fluxcd.io'))"
             message: Protected namespaces cannot be deleted.
     binding:
       spec:
