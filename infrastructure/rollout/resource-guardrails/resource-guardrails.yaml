@@ -25,8 +25,8 @@ spec:
       - namespaces
       scope: Cluster
   validations:
-  - expression: has(object.metadata.labels) && object.metadata.labels.exists(labelKey,
-      labelKey.startsWith('kustomize.toolkit.fluxcd.io'))
+  - expression: '!(has(object.metadata.labels) && object.metadata.labels.exists(labelKey,
+      labelKey.startsWith(''kustomize.toolkit.fluxcd.io'')))'
     message: Protected namespaces cannot be deleted.
 ---
 # Source: resource-guardrails/templates/validatingadmissionpolicy.yaml
