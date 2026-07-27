@@ -1,0 +1,2 @@
+# Staging uses the chart defaults. Override `policies` here when you want to
+# disable one of the defaults or add a custom admission policy.

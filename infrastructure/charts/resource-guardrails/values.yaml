@@ -1,0 +1,60 @@
+policies:
+  - name: protect-namespaces
+    enabled: true
+    policy:
+      metadata:
+        annotations:
+          kubernetes.io/description: Protect labeled Namespaces from deletion.
+      spec:
+        failurePolicy: Fail
+        matchConstraints:
+          resourceRules:
+            - apiGroups:
+                - ""
+              apiVersions:
+                - v1
+              operations:
+                - DELETE
+              resources:
+                - namespaces
+              scope: Cluster
+        objectSelector:
+          matchLabels:
+            policy.home-talos-cluster.io/protected: "true"
+        validations:
+          - expression: "false"
+            message: Protected namespaces cannot be deleted.
+    binding:
+      spec:
+        validationActions:
+          - Deny
+
+  - name: protect-secrets
+    enabled: true
+    policy:
+      metadata:
+        annotations:
+          kubernetes.io/description: Protect labeled Secrets from deletion.
+      spec:
+        failurePolicy: Fail
+        matchConstraints:
+          resourceRules:
+            - apiGroups:
+                - ""
+              apiVersions:
+                - v1
+              operations:
+                - DELETE
+              resources:
+                - secrets
+              scope: Namespaced
+        objectSelector:
+          matchLabels:
+            policy.home-talos-cluster.io/protected: "true"
+        validations:
+          - expression: "false"
+            message: Protected secrets cannot be deleted.
+    binding:
+      spec:
+        validationActions:
+          - Deny

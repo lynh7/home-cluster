@@ -1,0 +1,45 @@
+{{- range $policy := .Values.policies }}
+{{- if or (kindIs "invalid" $policy.enabled) $policy.enabled }}
+{{- $policyName := include "resource-guardrails.policyName" (dict "root" $ "policy" $policy) }}
+{{- $bindingName := include "resource-guardrails.bindingName" (dict "root" $ "policy" $policy) }}
+{{- $policyBlock := default dict $policy.policy }}
+{{- $bindingBlock := default dict $policy.binding }}
+{{- $policyMeta := default dict $policyBlock.metadata }}
+{{- $bindingMeta := default dict $bindingBlock.metadata }}
+{{- $policySpec := required (printf "policies[%s].policy.spec is required" $policy.name) $policyBlock.spec }}
+{{- $bindingSpec := required (printf "policies[%s].binding.spec is required" $policy.name) $bindingBlock.spec }}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: {{ $policyName }}
+  labels:
+    {{- include "resource-guardrails.labels" $ | nindent 4 }}
+    {{- with $policyMeta.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $policyMeta.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- toYaml $policySpec | nindent 2 }}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: {{ $bindingName }}
+  labels:
+    {{- include "resource-guardrails.labels" $ | nindent 4 }}
+    {{- with $bindingMeta.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $bindingMeta.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  policyName: {{ $policyName }}
+  {{- toYaml $bindingSpec | nindent 2 }}
+{{- end }}
+{{- end }}

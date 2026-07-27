@@ -1,0 +1,94 @@
+---
+# Source: resource-guardrails/templates/validatingadmissionpolicy.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: resource-guardrails-protect-namespaces
+  labels:
+    app.kubernetes.io/name: resource-guardrails
+    app.kubernetes.io/instance: resource-guardrails
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: resource-guardrails-0.1.0
+  annotations:
+    kubernetes.io/description: Protect labeled Namespaces from deletion.
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups:
+      - ""
+      apiVersions:
+      - v1
+      operations:
+      - DELETE
+      resources:
+      - namespaces
+      scope: Cluster
+  objectSelector:
+    matchLabels:
+      policy.home-talos-cluster.io/protected: "true"
+  validations:
+  - expression: "false"
+    message: Protected namespaces cannot be deleted.
+---
+# Source: resource-guardrails/templates/validatingadmissionpolicy.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: resource-guardrails-protect-secrets
+  labels:
+    app.kubernetes.io/name: resource-guardrails
+    app.kubernetes.io/instance: resource-guardrails
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: resource-guardrails-0.1.0
+  annotations:
+    kubernetes.io/description: Protect labeled Secrets from deletion.
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups:
+      - ""
+      apiVersions:
+      - v1
+      operations:
+      - DELETE
+      resources:
+      - secrets
+      scope: Namespaced
+  objectSelector:
+    matchLabels:
+      policy.home-talos-cluster.io/protected: "true"
+  validations:
+  - expression: "false"
+    message: Protected secrets cannot be deleted.
+---
+# Source: resource-guardrails/templates/validatingadmissionpolicy.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: resource-guardrails-protect-namespaces-binding
+  labels:
+    app.kubernetes.io/name: resource-guardrails
+    app.kubernetes.io/instance: resource-guardrails
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: resource-guardrails-0.1.0
+spec:
+  policyName: resource-guardrails-protect-namespaces
+  validationActions:
+  - Deny
+---
+# Source: resource-guardrails/templates/validatingadmissionpolicy.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: resource-guardrails-protect-secrets-binding
+  labels:
+    app.kubernetes.io/name: resource-guardrails
+    app.kubernetes.io/instance: resource-guardrails
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: resource-guardrails-0.1.0
+spec:
+  policyName: resource-guardrails-protect-secrets
+  validationActions:
+  - Deny
