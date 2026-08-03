@@ -82,14 +82,12 @@ grafana-alloy:
         // system workloads added by other controllers.
         prometheus.operator.servicemonitors "default" {
           namespaces = ["monitoring", "kube-system", "longhorn-system"]
-          scrape_interval = "30s"
           scrape_timeout  = "10s"
           forward_to = [prometheus.remote_write.victoria.receiver]
         }
 
         prometheus.operator.podmonitors "default" {
           namespaces = ["monitoring", "kube-system", "longhorn-system"]
-          scrape_interval = "30s"
           scrape_timeout  = "10s"
           forward_to = [prometheus.remote_write.victoria.receiver]
         }
@@ -128,7 +126,6 @@ grafana-alloy:
             },
           ]
 
-          scrape_interval = "30s"
           scrape_timeout  = "10s"
           honor_labels    = true
 
@@ -171,7 +168,6 @@ grafana-alloy:
           targets      = discovery.kubernetes.nodes.targets
           scheme       = "https"
           metrics_path = "/metrics/cadvisor"
-          scrape_interval = "30s"
           scrape_timeout  = "10s"
           sample_limit    = 50000
 
@@ -182,26 +178,6 @@ grafana-alloy:
           }
 
           forward_to = [prometheus.remote_write.victoria.receiver]
-
-          // Keep only essential container + machine metrics.
-          // Everything else (e.g. container_network_adv_tcp_stats_total,
-          // container_blkio_*, etc.) is dropped to reduce cardinality.
-          metric_relabel_configs {
-            source_labels = ["__name__"]
-            regex = "container_cpu_.*|container_memory_.*|container_fs_.*|container_network_.*|container_start_time_seconds|container_last_seen|container_oom_events_total|container_spec_.*|container_tasks_state|machine_.*"
-            action = "keep"
-          }
-
-          // Drop high-cardinality labels that come from container runtimes.
-          metric_relabel_configs {
-            regex  = "container_label_.+"
-            action = "labeldrop"
-          }
-
-          metric_relabel_configs {
-            regex  = "id"
-            action = "labeldrop"
-          }
         }
 
         // ─────────────────────────────────────────────────────────
