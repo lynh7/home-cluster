@@ -76,90 +76,68 @@ grafana-alloy:
         // ─────────────────────────────────────────────────────────
         // Metrics
         // ─────────────────────────────────────────────────────────
+
+        // ServiceMonitors and PodMonitors – scoped to our own
+        // namespaces so we never accidentally scrape tenant or
+        // system workloads added by other controllers.
         prometheus.operator.servicemonitors "default" {
-          forward_to = [prometheus.remote_write.victoria.receiver]
-        }
-        
-        prometheus.operator.podmonitors "default" {
+          namespaces = ["monitoring", "kube-system", "longhorn-system"]
+          scrape_interval = "30s"
+          scrape_timeout  = "10s"
           forward_to = [prometheus.remote_write.victoria.receiver]
         }
 
-        prometheus.scrape "external_ubuntu_node" {
+        prometheus.operator.podmonitors "default" {
+          namespaces = ["monitoring", "kube-system", "longhorn-system"]
+          scrape_interval = "30s"
+          scrape_timeout  = "10s"
+          forward_to = [prometheus.remote_write.victoria.receiver]
+        }
+
+        // ─────────────────────────────────────────────────────────
+        // External node scrapes – consolidated into a single block.
+        // honour_labels ensures node_exporter labels take precedence.
+        // ─────────────────────────────────────────────────────────
+        prometheus.scrape "external_nodes" {
           targets = [
             {
               __address__ = "192.168.10.99:9100",
               job         = "rasp4-node",
               node        = "rasp4-node",
             },
-          ]
-
-          scrape_interval = "30s"
-          scrape_timeout  = "10s"
-
-          forward_to = [prometheus.remote_write.victoria.receiver]
-        }
-
-        prometheus.scrape "external_minidesk_node" {
-          targets = [
             {
               __address__ = "192.168.10.52:9100",
               job         = "minidesk-host",
               node        = "minidesk-host",
             },
-          ]
-
-          scrape_interval = "30s"
-          scrape_timeout  = "10s"
-
-          forward_to = [prometheus.remote_write.victoria.receiver]
-        }
-
-        prometheus.scrape "external_maindesk_node" {
-          targets = [
             {
               __address__ = "192.168.10.51:9100",
               job         = "maindesk-host",
               node        = "maindesk-host",
             },
-          ]
-
-          scrape_interval = "30s"
-          scrape_timeout  = "10s"
-
-          forward_to = [prometheus.remote_write.victoria.receiver]
-        }
-
-        prometheus.scrape "openwrt_router" {
-          targets = [
             {
               __address__ = "192.168.10.1:9100",
               job         = "openwrt-router",
               node        = "openwrt-router",
             },
-          ]
-
-          scrape_interval = "30s"
-          scrape_timeout  = "10s"
-
-          forward_to = [prometheus.remote_write.victoria.receiver]
-        }
-
-        prometheus.scrape "haproxy_router" {
-          targets = [
             {
-              __address__ = "192.168.10.1:8405",
-              __metrics_path__ = "/metrics",
-              job         = "haproxy-router",
-              node        = "haproxy-router",
+              __address__       = "192.168.10.1:8405",
+              __metrics_path__  = "/metrics",
+              job               = "haproxy-router",
+              node              = "haproxy-router",
             },
           ]
 
           scrape_interval = "30s"
           scrape_timeout  = "10s"
+          honor_labels    = true
 
           forward_to = [prometheus.remote_write.victoria.receiver]
         }
 
+        // ─────────────────────────────────────────────────────────
+        // Remote write to VictoriaMetrics with WAL tuning
+        // ─────────────────────────────────────────────────────────
         prometheus.remote_write "victoria" {
           endpoint {
             url = "http://victoria-metrics-single-server.monitoring.svc.cluster.local:8428/api/v1/write"
@@ -171,30 +149,59 @@ grafana-alloy:
             }
           }
 
+          wal {
+            truncate_frequency = "2h"
+            min_keepalive_time = "5m"
+            max_keepalive_time = "8h"
+          }
+
           external_labels = {
             cluster = "homelab-staging",
           }
         }
 
         // ─────────────────────────────────────────────────────────
-        // cAdvisor metrics from kubelet 
-        // ─────────────────────────────────────────────────────────        
+        // cAdvisor metrics from kubelet
+        // ─────────────────────────────────────────────────────────
         discovery.kubernetes "nodes" {
           role = "node"
         }
 
         prometheus.scrape "kubelet_cadvisor" {
-          targets    = discovery.kubernetes.nodes.targets
-          scheme     = "https"
+          targets      = discovery.kubernetes.nodes.targets
+          scheme       = "https"
           metrics_path = "/metrics/cadvisor"
+          scrape_interval = "30s"
+          scrape_timeout  = "10s"
+          sample_limit    = 50000
 
           bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
 
           tls_config {
-            insecure_skip_verify = true
+            ca_file = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
           }
 
           forward_to = [prometheus.remote_write.victoria.receiver]
+
+          // Keep only essential container + machine metrics.
+          // Everything else (e.g. container_network_adv_tcp_stats_total,
+          // container_blkio_*, etc.) is dropped to reduce cardinality.
+          metric_relabel_configs {
+            source_labels = ["__name__"]
+            regex = "container_cpu_.*|container_memory_.*|container_fs_.*|container_network_.*|container_start_time_seconds|container_last_seen|container_oom_events_total|container_spec_.*|container_tasks_state|machine_.*"
+            action = "keep"
+          }
+
+          // Drop high-cardinality labels that come from container runtimes.
+          metric_relabel_configs {
+            regex  = "container_label_.+"
+            action = "labeldrop"
+          }
+
+          metric_relabel_configs {
+            regex  = "id"
+            action = "labeldrop"
+          }
         }
 
         // ─────────────────────────────────────────────────────────
