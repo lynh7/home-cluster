@@ -222,12 +222,6 @@ grafana-alloy:
             target_label  = "container"
           }
 
-          // Stable pod UID helps correlate restarts/re-creations of the same pod name.
-          rule {
-            source_labels = ["__meta_kubernetes_pod_uid"]
-            target_label  = "pod_uid"
-          }
-
           // App label (most deployments set this)
           rule {
             source_labels = ["__meta_kubernetes_pod_label_app"]
@@ -270,10 +264,61 @@ grafana-alloy:
 
         loki.source.kubernetes "pod_logs" {
           targets    = discovery.relabel.pod_logs.output
+          forward_to = [loki.process.pod_logs.receiver]
+        }
+
+        // ─────────────────────────────────────────────────────────
+        // Log processing: parse, enrich, protect
+        // ─────────────────────────────────────────────────────────
+        loki.process "pod_logs" {
           forward_to = [loki.write.victorialogs.receiver]
+
+          // Drop oversized lines early — protects both CPU and
+          // VictoriaLogs from stack traces / binary dumps.
+          stage.drop {
+            longer_than         = "256KB"
+            drop_counter_reason = "oversized_line"
+          }
+
+          // Strip ANSI color codes from CLI-style logs.
+          stage.decolorize {}
+
+          // Parse structured JSON logs (most modern apps).
+          stage.json {
+            expressions = {
+              level  = "level",
+              logger = "logger",
+              msg    = "msg",
+              err    = "err",
+            }
+          }
+
+          // Parse logfmt-style lines (Go / Vector / VictoriaLogs style).
+          stage.logfmt {
+            mapping = {
+              level  = "level",
+              logger = "logger",
+              msg    = "msg",
+              err    = "err",
+            }
+          }
+
+          // Promote extracted level to a label so Grafana can
+          // filter with {level="error"}.
+          stage.labels {
+            values = {
+              level = "level",
+            }
+          }
         }
 
         loki.write "victorialogs" {
+          max_streams = 5000
+
+          external_labels = {
+            cluster = "homelab-staging",
+          }
+
           endpoint {
             url = "http://victoria-logs-single-server.monitoring.svc.cluster.local:9428/insert/loki/api/v1/push"
           }
