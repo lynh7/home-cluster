@@ -71,13 +71,11 @@ data:
     // system workloads added by other controllers.
     prometheus.operator.servicemonitors "default" {
       namespaces = ["monitoring", "kube-system", "longhorn-system"]
-      scrape_timeout  = "10s"
       forward_to = [prometheus.remote_write.victoria.receiver]
     }
     
     prometheus.operator.podmonitors "default" {
       namespaces = ["monitoring", "kube-system", "longhorn-system"]
-      scrape_timeout  = "10s"
       forward_to = [prometheus.remote_write.victoria.receiver]
     }
     
@@ -648,7 +646,7 @@ spec:
     metadata:
       annotations:
         kubectl.kubernetes.io/default-container: alloy
-        checksum/config: 47f7a53c995db2ec5510a928119324d5e53fe0e30ced5c4d8f706b903ee9999
+        checksum/config: 6f4cc104c99c885cea5b8d06bf6d628453153e8af9416185d8bb588a0fd3462
       labels:
         app.kubernetes.io/name: grafana-alloy
         app.kubernetes.io/instance: grafana-stack
