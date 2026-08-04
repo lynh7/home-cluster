@@ -282,14 +282,13 @@ data:
         }
       }
     
-      // Parse logfmt-style lines (Go / Vector / VictoriaLogs style).
-      stage.logfmt {
-        mapping = {
-          level  = "level",
-          logger = "logger",
-          msg    = "msg",
-          err    = "err",
-        }
+      // Extract level=... from logfmt-style / key=value lines.
+      // A regex stage is used instead of stage.logfmt because the
+      // logfmt stage logs an error for every non-logfmt line (JSON,
+      // plain text), which is extremely noisy. Regex silently skips
+      // non-matching lines.
+      stage.regex {
+        expression = "(?:^|\\s)level=(?P<level>[a-zA-Z]+)"
       }
     
       // Promote extracted level to a label so Grafana can
@@ -691,7 +690,7 @@ spec:
     metadata:
       annotations:
         kubectl.kubernetes.io/default-container: alloy
-        checksum/config: 68a00e2344ad7b745b03d81014afd3264c0b7a483f05dee4c02d7eb47c19b37
+        checksum/config: 2367dce58cd7c3958e74b4149c93522967be9f514a82fde18269ebceb1bc3a2
       labels:
         app.kubernetes.io/name: grafana-alloy
         app.kubernetes.io/instance: grafana-stack
