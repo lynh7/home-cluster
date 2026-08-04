@@ -293,14 +293,13 @@ grafana-alloy:
             }
           }
 
-          // Parse logfmt-style lines (Go / Vector / VictoriaLogs style).
-          stage.logfmt {
-            mapping = {
-              level  = "level",
-              logger = "logger",
-              msg    = "msg",
-              err    = "err",
-            }
+          // Extract level=... from logfmt-style / key=value lines.
+          // A regex stage is used instead of stage.logfmt because the
+          // logfmt stage logs an error for every non-logfmt line (JSON,
+          // plain text), which is extremely noisy. Regex silently skips
+          // non-matching lines.
+          stage.regex {
+            expression = "(?:^|\\s)level=(?P<level>[a-zA-Z]+)"
           }
 
           // Promote extracted level to a label so Grafana can
