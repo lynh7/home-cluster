@@ -82,13 +82,11 @@ grafana-alloy:
         // system workloads added by other controllers.
         prometheus.operator.servicemonitors "default" {
           namespaces = ["monitoring", "kube-system", "longhorn-system"]
-          scrape_timeout  = "10s"
           forward_to = [prometheus.remote_write.victoria.receiver]
         }
 
         prometheus.operator.podmonitors "default" {
           namespaces = ["monitoring", "kube-system", "longhorn-system"]
-          scrape_timeout  = "10s"
           forward_to = [prometheus.remote_write.victoria.receiver]
         }
 
