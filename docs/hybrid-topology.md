@@ -27,6 +27,7 @@ This document defines how the home cluster and cloud VMs should fit together whe
 ## Connectivity
 
 - use a private access layer between home and cloud
+- current state: Tailscale already runs on the Raspberry Pi (home-docker-compose `services/networking-services.yml`), advertising the home LAN route and acting as an exit node
 - pick one of:
   - Tailscale
   - NetBird

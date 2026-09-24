@@ -1,10 +1,12 @@
 # resource-guardrails
 
-Native Kubernetes admission policies for protecting labeled namespaces and secrets from deletion.
+Native Kubernetes admission policies (ValidatingAdmissionPolicy) that block deletion of Flux-managed namespaces and labeled secrets.
 
 ## Use
 
-Label a resource you want to protect:
+Namespaces are protected automatically when Flux manages them (any label key starting with `kustomize.toolkit.fluxcd.io`).
+
+Label a secret (or a resource covered by a custom policy) that you want to protect:
 
 ```yaml
 metadata:
@@ -24,7 +26,8 @@ The namespace policy evaluates `oldObject` on DELETE and blocks deletion only wh
 
 - Requires Kubernetes v1.30+
 - No extra controller pods
-- Protection only applies to `DELETE` requests on labeled `Namespace` and `Secret` objects by default
+- By default, protection only applies to `DELETE` requests on Flux-labeled `Namespace` objects and `policy.home-talos-cluster.io/protected`-labeled `Secret` objects
+- To delete a protected namespace on purpose, remove it from Flux first (or disable the namespace policy in values)
 
 ## Example custom policy
 

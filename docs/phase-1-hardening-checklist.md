@@ -4,11 +4,14 @@ This document turns the roadmap into the first concrete implementation pass.
 
 ## Current blockers confirmed in repo
 
-- `stag01` namespace is currently labeled `pod-security.kubernetes.io/*=privileged`
-- `minecraft` namespace is currently labeled `pod-security.kubernetes.io/*=privileged`
-- External Secrets currently points to Infisical over `http://192.168.10.99/`
-- no enforced app-focused default-deny policy is enabled yet for `stag01` or `minecraft`
-- an opt-in default-deny scaffold now exists for `stag01` in the Kyoo chart
+Re-verified 2026-09-24. `minecraft-server` and `kyoo-streaming` are now retired (Flux Kustomizations commented out),
+so the only live app namespace is `stag01` (CNPG operator + cluster; Plane rendered but not in Flux).
+
+- `stag01` namespace is still labeled `pod-security.kubernetes.io/*=privileged` (from `applications/staging/cloudnative-pg/values.yaml`)
+- both `ClusterSecretStore`s (`infisical`, `infisical-r2`) still point to Infisical over plain `http://`
+- rendered Cilium config has `enable-policy: default`; no default-deny policy exists for `stag01`
+- the opt-in default-deny scaffold lived in the Kyoo chart, which is retired. A new home is needed (see the home-server TODO in `claude-shared`: `skills/home-server/TODO.md` → Network policy)
+- ~~`minecraft` namespace labeled privileged~~: retired, no longer reconciled
 
 ## Safe sequence
 

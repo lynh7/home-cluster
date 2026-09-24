@@ -4,8 +4,9 @@ This repository is the Kubernetes-side source of truth for the homelab.
 
 It does not represent the whole estate by itself. The platform is split across:
 
-- `home-talos-cluster`: Kubernetes cluster charts, values, and rendered manifests
-- `home-docker-compose`: supporting services that still run on a separate host layer
+- `home-cluster` (this repo, formerly `home-talos-cluster`): Kubernetes cluster charts, values, and rendered manifests
+- `home-docker-compose`: supporting services on the Raspberry Pi host (Infisical, Tailscale, Vaultwarden, Immich, Pi-local monitoring, GitHub runner)
+- `my-docusaurus`: static Docusaurus sites served from the Pi (not cluster-related)
 
 ## Current Shape
 
@@ -40,9 +41,13 @@ The address ranges in use are documented in the cluster values and rollout manif
 - Some services still live outside Kubernetes and must be treated as external dependencies
 - The repository tracks the cluster state, not the full physical network or Talos machine inventory
 - Any path or chart marked `(deprecated)` should be treated as retired unless the current values say otherwise
+- A chart under `infrastructure/charts/<name>` without a matching `infrastructure/rollout/<name>/` is not in use (exception: `grafana-dashboards`, deployed as a Flux HelmRelease)
+- Not every chart in the repo is deployed: check `cicd/charts/fluxcd-custom/templates/**` (for example, `plane-ce` is rendered but not wired into Flux yet)
+- The `longhorn-system` namespace and the `infisical-auth` / `github-pat-auth` bootstrap secrets are created manually
 
 ## Roadmap
 
+- [Current State](./docs/current-state.md): verified list of what Flux actually deploys
 - [Read Me First](./docs/read-me-first.md)
 - [Hybrid Topology](./docs/hybrid-topology.md)
 - [Phase 1 hardening checklist](./docs/phase-1-hardening-checklist.md)

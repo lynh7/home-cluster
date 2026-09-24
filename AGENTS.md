@@ -1,28 +1,15 @@
-# Home Talos Cluster
+# Home Cluster
 
-Use repo-local skills first when working in this repository.
+Kubernetes side of the home server (Talos, Flux GitOps). Agent guidance for this repo.
 
-## Primary Repo Skills
+## Start Here
 
-- `docs/agent-skills/home-talos-cluster-architect/SKILL.md`
-  Use for cluster layout, ownership, namespace mapping, rollout paths, and where changes belong.
-- `docs/agent-skills/home-talos-cluster-gitops/SKILL.md`
-  Use for Flux, GitHub Actions render flow, rollout ordering, reconciliation, and GitOps bootstrap.
-- `docs/agent-skills/home-talos-cluster-networking/SKILL.md`
-  Use for Cilium, Gateway API, LoadBalancer IPs, L2 announcements, ingress, service exposure, and network policy.
-- `docs/agent-skills/home-talos-cluster-platform-ops/SKILL.md`
-  Use for storage, secrets, observability, external dependencies, and day-2 platform operations.
+- `docs/current-state.md`: verified facts on what Flux actually reconciles, namespace owners, render behavior, external dependencies, and drift.
+  Update it whenever you change Flux wiring, workflows, or retire/add a stack.
+- `README.md` for the high-level shape; `docs/read-me-first.md` to route to roadmap / foundation / hybrid / Plane docs.
 
-## General Skills To Combine
-
-Combine repo skills with these general skills when relevant:
-
-- `context-engineering`
-- `ci-cd-and-automation`
-- `security-and-hardening`
-- `observability-and-instrumentation`
-- `shipping-and-launch`
-- `source-driven-development`
+Workflow guidance and the single home-server TODO list live in the `home-server` skill of the private `claude-shared` repo
+(`skills/home-server/`). Repo-level TODO files and `docs/agent-skills/` were retired in favor of it.
 
 ## Working Rules
 
@@ -30,6 +17,8 @@ Combine repo skills with these general skills when relevant:
 2. Treat `charts/*` and `staging/*/values.yaml` as source of truth.
 3. Treat `rollout/*` as generated output that Flux applies.
 4. Check `cicd/charts/fluxcd-custom/templates/*` before assuming Flux deploys a stack.
+   A chart under `infrastructure/charts/<name>` with no `infrastructure/rollout/<name>/` is **not in use**
+   (only exception: `grafana-dashboards`, deployed as a Flux HelmRelease; see `docs/current-state.md`).
 5. Surface manual or external dependencies explicitly.
 6. For networking or policy work, inspect Cilium values and templates before proposing structure.
 7. For GitOps changes, inspect both Flux Kustomizations and render workflows.
@@ -40,3 +29,4 @@ Combine repo skills with these general skills when relevant:
 - Router and firewall not stored here
 - Some supporting services run outside Kubernetes
 - Not every chart in repo is necessarily deployed by Flux
+- Chart under `infrastructure/charts/<name>` without `infrastructure/rollout/<name>/` is not in use (exception: `grafana-dashboards`, a Flux HelmRelease)

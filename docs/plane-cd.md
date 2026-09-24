@@ -2,6 +2,12 @@
 
 This document defines the CD flow for Plane only.
 
+> **Status (2026-09-24): design target, not implemented.** Today Plane is a single `plane-ce` release
+> (`applications/charts/plane-ce`, `applications/staging/plane-ce`, namespace `stag01`) that is rendered
+> but not reconciled by Flux. `.github/workflows/plane-prod-deploy.yml` already follows this design and
+> fails until `applications/charts/plane` and `applications/staging/plane-prod` exist. It also has no
+> matching Flux Kustomization yet. Tracked in the home-server TODO (`claude-shared` → `skills/home-server/TODO.md` → Plane).
+
 ## Goal
 
 - `plane-dev` deploys automatically

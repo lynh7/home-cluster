@@ -81,6 +81,6 @@ This document defines the baseline infrastructure shape that should exist regard
 ## 10. Documentation Foundation
 
 - keep `README.md` high-level
-- keep TODOs split by concern
+- keep one TODO list for the whole home server (`claude-shared` → `skills/home-server/TODO.md`), grouped by concern
 - keep retired things clearly labeled as retired
 - maintain one infra roadmap that reflects current state only

@@ -2,6 +2,12 @@
 
 Use this document to choose the right doc before making changes.
 
+## `current-state.md`
+
+- Purpose: verified snapshot of what Flux deploys, namespace ownership, render pipeline behavior, and known drift.
+- Scope: facts only, no plans.
+- Tone: what is actually true in the repo today?
+
 ## `production-roadmap.md`
 
 - Purpose: define the path from the current home-server state toward a more production-like platform.
@@ -28,6 +34,7 @@ Use this document to choose the right doc before making changes.
 
 ## When To Read Which
 
+- Read `current-state.md` first when you need to know whether something is actually deployed.
 - Read `infra-foundation.md` when deciding whether the platform base is complete.
 - Read `hybrid-topology.md` when adding cloud VMs or defining how home and cloud nodes relate.
 - Read `plane-cd.md` when implementing Plane deployment workflows.
