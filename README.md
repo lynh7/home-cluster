@@ -26,6 +26,7 @@ It does not represent the whole estate by itself. The platform is split across:
 - `applications/staging/*/values.yaml`: application environment values
 - `infrastructure/rollout/*`: rendered infrastructure manifests
 - `applications/rollout/*`: rendered application manifests
+- `applications/manifests/*`: hand-written plain manifests applied by Flux as-is (no chart, no render step)
 - `cicd/charts/fluxcd*`: Flux bootstrap and deployment wiring
 
 ## Networking
