@@ -23,9 +23,14 @@ Source: `GitRepository/flux-system` in `cicd/charts/fluxcd-custom/templates/gitr
 | `rollout-grafana-dashboards` | HelmRelease | chart `./infrastructure/charts/grafana-dashboards` (no render step) | `monitoring` | - |
 | `rollout-cloudnative-pg` | Kustomization | `applications/rollout/cloudnative-pg` | `stag01` | - |
 | `rollout-cnpg-cluster` | Kustomization | `applications/rollout/cnpg-cluster` | `stag01` | `rollout-cloudnative-pg` |
+| `rollout-demo-app` | Kustomization | `applications/manifests/demo-app` (hand-written, no chart) | from manifests (`demo-app`) | `rollout-prometheus-stack` (PodMonitor CRD) |
 
-`rollout-cnpg-cluster` is the only Kustomization with a `dependsOn`. Ordering between the other stacks
+Only `rollout-cnpg-cluster` and `rollout-demo-app` have a `dependsOn`. Ordering between the other stacks
 is implicit.
+
+`applications/manifests/<name>/` holds hand-written plain manifests that Flux applies as-is (no chart, no render
+workflow). Currently only `demo-app`: a placeholder 3-tier app (`core-ui` → `core-api` → `core-backend`, nginx + exporter
+sidecars, busybox `load-generator`) with a PodMonitor per tier. No NetworkPolicies yet.
 
 ## Rule: Chart Without Rollout = Not In Use
 
@@ -58,6 +63,7 @@ Currently not in use under this rule: `infrastructure/charts/cloudnative-pg`, `i
 | `cert-manager` | `cert-manager` rollout |
 | `monitoring` | `grafana-stack` rollout (other monitoring stacks assume it exists) |
 | `stag01` | `applications/charts/cloudnative-pg` rollout (labels from `namespaceLabels` values, currently `privileged`) |
+| `demo-app` | `applications/manifests/demo-app/demo-app.yaml` (Flux-labeled, so `protect-namespaces` blocks deleting it) |
 | `longhorn-system` | **Manual**: `infrastructure/staging/longhorn/namespace.yaml` applied by hand |
 | `flux-system` | `helm upgrade --install ... --create-namespace` at bootstrap |
 
@@ -97,6 +103,12 @@ covers the nested `rollout/<chart>/<chart>.yaml` files.
 - Rules: `infrastructure/charts/alerting-stack/prometheus-rules/critical/{cluster,app}-critical.yaml`
   (node not ready, replica mismatch, PVC pending, job failures, crash loop, restarts, filesystem full, Cilium, Hubble relay, external target down, CNPG).
 - Missing: Flux reconciliation failure alerts, runbook/dashboard annotations.
+
+## Metrics Scraping
+
+Alloy (`infrastructure/staging/grafana-stack/values.yaml`) only discovers ServiceMonitors/PodMonitors in listed
+namespaces: ServiceMonitors in `monitoring`, `kube-system`, `longhorn-system`; PodMonitors in those plus `demo-app`.
+A monitor in any other namespace is silently ignored. cAdvisor and pod logs are cluster-wide.
 
 ## Known Drift / Open Questions
 
