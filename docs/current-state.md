@@ -1,7 +1,22 @@
 # Current State
 
-Verified snapshot of what the repo actually deploys. Last verified: 2026-09-24.
+Verified snapshot of what the repo actually deploys. Last verified: 2026-09-28 (nodes and live Flux objects checked against the cluster).
 Re-verify against `cicd/charts/fluxcd-custom/templates/**` before relying on it.
+
+## Nodes
+
+Source of truth: `lynh7/home-talos-configuration` → `tks-cluster/{master-0,worker-0,worker-1}.yaml`.
+Kubernetes v1.34.0 on all nodes. API endpoint `https://192.168.10.50:6443`.
+
+| Node | Role | IP | Talos | Live state (2026-09-28) |
+|---|---|---|---|---|
+| `master-0` | control-plane (taint `critical-components=critical:NoSchedule`) | `192.168.10.50/24` | v1.12.2 | Ready, **cordoned since 2026-08-09** |
+| `worker-0` | worker | `10.10.0.30/26` | v1.12.2 | Powered off since 2026-08-09, cordoned |
+| `worker-1` | worker | `10.20.0.30/26` | **v1.12.5** | Powered off since 2026-04-18 |
+
+With both workers off and master-0 cordoned, nothing new can be scheduled: the Flux controllers have been
+Pending since 2026-08-09, so Kustomization/HelmRelease status and CNPG "healthy" status are stale until a
+worker returns or master-0 is uncordoned.
 
 ## What Flux Reconciles
 
@@ -101,7 +116,8 @@ covers the nested `rollout/<chart>/<chart>.yaml` files.
 ## Known Drift / Open Questions
 
 - Flux `GitRepository` URL is `github.com/lynh7/home-talos-cluster`; the git remote is `github.com/lynh7/home-cluster`. It works only while GitHub's rename redirect holds.
-- `templates/scripts/cluster-shutdown.sh` lists 3 control-plane + 2 worker IPs, `production-roadmap.md` describes a single worker. Confirm the real node count.
+- Talos version skew: `worker-1` runs v1.12.5, the other nodes v1.12.2.
+- `templates/scripts/cluster-health-check.sh` with `AUTO_FIX=true` applies the upstream Flannel manifest whenever it finds no CNI pods (including when `kubectl get pods` fails), which would conflict with Cilium. Run it with `AUTO_FIX=false`.
 
 ## External Dependencies (other repos)
 
