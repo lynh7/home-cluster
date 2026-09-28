@@ -385,12 +385,8 @@ check_and_fix_cni() {
     CNI_PODS=$(kubectl_exec get pods -A 2>/dev/null | grep -iE "calico|flannel|weave|cilium" || echo "") || return 0
     
     if [ -z "$CNI_PODS" ]; then
-        log_error "No CNI pods found!"
-        if [ "$AUTO_FIX" = "true" ]; then
-            log_fix "Installing Flannel CNI..."
-            kubectl_exec apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml 2>/dev/null || log_warn "Failed to install Flannel"
-            sleep 20
-        fi
+        # Never auto-install a CNI: Cilium is managed by Flux (rollout-cilium).
+        log_error "No CNI pods found! Check the rollout-cilium Kustomization; not auto-fixing."
         return 1
     fi
     

@@ -117,7 +117,6 @@ covers the nested `rollout/<chart>/<chart>.yaml` files.
 
 - Flux `GitRepository` URL is `github.com/lynh7/home-talos-cluster`; the git remote is `github.com/lynh7/home-cluster`. It works only while GitHub's rename redirect holds.
 - Talos version skew: `worker-1` runs v1.12.5, the other nodes v1.12.2.
-- `templates/scripts/cluster-health-check.sh` with `AUTO_FIX=true` applies the upstream Flannel manifest whenever it finds no CNI pods (including when `kubectl get pods` fails), which would conflict with Cilium. Run it with `AUTO_FIX=false`.
 
 ## External Dependencies (other repos)
 
