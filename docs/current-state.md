@@ -8,11 +8,11 @@ Re-verify against `cicd/charts/fluxcd-custom/templates/**` before relying on it.
 Source of truth: `lynh7/home-talos-configuration` → `tks-cluster/{master-0,worker-0,worker-1}.yaml`.
 Kubernetes v1.34.0 on all nodes. API endpoint `https://192.168.10.50:6443`.
 
-| Node | Role | IP | Talos | Live state (2026-09-28) |
+| Node | Role | IP | Talos | Live state (2026-10-04) |
 |---|---|---|---|---|
-| `master-0` | control-plane (taint `critical-components=critical:NoSchedule`) | `192.168.10.50/24` | v1.12.2 | Ready, **cordoned since 2026-08-09** |
-| `worker-0` | worker | `10.10.0.30/26` | v1.12.2 | Powered off since 2026-08-09, cordoned |
-| `worker-1` | worker | `10.20.0.30/26` | **v1.12.5** | Powered off since 2026-04-18 |
+| `master-0` | control-plane (taint `critical-components=critical:NoSchedule`) | `192.168.10.50/24` | v1.12.2 | Ready (back on its own SSD since 2026-10-04), **cordoned since 2026-08-09** |
+| `worker-0` | worker | `10.10.0.30/26` | v1.12.2 | NotReady (off since 2026-08-09), cordoned |
+| `worker-1` | worker | `10.20.0.30/26` | **v1.12.5** | NotReady (off since 2026-04-18) |
 
 With both workers off and master-0 cordoned, nothing new can be scheduled: the Flux controllers have been
 Pending since 2026-08-09, so Kustomization/HelmRelease status and CNPG "healthy" status are stale until a
