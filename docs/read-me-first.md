@@ -12,7 +12,7 @@ Use this document to choose the right doc before making changes.
 
 - Purpose: define the path from the current home-server state toward a more production-like platform.
 - Scope: maturity, hardening, observability, policy, DR, operational readiness.
-- Tone: what should we improve next?
+- Tone: why and toward what shape? The task list and its status are the home-server TODO (`claude-shared`), not this doc.
 
 ## `infra-foundation.md`
 

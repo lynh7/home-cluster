@@ -1,6 +1,7 @@
 # Phase 1 Hardening Checklist
 
-This document turns the roadmap into the first concrete implementation pass.
+This document turns the roadmap into the first concrete implementation pass. Open items and their status are tracked
+only in the home-server TODO (`claude-shared` → `skills/home-server/TODO.md` → Security baseline).
 
 ## Current blockers confirmed in repo
 
@@ -34,13 +35,13 @@ This allows staged rollout from `privileged` to `baseline` or `restricted` witho
 
 ### Opt-in default-deny scaffold for `stag01`
 
-The Kyoo chart now includes an opt-in `NetworkPolicy` scaffold controlled by:
+The Kyoo chart (retired) had an opt-in `NetworkPolicy` scaffold controlled by these values, a pattern to reuse in the new home:
 
 - `securityBaseline.networkPolicy.enabled`
 - `securityBaseline.networkPolicy.defaultDeny.ingress`
 - `securityBaseline.networkPolicy.defaultDeny.egress`
 
-It is intentionally disabled by default so allow rules can be added before enforcement.
+It was disabled by default so allow rules could be added before enforcement.
 
 ### Infisical TLS-ready ClusterSecretStore
 
@@ -57,7 +58,7 @@ This is the path to move the current plaintext Infisical API configuration to HT
 
 Start by changing only audit and warn levels first.
 
-For `stag01` and `minecraft`:
+For `stag01` (the only live app namespace):
 
 - keep `enforce: privileged` initially
 - set `audit: restricted`
@@ -87,7 +88,6 @@ Required allow rules to expect:
 - DNS to kube-dns or node-local DNS
 - ingress from shared gateway components
 - egress to CNPG services
-- egress to required external APIs such as TMDB/TVDB if Kyoo needs them
 - optional monitoring scrape paths
 
 ### Step 4: lock service accounts down
@@ -111,21 +111,11 @@ namespaceLabels:
   sharedGatewayAccess: "true"
 ```
 
-### `minecraft` transitional state
-
-```yaml
-namespaceLabels:
-  podSecurity:
-    enforce: privileged
-    audit: baseline
-    warn: baseline
-```
-
 ## Exit criteria for Phase 1
 
 Phase 1 is meaningfully complete when:
 
 - Infisical uses HTTPS with explicit CA trust
-- `stag01` and `minecraft` no longer rely on hardcoded privileged namespace labels
+- `stag01` no longer relies on hardcoded privileged namespace labels
 - at least one app namespace runs with default-deny plus explicit allow rules
 - app service accounts are reviewed and token automount is reduced
