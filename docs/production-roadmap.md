@@ -473,47 +473,11 @@ Low-value candidates:
 - apps with heavy operational burden but little payoff
 - overlapping tools that duplicate existing workflows
 
-## Suggested 30 / 60 / 90 Day Plan
+## What To Do Next
 
-## Next 30 days
-
-1. move Infisical path to HTTPS
-2. add Pod Security Admission labels
-3. add Kyverno baseline policies
-4. add default-deny policy for the active application namespace
-5. add blackbox monitoring
-6. create top-level cluster health dashboard
-7. configure Longhorn backup target
-
-Expected result:
-
-- overall maturity moves from roughly `71` to `78`
-
-## Next 60 days
-
-1. add Tetragon in observe-only mode
-2. add Trivy Operator
-3. create restore drill process for Longhorn and CNPG
-4. build service availability dashboard
-5. build data safety dashboard
-6. build security dashboard
-
-Expected result:
-
-- overall maturity moves from roughly `78` to `83`
-
-## Next 90 days
-
-1. choose one high-value daily-use workload and treat it as production
-2. optionally trial Cilium mesh in one namespace
-3. tune alerts to reduce noise
-4. build capacity dashboard
-5. build cost/value dashboard
-6. write runbooks for the top five likely incidents
-
-Expected result:
-
-- overall maturity moves from roughly `83` to `86`
+The order of work and its status live only in the home-server TODO (`claude-shared` → `skills/home-server/TODO.md`),
+grouped by concern (Security baseline, Alerting, Network policy, Backup & recovery, Observability, ...). This roadmap keeps
+the reasoning and the target shape, not a task list.
 
 ## Hardware Phase
 
@@ -546,18 +510,6 @@ Retired or historical app names in this repo:
 - `minecraft-server`
 
 Treat retired names as historical only unless current staging values and rollout output bring them back.
-
-## Concrete Next Artifacts To Add In Repo
-
-Recommended future additions under this repo:
-
-- `docs/runbooks/` for incident procedures
-- `docs/recovery/` for restore instructions
-- `infrastructure/charts/kyverno/`
-- `infrastructure/charts/tetragon/`
-- `infrastructure/charts/trivy-operator/`
-- `infrastructure/charts/blackbox-exporter/` or equivalent monitoring integration
-- `infrastructure/charts/opentelemetry-collector/`
 
 ## Success Criteria
 

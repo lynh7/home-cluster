@@ -111,7 +111,7 @@ covers the nested `rollout/<chart>/<chart>.yaml` files.
 - `alerting-stack` (vmalert + Alertmanager) routes **everything** to one Discord receiver. No severity routing yet.
 - Rules: `infrastructure/charts/alerting-stack/prometheus-rules/critical/{cluster,app}-critical.yaml`
   (node not ready, replica mismatch, PVC pending, job failures, crash loop, restarts, filesystem full, Cilium, Hubble relay, external target down, CNPG).
-- Missing: Flux reconciliation failure alerts, runbook/dashboard annotations.
+- All 14 rules carry `summary`, `description`, `impact`, `investigate`, `dashboard_url` and `runbook_url` (runbook links point at upstream docs, not own runbooks). Missing: Flux reconciliation failure alerts.
 
 ## Known Drift / Open Questions
 
