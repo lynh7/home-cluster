@@ -15,12 +15,12 @@ This document defines how the home cluster and cloud VMs should fit together whe
 |---|---|---|
 | always | `master-0` (home Raspberry Pi 4): the single control plane, keeps its NoSchedule taint, no extra control plane for now | power only |
 | **half** | + one Oracle Cloud Always Free A1 worker in Singapore, 2 OCPU / 12 GB arm64 (the whole free A1 allowance): Flux, monitoring, stateful apps | $0 |
-| **full** | + UpCloud Singapore workers (amd64) on demand, `STARTER-4xCPU-8GB` (4 AMD EPYC cores, 8 GB, 40 GB SSD, 2 TB traffic), tainted `ephemeral=true:NoSchedule`, never storage | $0.0334/h per worker (2026-10-05), only while up |
+| **full** | + Vultr Singapore workers (amd64) on demand, `vc2-4c-8gb` (4 vCPU on 2 Intel Xeon cores, 8 GB, 160 GB NVMe, 4 TB traffic), tainted `ephemeral=true:NoSchedule`, never storage | $0.055/h per worker (2026-10-05), only while up |
 
 - Node-to-node traffic: Talos **KubeSpan** (WireGuard mesh, peers via the discovery service). The home control plane stays behind NAT; only UDP 51820 is open on the cloud side. No public Talos or Kubernetes API.
 - Admin access: Tailscale (already on the Pi), not used for node-to-node traffic.
-- Terraform (OpenTofu with state encryption, state in its own R2 bucket): `oracle/oci`, `UpCloudLtd/upcloud`, `siderolabs/talos`; `var.mode = "half" | "full"`. Worker configs come from the existing cluster secrets, passed as a sensitive variable, never committed.
-- UpCloud was chosen for on-demand nodes (2026-10-05): $0.0334/h vs Vultr `vc2-4c-8gb` $0.055/h, and about 3× the CPU in PassMark and stress-ng (SpareCores data). Terraform imports the Talos image itself (`upcloud_storage` with `import { source = "http_import" }` from the Image Factory `upcloud-amd64.raw.xz`; `direct_upload` handles `.xz` if HTTP import doesn't), and `upcloud_server` needs `metadata = true` so Talos can read its config from user data. Also compared: Vultr (snapshot from URL, bigger disk, slower and dearer), Hetzner (needs an image upload outside Terraform), Azure ARM Spot and Alibaba Spot (cheapest per hour, evictable), OVH, and Oracle paid A1 (single provider and all arm64, but A1 capacity in Singapore is unreliable for on-demand use).
+- OpenTofu (state encryption, state in its own R2 bucket): `oracle/oci`, `vultr/vultr`, `siderolabs/talos`; `var.mode = "half" | "full"`. Worker configs come from the existing cluster secrets, passed as a sensitive variable, never committed.
+- Vultr for on-demand nodes (back to it on 2026-10-18; UpCloud was picked on 2026-10-05 for $0.0334/h vs $0.055/h and about 3× the CPU in PassMark and stress-ng, SpareCores data). OpenTofu gets the Talos image itself (`vultr_snapshot_from_url` from the Image Factory `vultr` image; fallback a private ISO), and the worker config goes in as user data. No VPC: KubeSpan is the private network. Also compared: UpCloud (cheaper and faster, `http_import` of the image), Hetzner (needs an image upload outside OpenTofu), Azure ARM Spot and Alibaba Spot (cheapest per hour, evictable), OVH, and Oracle paid A1 (single provider and all arm64, but A1 capacity in Singapore is unreliable for on-demand use).
 - Single control plane: ship etcd snapshots off the cluster; workers must be rebuildable from zero.
 - Mixed arm64/amd64: multi-arch images or arch node selectors.
 - Steps and status: home-server TODO (`claude-shared` → `skills/home-server/TODO.md` → Cluster expansion).
@@ -35,7 +35,7 @@ This document defines how the home cluster and cloud VMs should fit together whe
 
 ### Cloud extension
 
-- add OCI (always-on worker) and UpCloud (on-demand workers) VMs as disposable Talos nodes
+- add OCI (always-on worker) and Vultr (on-demand workers) VMs as disposable Talos nodes
 - start with workers first
 - only add control-plane nodes if the private connectivity and recovery story is strong
 - treat cloud nodes as capacity or placement expansion, not as the only cluster home
@@ -73,11 +73,12 @@ This document defines how the home cluster and cloud VMs should fit together whe
 - track resource and cost drift explicitly
 - verify smaller instances stay stable under Talos and cluster load
 
-### UpCloud
+### Vultr
 
-- treat UpCloud as the on-demand expansion provider, not the cluster home
-- enable API access on the account; servers need `metadata = true`
-- check the Starter plan's limits before relying on it
+- treat Vultr as the on-demand expansion provider, not the cluster home
+- no VPC; the firewall group allows inbound UDP 51820 (KubeSpan) only
+- check the account's instance and spend limits before relying on it
+- stopped instances are still billed: destroy, never stop
 - track instance count, size, and age
 - track resource and cost drift explicitly
 - verify smaller instances stay stable under Talos and cluster load
