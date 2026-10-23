@@ -86,7 +86,7 @@ grafana-alloy:
         }
 
         prometheus.operator.podmonitors "default" {
-          namespaces = ["monitoring", "kube-system", "longhorn-system"]
+          namespaces = ["monitoring", "kube-system", "longhorn-system", "demo-app"]
           forward_to = [prometheus.remote_write.victoria.receiver]
         }
 

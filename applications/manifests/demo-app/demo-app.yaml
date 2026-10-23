@@ -1,0 +1,716 @@
+# demo-app: a placeholder 3-tier app so the platform has realistic workloads to run and monitor.
+# Hand-written, not rendered from a chart. Flux applies it via Kustomization
+# `rollout-demo-app` (cicd/charts/fluxcd-custom).
+#
+#   load-generator ──▶ core-ui ──/api/──▶ core-api ──▶ core-backend
+#
+# - Images (~13 MB total): nginx-unprivileged alpine-slim, nginx-prometheus-exporter, busybox.
+# - Every nginx pod runs an exporter sidecar; a PodMonitor per app sends the metrics to Alloy,
+#   which only watches namespaces listed in infrastructure/staging/grafana-stack/values.yaml.
+# - No NetworkPolicies yet: every pod can reach every other (policies are the next sandbox exercise).
+# - No HPA: the cluster has no metrics-server.
+#
+# nginx does not reload on ConfigMap changes: bump `demo-app/config-rev` on the
+# matching Deployment in the same commit so it rolls.
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo-app
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: demo-app
+  namespace: demo-app
+spec:
+  hard:
+    pods: "20"
+    requests.cpu: 500m
+    requests.memory: 512Mi
+    limits.memory: 2Gi
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: default-container-resources
+  namespace: demo-app
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 10m
+        memory: 16Mi
+      default:
+        memory: 64Mi
+
+##################################################
+################### core-ui ######################
+##################################################
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: core-ui
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: core-ui
+    app.kubernetes.io/part-of: demo-app
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: core-ui-nginx
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: core-ui
+    app.kubernetes.io/part-of: demo-app
+data:
+  default.conf: |
+    server {
+        listen 8080;
+
+        location = /healthz {
+            access_log off;
+            return 200 "ok\n";
+        }
+
+        location /api/ {
+            proxy_pass http://core-api/;
+            proxy_connect_timeout 2s;
+            proxy_read_timeout 5s;
+        }
+
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+        }
+    }
+
+    server {
+        listen 127.0.0.1:8081;
+        access_log off;
+
+        location = /stub_status {
+            stub_status;
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-ui
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: core-ui
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/part-of: demo-app
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: core-ui
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: core-ui
+        app.kubernetes.io/component: frontend
+        app.kubernetes.io/part-of: demo-app
+      annotations:
+        demo-app/config-rev: "1"
+    spec:
+      serviceAccountName: core-ui
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: core-ui
+      containers:
+        - name: nginx
+          image: nginxinc/nginx-unprivileged:1.30.5-alpine-slim
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "5"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+        - name: nginx-exporter
+          image: nginx/nginx-prometheus-exporter:1.5.3
+          args:
+            - --nginx.scrape-uri=http://127.0.0.1:8081/stub_status
+          ports:
+            - name: metrics
+              containerPort: 9113
+          resources:
+            requests:
+              cpu: 5m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: core-ui-nginx
+        - name: tmp
+          emptyDir:
+            sizeLimit: 32Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: core-ui
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: core-ui
+    app.kubernetes.io/part-of: demo-app
+spec:
+  selector:
+    app.kubernetes.io/name: core-ui
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: core-ui
+  namespace: demo-app
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: core-ui
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: core-ui
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: core-ui
+    app.kubernetes.io/part-of: demo-app
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: core-ui
+  podMetricsEndpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+##################################################
+################### core-api #####################
+##################################################
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: core-api
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: core-api
+    app.kubernetes.io/part-of: demo-app
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: core-api-nginx
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: core-api
+    app.kubernetes.io/part-of: demo-app
+data:
+  default.conf: |
+    server {
+        listen 8080;
+
+        location = /healthz {
+            access_log off;
+            return 200 "ok\n";
+        }
+
+        location / {
+            proxy_pass http://core-backend;
+            proxy_connect_timeout 2s;
+            proxy_read_timeout 5s;
+        }
+    }
+
+    server {
+        listen 127.0.0.1:8081;
+        access_log off;
+
+        location = /stub_status {
+            stub_status;
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-api
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: core-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: demo-app
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: core-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: core-api
+        app.kubernetes.io/component: api
+        app.kubernetes.io/part-of: demo-app
+      annotations:
+        demo-app/config-rev: "1"
+    spec:
+      serviceAccountName: core-api
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: core-api
+      containers:
+        - name: nginx
+          image: nginxinc/nginx-unprivileged:1.30.5-alpine-slim
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "5"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+        - name: nginx-exporter
+          image: nginx/nginx-prometheus-exporter:1.5.3
+          args:
+            - --nginx.scrape-uri=http://127.0.0.1:8081/stub_status
+          ports:
+            - name: metrics
+              containerPort: 9113
+          resources:
+            requests:
+              cpu: 5m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: core-api-nginx
+        - name: tmp
+          emptyDir:
+            sizeLimit: 32Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: core-api
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: core-api
+    app.kubernetes.io/part-of: demo-app
+spec:
+  selector:
+    app.kubernetes.io/name: core-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: core-api
+  namespace: demo-app
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: core-api
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: core-api
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: core-api
+    app.kubernetes.io/part-of: demo-app
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: core-api
+  podMetricsEndpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+##################################################
+################# core-backend ###################
+##################################################
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: core-backend
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: core-backend
+    app.kubernetes.io/part-of: demo-app
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: core-backend-nginx
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: core-backend
+    app.kubernetes.io/part-of: demo-app
+data:
+  default.conf: |
+    server {
+        listen 8080;
+
+        location = /healthz {
+            access_log off;
+            return 200 "ok\n";
+        }
+
+        location / {
+            default_type application/json;
+            return 200 '{"service":"core-backend","status":"ok"}\n';
+        }
+    }
+
+    server {
+        listen 127.0.0.1:8081;
+        access_log off;
+
+        location = /stub_status {
+            stub_status;
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-backend
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: core-backend
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: demo-app
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: core-backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: core-backend
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/part-of: demo-app
+      annotations:
+        demo-app/config-rev: "1"
+    spec:
+      serviceAccountName: core-backend
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: core-backend
+      containers:
+        - name: nginx
+          image: nginxinc/nginx-unprivileged:1.30.5-alpine-slim
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "5"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+        - name: nginx-exporter
+          image: nginx/nginx-prometheus-exporter:1.5.3
+          args:
+            - --nginx.scrape-uri=http://127.0.0.1:8081/stub_status
+          ports:
+            - name: metrics
+              containerPort: 9113
+          resources:
+            requests:
+              cpu: 5m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: core-backend-nginx
+        - name: tmp
+          emptyDir:
+            sizeLimit: 32Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: core-backend
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: core-backend
+    app.kubernetes.io/part-of: demo-app
+spec:
+  selector:
+    app.kubernetes.io/name: core-backend
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: core-backend
+  namespace: demo-app
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: core-backend
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: core-backend
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: core-backend
+    app.kubernetes.io/part-of: demo-app
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: core-backend
+  podMetricsEndpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+##################################################
+################ load-generator ##################
+##################################################
+# Stands in for real users: hits core-ui every 5s, which fans through every tier.
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: load-generator
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: load-generator
+    app.kubernetes.io/part-of: demo-app
+automountServiceAccountToken: false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+  namespace: demo-app
+  labels:
+    app.kubernetes.io/name: load-generator
+    app.kubernetes.io/component: load-generator
+    app.kubernetes.io/part-of: demo-app
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: load-generator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: load-generator
+        app.kubernetes.io/component: load-generator
+        app.kubernetes.io/part-of: demo-app
+    spec:
+      serviceAccountName: load-generator
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: busybox
+          image: busybox:1.37.0
+          command: ["sh", "-c"]
+          args:
+            - |
+              while true; do
+                for path in / /api/; do
+                  wget -q -T 5 -O /dev/null "http://core-ui$path" || echo "request to core-ui$path failed"
+                done
+                sleep 5
+              done
+          resources:
+            requests:
+              cpu: 5m
+              memory: 8Mi
+            limits:
+              memory: 16Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
